@@ -1,0 +1,49 @@
+<div class="modal-content" xmlns:th="http://www.w3.org/1999/xhtml">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+            &times;
+        </button>
+        <h4 class="modal-title" id="myModalLabel">
+            个人信息详情
+        </h4>
+    </div>
+    <div class="modal-body" >
+        <div class="row">
+            <div class="col-xs-6">
+                <dl>
+                    <dt>邮箱：</dt>
+                    <dd th:text="${userInfo.email}"></dd>
+                    <br />
+
+                    <dt>登录名：</dt>
+                    <dd th:text="${userInfo.username}"></dd>
+                    <br />
+
+                    <dt>手机：</dt>
+                    <dd th:text="${userInfo.mobilephone}"></dd>
+                    <br />
+                </dl>
+            </div>
+
+            <div class="col-xs-6">
+                <dl>
+                    <dt>创建时间：</dt>
+                    <dd th:text="${userInfo.createtime}"></dd>
+                    <br />
+
+                    <dt>更新时间：</dt>
+                    <dd th:text="${userInfo.updatetime}"></dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-primary" th:id="${userInfo.id}" onclick="showPasswordDetail(this);">
+            修改密码
+        </button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+        </button>
+
+    </div>
+</div><!-- /.modal-content -->
+

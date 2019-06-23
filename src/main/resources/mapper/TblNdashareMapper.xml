@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nenu.mapper.TblNdashareMapper">
+  <resultMap id="BaseResultMap" type="com.nenu.domain.TblNdashare">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID" jdbcType="INTEGER" property="id" />
+    <result column="NDAID" jdbcType="VARCHAR" property="ndaid" />
+    <result column="OrderNumber" jdbcType="INTEGER" property="ordernumber" />
+    <result column="OrgName" jdbcType="VARCHAR" property="orgname" />
+    <result column="UserName" jdbcType="VARCHAR" property="username" />
+    <result column="PubKey" jdbcType="VARCHAR" property="pubkey" />
+    <result column="PrivateKey" jdbcType="VARCHAR" property="privatekey" />
+    <result column="CreateUserName" jdbcType="VARCHAR" property="createusername" />
+    <result column="CreateTime" jdbcType="TIMESTAMP" property="createtime" />
+    <result column="OperateIP" jdbcType="VARCHAR" property="operateip" />
+    <result column="Valid" jdbcType="VARCHAR" property="valid" />
+    <result column="Status" jdbcType="VARCHAR" property="status" />
+  </resultMap>
+</mapper>

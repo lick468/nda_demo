@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nenu.mapper.TblDocbrowseinfoMapper">
+  <resultMap id="BaseResultMap" type="com.nenu.domain.TblDocbrowseinfo">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID" jdbcType="VARCHAR" property="id" />
+    <result column="DocID" jdbcType="VARCHAR" property="docid" />
+    <result column="DocType" jdbcType="VARCHAR" property="doctype" />
+    <result column="UserName" jdbcType="VARCHAR" property="username" />
+    <result column="BrowseTime" jdbcType="TIMESTAMP" property="browsetime" />
+    <result column="BrowseIP" jdbcType="VARCHAR" property="browseip" />
+  </resultMap>
+</mapper>

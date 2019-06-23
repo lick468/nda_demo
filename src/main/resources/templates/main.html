@@ -1,0 +1,348 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="renderer" content="webkit">
+
+    <title>NDA主页</title>
+
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+
+    <!--[if lt IE 9]>
+    <meta http-equiv="refresh" content="0;ie.html" />
+    <![endif]-->
+
+    <link rel="shortcut icon" href="favicon.ico">
+    <link href="/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="/css/font-awesome.min.css?v=4.4.0" rel="stylesheet">
+    <link href="/css/animate.css" rel="stylesheet">
+    <link href="/css/style.css?v=4.1.0" rel="stylesheet">
+</head>
+
+<body class="fixed-sidebar full-height-layout gray-bg" style="overflow:hidden">
+<div id="wrapper">
+    <!--左侧导航开始-->
+    <nav class="navbar-default navbar-static-side" role="navigation">
+        <div class="nav-close"><i class="fa fa-times-circle"></i>
+        </div>
+        <div class="sidebar-collapse">
+            <ul class="nav" id="side-menu">
+                <li class="nav-header">
+                    <div class="dropdown profile-element">
+                        <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                                <span class="clear">
+                                    <span class="block m-t-xs" style="font-size:20px;">
+                                        <i class="fa fa-connectdevelop"></i>
+                                        <strong class="font-bold">NDA</strong>
+                                    </span>
+                                </span>
+                        </a>
+                    </div>
+                    <div class="logo-element">NDA
+                    </div>
+                </li>
+
+                <li>
+                    <a class="J_menuItem" href="/user/createDisclosure">
+                        <i class="fa fa-home"></i>
+                        <span class="nav-label">主页</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <i class="fa fa fa-share-square-o"></i>
+                        <span class="nav-label">分享</span>
+                        <span class="fa arrow"></span>
+                    </a>
+                    <ul class="nav nav-second-level">
+                        <li>
+                            <a class="J_menuItem" href="/share">分享管理</a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="line dk"></li>
+                <li>
+                    <a href="#">
+                        <i class="fa fa fa-text-height"></i>
+                        <span class="nav-label">NDA模板</span>
+                        <span class="fa arrow"></span>
+                    </a>
+                    <ul class="nav nav-second-level">
+                        <li>
+                            <a class="J_menuItem" href="/NDAList">模板管理</a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="line dk"></li>
+                <li>
+                    <a href="#">
+                        <i class="fa fa fa-file-text"></i>
+                        <span class="nav-label">保密协议</span>
+                        <span class="fa arrow"></span>
+                    </a>
+                    <ul class="nav nav-second-level">
+                        <li>
+                            <a class="J_menuItem" href="/createNDA">新建NDA</a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="line dk"></li>
+                <li>
+                    <a href="#">
+                        <i class="fa fa fa-file-pdf-o"></i>
+                        <span class="nav-label">IPFS</span>
+                        <span class="fa arrow"></span>
+                    </a>
+                    <ul class="nav nav-second-level">
+                        <li>
+                            <a class="J_menuItem" href="/ipfs">IPFS测试</a>
+                        </li>
+                        <li>
+                            <a class="J_menuItem" href="/download">IPFS下载</a>
+                        </li>
+                    </ul>
+                </li>
+
+            </ul>
+        </div>
+    </nav>
+    <!--左侧导航结束-->
+    <!--右侧部分开始-->
+    <div id="page-wrapper" class="gray-bg dashbard-1">
+        <div class="row border-bottom">
+            <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0;background-color: #D3D4D3">
+                <div class="navbar-header"><a class="navbar-minimalize minimalize-styl-2 btn btn-info " href="#"><i class="fa fa-bars"></i> </a>
+                </div>
+                <ul class="nav navbar-top-links navbar-right">
+                    <!-- 我分享的消息的回复(被拒绝的) -->
+                    <li class="dropdown">
+                        <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
+                            <i class="fa fa-mail-reply"></i> <span class="label label-danger">[[${totalRefuse}]]</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-alerts">
+                            <li>
+                                <a href="mailbox.html">
+                                    <div>
+                                        <i class="fa fa-envelope fa-fw"></i> 您有16条未读消息
+                                        <span class="pull-right text-muted small">4分钟前</span>
+                                        <br>
+                                        <small class="text-muted">3天前 2014.11.8</small>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="divider"></li>
+                            <li>
+                                <a href="profile.html">
+                                    <div>
+                                        <i class="fa fa-qq fa-fw"></i> 3条新回复
+                                        <span class="pull-right text-muted small">12分钟钱</span>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="divider"></li>
+                            <li>
+                                <div class="text-center link-block">
+                                    <a class="J_menuItem" href="notifications.html">
+                                        <strong>查看所有 </strong>
+                                        <i class="fa fa-angle-right"></i>
+                                    </a>
+                                </div>
+                            </li>
+                        </ul>
+                    </li>
+                    <!-- 我分享的消息的回复(被修改的) -->
+                    <li class="dropdown">
+                        <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
+                            <i class="fa fa-flag-o"></i> <span class="label label-danger">[[${totalUpdate}]]</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-alerts">
+                            <li>
+                                <a href="mailbox.html">
+                                    <div>
+                                        <i class="fa fa-envelope fa-fw"></i> 您有16条未读消息
+                                        <span class="pull-right text-muted small">4分钟前</span>
+                                        <br>
+                                        <small class="text-muted">3天前 2014.11.8</small>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="divider"></li>
+                            <li>
+                                <a href="profile.html">
+                                    <div>
+                                        <i class="fa fa-qq fa-fw"></i> 3条新回复
+                                        <span class="pull-right text-muted small">12分钟钱</span>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="divider"></li>
+                            <li>
+                                <div class="text-center link-block">
+                                    <a class="J_menuItem" href="notifications.html">
+                                        <strong>查看所有 </strong>
+                                        <i class="fa fa-angle-right"></i>
+                                    </a>
+                                </div>
+                            </li>
+                        </ul>
+                    </li>
+                    <!-- 分享给我的，我未读的消息 -->
+                    <li class="dropdown">
+                        <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
+                            <i class="fa fa-bell"></i> <span class="label label-danger">[[${totalShare}]]</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-alerts">
+                            <li>
+                                <a href="mailbox.html">
+                                    <div>
+                                        <i class="fa fa-envelope fa-fw"></i> 您有16条未读消息
+                                        <span class="pull-right text-muted small">4分钟前</span>
+                                        <br>
+                                        <small class="text-muted">3天前 2014.11.8</small>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="divider"></li>
+                            <li>
+                                <a href="profile.html">
+                                    <div>
+                                        <i class="fa fa-qq fa-fw"></i> 3条新回复
+                                        <span class="pull-right text-muted small">12分钟钱</span>
+                                    </div>
+                                </a>
+                            </li>
+                            <li class="divider"></li>
+                            <li>
+                                <div class="text-center link-block">
+                                    <a class="J_menuItem" href="notifications.html">
+                                        <strong>查看所有 </strong>
+                                        <i class="fa fa-angle-right"></i>
+                                    </a>
+                                </div>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a class="dropdown-toggle " data-toggle="dropdown" href="#">
+                            <h3 ><span class="glyphicon glyphicon-user"></span> <span class="label label-info" th:text="${currentUser.username}"></span></h3>
+                        </a>
+                        <ul class="dropdown-menu  navbar-right">
+                            <li>
+                                <a class="glyphicon glyphicon-info-sign" th:id="${currentUser.id}" onclick="showUserDetail(this);"> 个人信息</a>
+                            </li>
+                            <li>
+                                <a class="glyphicon glyphicon-log-out" th:href="@{/logout(id=${currentUser.id})}" > 注销</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        <div class="row J_mainContent" id="content-main">
+            <iframe id="J_iframe" width="100%" height="100%"  frameborder="0"   seamless></iframe>
+        </div>
+    </div>
+    <!--右侧部分结束-->
+</div>
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="modal-detail-user" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" id="modal-detail-user-body">
+
+    </div><!-- /.modal -->
+</div>
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="modal-detail-password" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" id="modal-detail-password-body">
+        <div class="modal-content" xmlns:th="http://www.w3.org/1999/xhtml">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    修改密码
+                </h4>
+            </div>
+            <div class="modal-body" >
+                <div class="row">
+                    <input type="hidden" id="hiddenID">
+                    <div class="form-group">
+                        <input type="password" class="form-control" id="uPassword" name="uPassword"  placeholder="请输入新密码" required="">
+                    </div>
+                    <div class="form-group">
+                        <input type="password" class="form-control" id="reuPassword" placeholder="请再次输入新密码" required="">
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary"  onclick="updatePassword();">
+                    提交修改
+                </button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                </button>
+
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+<!-- 全局js -->
+<script src="/js/jquery.min.js?v=2.1.4"></script>
+<script src="/js/bootstrap.min.js?v=3.3.6"></script>
+<script src="/js/plugins/metisMenu/jquery.metisMenu.js"></script>
+<script src="/js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+<script src="/js/plugins/layer/layer.min.js"></script>
+
+<!-- 自定义js -->
+<script src="/js/hAdmin.js?v=4.1.0"></script>
+<script type="text/javascript" src="/js/index.js"></script>
+
+<!-- 第三方插件 -->
+<script src="/js/plugins/pace/pace.min.js"></script>
+<script>
+    function  showUserDetail(node) {
+        $.ajax({
+            url:"/showUserDetail",
+            type:"GET",
+            data:{
+                id : node.id,
+            },
+            dateType:"html",
+            success:function(result) {
+                $("#modal-detail-user-body").html(result);
+                $("#modal-detail-user").modal("show");
+
+            }
+        });
+    }
+    function  showPasswordDetail(node) {
+        $("#hiddenID").val(node.id);
+        $("#modal-detail-password").modal("show");
+    }
+    function  updatePassword() {
+        var id = $("#hiddenID").val();
+        var password = $("#uPassword").val();
+        $.ajax({
+            url:"/user/updatePassword",
+            type:"GET",
+            data:{
+                id : id,
+                password : password
+            },
+            dateType:"json",
+            success:function(result) {
+                //alert(result);
+                $("#modal-detail-password").modal("hide");
+            }
+        });
+    }
+
+</script>
+
+</body>
+
+</html>
+

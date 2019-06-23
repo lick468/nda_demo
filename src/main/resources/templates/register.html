@@ -1,0 +1,137 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title> NDA - 注册</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+
+    <link rel="shortcut icon" href="favicon.ico"> <link href="css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="css/font-awesome.css?v=4.4.0" rel="stylesheet">
+    <link href="css/plugins/iCheck/custom.css" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.css?v=4.1.0" rel="stylesheet">
+    <script>if(window.top !== window.self){ window.top.location = window.location;}</script>
+
+</head>
+
+<body class="gray-bg">
+
+    <div class="middle-box text-center loginscreen   animated fadeInDown">
+        <div>
+            <div>
+
+                <h1 class="logo-name">op</h1>
+
+            </div>
+            <h3>欢迎注册NDA</h3>
+            <p>创建一个NDA新账户</p>
+            <form class="m-t" role="form" action="/register" method="post" onsubmit="return checkForm();">
+                <div class="form-group">
+                    <input type="text" class="form-control" id="username" name="username" placeholder="请输入用户名" required="">
+                </div>
+                <th:block th:if="${errorUsername != null}">
+                    <div class="form-group">
+                        <span  style="color: red;" th:text="${errorUsername}"></span>
+                    </div>
+                </th:block>
+
+                <div class="form-group">
+                    <input type="text" class="form-control" id="mobilephone"  name="mobilephone" placeholder="请输入手机号" required="">
+                </div>
+                <th:block th:if="${ errorMobilephone != null}">
+                    <div class="form-group">
+                        <span  style="color: red;" th:text="${errorMobilephone}"></span>
+                    </div>
+                </th:block>
+
+                <div class="input-group form-group">
+                    <input type="hidden" id="checkCode">
+                    <input type="text" class="form-control" placeholder="请输入验证码" required="" id="code" maxlength="6" oninput = "value=value.replace(/[^\d]/g,'')">
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-primary" onclick="getCode();">点击获取验证码</button>
+                    </span>
+                </div>
+                <div id="errorCode" class="form-group" style="display: none">
+                    <span style="color: red">验证码输入有误，请检查！</span>
+                </div>
+                <div class="form-group">
+                    <input type="password" class="form-control" id="password" name="password"  placeholder="请输入密码" required="">
+                </div>
+                <div class="form-group">
+                    <input type="password" class="form-control" id="rePassword" placeholder="请再次输入密码" required="">
+                </div>
+                <div id="errorPsd" class="form-group" style="display: none">
+                    <span style="color: red">两次密码不一致，请重新输入！</span>
+                </div>
+                <div class="form-group text-left">
+                    <div class="checkbox i-checks">
+                        <label class="no-padding">
+                            <input type="checkbox"><i></i> 我同意注册协议</label>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary block full-width m-b">注 册</button>
+
+                <p class="text-muted text-center"><small>已经有账户了？</small><a href="/login">点此登录</a>
+                </p>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- 全局js -->
+    <script src="js/jquery.min.js?v=2.1.4"></script>
+    <script src="js/bootstrap.min.js?v=3.3.6"></script>
+    <!-- iCheck -->
+    <script src="js/plugins/iCheck/icheck.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('.i-checks').iCheck({
+                checkboxClass: 'icheckbox_square-green',
+                radioClass: 'iradio_square-green',
+            });
+        });
+
+
+        function getCode() {
+            var phone = $("#mobilephone").val();
+            //alert(phone);
+            $.ajax({
+                url:"/getCode",
+                type:"GET",
+                data:{
+                    phone : phone,
+                },
+                dateType:"json",
+                success:function(result) {
+                    $("#checkCode").val(result);
+                }
+            });
+        }
+        //提交前校验
+        function checkForm() {
+            //检查验证码是否输入正确
+            var inputCode=$("#code").val();
+            var sendCode=$("#checkCode").val();
+            if(inputCode!=sendCode) {
+                $("#errorCode").show();
+            }
+            ////检查两次密码是否一致
+            var password=$("#password").val();
+            var rePassword=$("#rePassword").val();
+            if(password!=rePassword) {
+                $("#errorPsd").show();
+                return false;
+            }
+            return true;
+        }
+
+    </script>
+
+</body>
+
+</html>

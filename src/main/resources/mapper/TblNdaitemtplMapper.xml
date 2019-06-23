@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nenu.mapper.TblNdaitemtplMapper">
+  <resultMap id="BaseResultMap" type="com.nenu.domain.TblNdaitemtpl">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID" jdbcType="INTEGER" property="id" />
+    <result column="CreateUserName" jdbcType="VARCHAR" property="createusername" />
+    <result column="CreateTime" jdbcType="TIMESTAMP" property="createtime" />
+    <result column="CreateIP" jdbcType="VARCHAR" property="createip" />
+    <result column="UpdateUserName" jdbcType="VARCHAR" property="updateusername" />
+    <result column="UpdateTime" jdbcType="TIMESTAMP" property="updatetime" />
+    <result column="UpdateIP" jdbcType="VARCHAR" property="updateip" />
+    <result column="NDAItem" jdbcType="LONGVARCHAR" property="ndaitem" />
+  </resultMap>
+</mapper>

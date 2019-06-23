@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nenu.mapper.TblNdabasicinfoMapper">
+  <resultMap id="BaseResultMap" type="com.nenu.domain.TblNdabasicinfo">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID" jdbcType="VARCHAR" property="id" />
+    <result column="Title" jdbcType="VARCHAR" property="title" />
+    <result column="AbstractContext" jdbcType="VARCHAR" property="abstractcontext" />
+    <result column="KeyWords" jdbcType="VARCHAR" property="keywords" />
+    <result column="FileName" jdbcType="VARCHAR" property="filename" />
+    <result column="FileExtension" jdbcType="VARCHAR" property="fileextension" />
+    <result column="FileHash" jdbcType="VARCHAR" property="filehash" />
+    <result column="TimeStamp" jdbcType="VARCHAR" property="timestamp" />
+    <result column="DocTypeID" jdbcType="VARCHAR" property="doctypeid" />
+    <result column="DocOrder" jdbcType="INTEGER" property="docorder" />
+    <result column="InitiatorUserName" jdbcType="VARCHAR" property="initiatorusername" />
+    <result column="InitiatorTime" jdbcType="TIMESTAMP" property="initiatortime" />
+    <result column="InitiatorIP" jdbcType="VARCHAR" property="initiatorip" />
+    <result column="UpdateUserName" jdbcType="VARCHAR" property="updateusername" />
+    <result column="UpdateTime" jdbcType="TIMESTAMP" property="updatetime" />
+    <result column="LastDocNo" jdbcType="INTEGER" property="lastdocno" />
+    <result column="PubKey" jdbcType="VARCHAR" property="pubkey" />
+    <result column="PrivateKey" jdbcType="VARCHAR" property="privatekey" />
+    <result column="memo" jdbcType="VARCHAR" property="memo" />
+    <result column="Revision" jdbcType="VARCHAR" property="revision" />
+    <result column="NDAItems" jdbcType="LONGVARCHAR" property="ndaitems" />
+  </resultMap>
+</mapper>

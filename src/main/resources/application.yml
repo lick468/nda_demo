@@ -1,0 +1,38 @@
+server:
+  port: 80
+  connection-timeout: 18s
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  datasource:
+    druid:
+      url: jdbc:mysql://localhost:3308/op?useUnicode=true&characterEncoding=utf-8&useSSL=false
+      username: root
+      password: mysql
+      initial-size: 1
+      min-idle: 1
+      max-active: 200
+      test-on-borrow: true
+      # MySQL 8.x: com.mysql.cj.jdbc.Driver
+      driver-class-name: com.mysql.jdbc.Driver
+
+  thymeleaf:
+    cache: false
+    encoding: UTF-8
+    mode: LEGACYHTML5
+    prefix: classpath:/templates/
+    servlet:
+      content-type: text/html
+
+  servlet:
+    multipart:
+      max-file-size: 1024MB
+      max-request-size: 1024MB
+      enabled: true # 开启多文件上传
+  resources:
+    static-locations: classpath:/META-INF/resources/,classpath:/resources/,classpath:/static/,classpath:/public/,classpath:/webapp/,,classpath:/upload/
+
+jwt:
+  key: lick
+  ttl: 360000
+

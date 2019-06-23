@@ -1,0 +1,77 @@
+<html  xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title> 找回密码</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+
+
+    <link rel="shortcut icon" href="favicon.ico"> <link href="css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="css/font-awesome.css?v=4.4.0" rel="stylesheet">
+
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.css?v=4.1.0" rel="stylesheet">
+    <!--[if lt IE 9]>
+    <meta http-equiv="refresh" content="0;ie.html" />
+    <![endif]-->
+    <script>if(window.top !== window.self){ window.top.location = window.location;}</script>
+</head>
+
+<body class="gray-bg">
+
+    <div class="middle-box text-center loginscreen  animated fadeInDown">
+        <div>
+            <div>
+
+                <h3 class="logo-name">NDA</h3>
+
+            </div>
+            <h3>创建新密码</h3>
+
+            <form class="m-t" role="form" action="/updatePsd" method="post" >
+                <input type="hidden" name="id" th:value="${id}" />
+                <div id="errorPsd" class="form-group" style="display: none">
+                    <span style="color: red">两次密码不一致，请重新输入！</span>
+                </div>
+                <div class="form-group">
+                    <input type="password" class="form-control" placeholder="请输入密码" name="password" id="password" required="" onfocus="check()">
+                </div>
+                <div class="form-group">
+                    <input type="password" class="form-control" placeholder="请再次输入密码" name="rePassword" id="rePassword" required="" onfocus="check()" onblur="checkPsd()">
+                </div>
+                <input type="submit" id="btnSendCode"  class=" btn-primary block full-width m-b"  value="提交"/>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- 全局js -->
+    <script src="js/jquery.min.js?v=2.1.4"></script>
+    <script src="js/bootstrap.min.js?v=3.3.6"></script>
+    <script type="text/javascript">
+
+        function check() {
+            $("#errorPsd").hide();
+        }
+        //提交检查密码是否一致
+        function checkPsd() {
+            var password=$("#password").val();
+            var rePassword=$("#rePassword").val();
+            if(password!=rePassword) {
+                $("#errorPsd").show();
+                return;
+            }
+            return;
+        }
+      </script>
+    
+    
+
+</body>
+
+</html>

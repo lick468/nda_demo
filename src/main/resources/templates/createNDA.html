@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title> NDA</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+
+    <link rel="shortcut icon" href="favicon.ico">
+
+    <script src="/js/jquery.min.js?v=2.1.4"></script>
+    <script src="/js/jQuery-2.2.0.min.js"></script>
+    <script src="/js/bootstrap.min.js?v=3.3.6"></script>
+    <!--<script src="/js/ckeditor.js"></script>-->
+    <script src="https://cdn.ckeditor.com/4.11.4/standard/ckeditor.js"></script>
+
+    <link href="/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+
+
+
+</head>
+
+<body class="gray-bg">
+<div class="container">
+    <div class="row clearfix">
+    </div>
+    <div class="row clearfix">
+        <div class="col-md-12 column">
+            <form  action="" class="form-horizontal m-t" id="signupForm1" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">标题：</label>
+                    <div class="col-sm-8">
+                        <input id="assetsTitle" name="assetsTitle" class="form-control valid" placeholder="请输入标题" type="text" aria-required="true" aria-invalid="false">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">关键字：</label>
+                    <div class="col-sm-8">
+                        <input id="assetsTitless" name="assetsTitle" class="form-control valid" placeholder="请输入关键字，多个用空格隔开" type="text" aria-required="true" aria-invalid="false">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">简介：</label>
+                    <div class="col-sm-8">
+                        <textarea class="form-control valid" id="assetsAbstract" name="assetsAbstract" placeholder="请输入简介"  style="min-height: 100px;max-height: 300px;"></textarea>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">NDA条款：</label>
+                    <div class="col-sm-8">
+                        <textarea  id="assetsAbstracaat" name="TextArea1" ></textarea>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">分享给：</label>
+                    <div class="col-sm-8">
+                        <select class="form-control" name="aa">
+                            <option  th:value="请选择">--请选择--</option>
+                            <option th:each="user:${users}" th:text="${user.username}" th:value="${user.username}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">备注：</label>
+                    <div class="col-sm-8">
+                        <input id="asdddsetsTitle" name="assetsTitle" class="form-control "  type="text" >
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-8 col-sm-offset-3">
+                        <button class="btn btn-primary" type="submit">分享</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    CKEDITOR.replace('TextArea1');
+
+</script>
+
+
+
+</body>
+
+</html>

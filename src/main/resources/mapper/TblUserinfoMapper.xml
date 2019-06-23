@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nenu.mapper.TblUserinfoMapper">
+  <resultMap id="BaseResultMap" type="com.nenu.domain.TblUserinfo">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID" jdbcType="INTEGER" property="id" />
+    <result column="UserName" jdbcType="VARCHAR" property="username" />
+    <result column="Password" jdbcType="VARCHAR" property="password" />
+    <result column="OrgName" jdbcType="VARCHAR" property="orgname" />
+    <result column="Name" jdbcType="VARCHAR" property="name" />
+    <result column="Gender" jdbcType="VARCHAR" property="gender" />
+    <result column="Birthday" jdbcType="DATE" property="birthday" />
+    <result column="CertID" jdbcType="VARCHAR" property="certid" />
+    <result column="HomeProvince" jdbcType="VARCHAR" property="homeprovince" />
+    <result column="HomeCity" jdbcType="VARCHAR" property="homecity" />
+    <result column="HomeDistrict" jdbcType="VARCHAR" property="homedistrict" />
+    <result column="HomeAddress" jdbcType="VARCHAR" property="homeaddress" />
+    <result column="HomePostCode" jdbcType="VARCHAR" property="homepostcode" />
+    <result column="MailProvince" jdbcType="VARCHAR" property="mailprovince" />
+    <result column="MailCity" jdbcType="VARCHAR" property="mailcity" />
+    <result column="MailDistrict" jdbcType="VARCHAR" property="maildistrict" />
+    <result column="MailAddress" jdbcType="VARCHAR" property="mailaddress" />
+    <result column="MailPostCode" jdbcType="VARCHAR" property="mailpostcode" />
+    <result column="PhoneNo" jdbcType="VARCHAR" property="phoneno" />
+    <result column="MobilePhone" jdbcType="VARCHAR" property="mobilephone" />
+    <result column="CreateUserName" jdbcType="VARCHAR" property="createusername" />
+    <result column="CreateTime" jdbcType="TIMESTAMP" property="createtime" />
+    <result column="CreateIP" jdbcType="VARCHAR" property="createip" />
+    <result column="UpdateUserName" jdbcType="VARCHAR" property="updateusername" />
+    <result column="UpdateTime" jdbcType="TIMESTAMP" property="updatetime" />
+    <result column="UpdateIP" jdbcType="VARCHAR" property="updateip" />
+    <result column="Email" jdbcType="VARCHAR" property="email" />
+    <result column="BackupEmail" jdbcType="VARCHAR" property="backupemail" />
+    <result column="QQ" jdbcType="VARCHAR" property="qq" />
+    <result column="WeChat" jdbcType="VARCHAR" property="wechat" />
+    <result column="Instagram" jdbcType="VARCHAR" property="instagram" />
+    <result column="Valid" jdbcType="VARCHAR" property="valid" />
+    <result column="Question4Pass" jdbcType="VARCHAR" property="question4pass" />
+    <result column="Answer" jdbcType="VARCHAR" property="answer" />
+    <result column="CAInfo" jdbcType="VARCHAR" property="cainfo" />
+    <result column="Signature" jdbcType="LONGVARBINARY" property="signature" />
+  </resultMap>
+</mapper>

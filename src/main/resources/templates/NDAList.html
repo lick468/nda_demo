@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title> 创建新的保密协议</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+
+    <link rel="shortcut icon" href="favicon.ico">
+
+    <script src="/js/jquery.min.js?v=2.1.4"></script>
+    <script src="/js/jQuery-2.2.0.min.js"></script>
+    <script src="/js/bootstrap.min.js?v=3.3.6"></script>
+
+
+
+
+    <script type="text/javascript" src="/dropzone/dropzone.js"></script>
+    <link rel="stylesheet"  href="/dropzone/dropzone.css" >
+    <link href="/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <!-- 引入bootstrap-table样式 -->
+    <link href="https://cdn.bootcss.com/bootstrap-table/1.11.1/bootstrap-table.min.css" rel="stylesheet">
+    <!-- bootstrap-table.min.js -->
+    <script src="https://cdn.bootcss.com/bootstrap-table/1.11.1/bootstrap-table.min.js"></script>
+    <!-- 引入中文语言包 -->
+    <script src="https://cdn.bootcss.com/bootstrap-table/1.11.1/locale/bootstrap-table-zh-CN.min.js"></script>
+
+    <script src="https://cdn.ckeditor.com/4.11.4/standard/ckeditor.js"></script>
+
+
+</head>
+
+<body class="gray-bg">
+<div class="container">
+    <div class="row clearfix">
+
+    </div>
+    <div class="row clearfix">
+        <div class="col-md-12 column">
+
+        </div>
+    </div>
+</div>
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-sm12">
+                <div class="ibox float-e-margins">
+                    <ul id="myTab" class="nav nav-tabs">
+                        <li class="active">
+                            <a href="#myList" data-toggle="tab">我的NDA模板</a>
+                        </li>
+                        <li>
+                            <a href="#newList" data-toggle="tab">新加NDA模板</a>
+                        </li>
+                    </ul>
+                    <div id="myTabContent" class="tab-content">
+                        <div class="tab-pane fade in active" id="myList">
+                            <div class="panel panel-default">
+                                <div class="panel-body form-group" style="margin-bottom:0px;">
+                                    <label class="col-sm-1 control-label" style="text-align: right; margin-top:5px">标题：</label>
+                                    <div class="col-sm-2">
+                                        <input type="text" class="form-control" name="searchTitle" id="searchTitle"/>
+                                    </div>
+                                    <div class="col-sm-1 col-sm-offset-4">
+                                        <button class="btn btn-primary" id="search_btn" onclick="serachTitle();">查询</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <table id="table" class="table table-hover"></table>
+                        </div>
+                        <div class="tab-pane fade " id="newList">
+                            <div class="ibox-content">
+                                <form   class="form-horizontal m-t"   >
+                                    <div class="form-group">
+                                        <label class="col-sm-3 control-label">NDA条款：</label>
+                                        <div class="col-sm-8">
+                                            <textarea  id="ndaitem" name="ndaitem" ></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="col-sm-8 col-sm-offset-3">
+                                            <button class="btn btn-primary" onclick="createNDATemplate();">提交</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="modal-update-NDATemplate" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" id="modal-update-NDATemplate-body">
+
+    </div><!-- /.modal -->
+</div>
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="modal-detail-NDATemplate" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" id="modal-detail-NDATemplate-body">
+
+    </div><!-- /.modal -->
+</div>
+
+
+<script type="text/javascript">
+  var value =   CKEDITOR.replace('ndaitem');
+
+
+  $(function () {
+      $('#myTab li:eq(0) a').tab('show');
+  });
+
+  $("#table").bootstrapTable({ // 对应table标签的id
+        method:'POST',
+        contentType: "application/x-www-form-urlencoded",// 解决POST提交问题
+        url: "/getNDATemplateData", // 获取表格数据的url
+
+        toolbar: '#toolbar', //工具按钮用哪个容器
+        cache: false, // 设置为 false 禁用 AJAX 数据缓存， 默认为true
+        striped: true,  //表格显示条纹，默认为false
+        pagination: true, // 在表格底部显示分页组件，默认false
+        pageList: [10, 20], // 设置页面可以显示的数据条数
+        pageSize: 10, // 页面数据条数
+        pageNumber: 1, // 首页页码
+        showHeader : true,
+        paginationPreText: "上一页",
+        paginationNextText: "下一页",
+        paginationFirstText: "首页",
+        paginationLastText: "末页",
+        showRefresh:true,//刷新按钮
+        showColumns:true,
+        showExport : true,//按格式导出
+        showToggle:true,                    //是否显示详细视图和列表视图
+        clickToSelect: false,//是否启用点击选中行
+        toolbarAlign:'right',
+        buttonsAlign:'right',//按钮对齐方式
+        toolbar:'#toolbar',//指定工作栏
+        sidePagination: 'server', // 设置为服务器端分页
+        //queryParamsType:'', //默认值为 'limit' ,在默认情况下 传给服务端的参数为：offset,limit,sort
+        // 设置为 ''  在这种情况下传给服务器的参数为：pageSize,pageNumber
+        //queryParams: queryParams,//前端调用服务时，会默认传递上边提到的参数，如果需要添加自定义参数，可以自定义一个函数返回请求参数
+        queryParams: function (params) { // 请求服务器数据时发送的参数，可以在这里添加额外的查询参数，返回false则终止请求
+            return {
+                pageSize: params.limit, // 每页要显示的数据条数
+                offset: params.offset, // 每页显示数据的开始行号
+                sort: params.sort, // 要排序的字段
+                sortOrder: params.order, // 排序规则
+                searchTitle: $("#searchTitle").val() // 额外添加的参数
+            }
+        },
+        sortName: 'id', // 要排序的字段
+        sortOrder: 'desc', // 排序规则
+        columns: [
+            {
+                checkbox: true, // 显示一个勾选框
+                align: 'center', // 居中显示
+                width:100
+            }, {
+                field: 'id', // 返回json数据中的name
+                title: '编号', // 表格表头显示文字
+                align: 'center', // 左右居中
+                valign: 'middle' // 上下居中
+            }, {
+                field: 'ndaitem', // 返回json数据中的name
+                title: 'NDA条款', // 表格表头显示文字
+                align: 'center', // 左右居中
+                valign: 'middle',// 上下居中
+
+                formatter: function (value, row, index) {
+                    return value;
+                }
+            },{
+                field: 'id',
+                title: "操作",
+                align: 'center',
+                valign: 'middle',
+                width: 360, // 定义列的宽度，单位为像素px
+                formatter: function (value, row, index) {
+                    console.log(value+"=="+row+"=="+index)
+                    return '<button class="btn-default" name="'+ value +'" onclick="updateNDATemplate(this);" >修改  </button> <button class="btn-default" name="'+ value +'" onclick="NDATemplateDetail(this);">查看 </button>  ';
+                }
+
+            }
+        ],
+
+
+        onLoadSuccess: function(res){  //加载成功时执行
+            //$("#table").bootstrapTable("load",res);
+            //console.log(res)
+            console.info("加载成功");
+        },
+        onLoadError: function(){  //加载失败时执行
+            console.info("加载数据失败");
+        }
+
+    })
+    function  serachTitle() {
+        $("#table").bootstrapTable('refresh');
+    }
+    function createNDATemplate() {
+       // alert(value.getData());
+        //向后台发送处理数据
+        $.ajax({
+            url:"/createNDATemplate",
+            type:"POST",
+            data:{
+                ndaItem:value.getData(),
+            },
+            dateType:"json",
+            success:function(result) {
+                window.reload();
+            }
+        });
+    }
+function updateNDATemplate(node) {
+    $.ajax({
+        url:"/updateNDATemplate",
+        type:"GET",
+        data:{
+            id : node.name,
+        },
+        dateType:"html",
+        success:function(result) {
+            $("#modal-update-NDATemplate-body").html(result);
+            $("#modal-update-NDATemplate").modal("show");
+
+        }
+    });
+}
+  function NDATemplateDetail(node) {
+      $.ajax({
+          url:"/NDATemplateDetail",
+          type:"GET",
+          data:{
+              id : node.name,
+          },
+          dateType:"html",
+          success:function(result) {
+              $("#modal-detail-NDATemplate-body").html(result);
+              $("#modal-detail-NDATemplate").modal("show");
+
+          }
+      });
+  }
+  function updateNDAItem(node) {
+     var value =  CKEDITOR.instances.updateNDAItem.getData(); //获取值
+      //alert(node.name);
+      //向后台发送处理数据
+      $.ajax({
+          url:"/updateNDATemplate",
+          type:"POST",
+          data:{
+              ndaItem:value,
+              id:node.name,
+          },
+          dateType:"json",
+          success:function(result) {
+              serachTitle();
+              $("#modal-update-NDATemplate").modal("hide");
+          }
+      });
+  }
+</script>
+
+
+
+</body>
+
+</html>

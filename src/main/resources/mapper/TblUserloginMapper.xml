@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nenu.mapper.TblUserloginMapper">
+  <resultMap id="BaseResultMap" type="com.nenu.domain.TblUserlogin">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="ID" jdbcType="INTEGER" property="id" />
+    <result column="UserName" jdbcType="VARCHAR" property="username" />
+    <result column="LoginTime" jdbcType="TIMESTAMP" property="logintime" />
+    <result column="LoginIP" jdbcType="VARCHAR" property="loginip" />
+    <result column="LogoutTime" jdbcType="TIMESTAMP" property="logouttime" />
+    <result column="LogoutAction" jdbcType="VARCHAR" property="logoutaction" />
+  </resultMap>
+</mapper>

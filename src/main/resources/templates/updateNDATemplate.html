@@ -1,0 +1,30 @@
+<div class="modal-content" xmlns:th="http://www.w3.org/1999/xhtml">
+    <script src="https://cdn.ckeditor.com/4.11.4/standard/ckeditor.js"></script>
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+            &times;
+        </button>
+        <h4 class="modal-title" id="myModalLabel">
+            编辑NDA模板
+        </h4>
+    </div>
+    <div class="modal-body" >
+        <div class="row">
+            <div class="col-xs-12">
+                <textarea  id="updateNDAItem" name="updateNDAItem" th:utext="${tblNdaitemtpl.ndaitem}" ></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-primary" th:name="${tblNdaitemtpl.id}"  onclick="updateNDAItem(this);">
+            保存
+        </button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+        </button>
+    </div>
+
+    <script type="text/javascript">
+        CKEDITOR.replace('updateNDAItem');
+    </script>
+</div><!-- /.modal-content -->
+
