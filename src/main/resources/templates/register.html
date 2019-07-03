@@ -25,7 +25,7 @@
         <div>
             <div>
 
-                <h1 class="logo-name">op</h1>
+                <h2 class="logo-name">NDA</h2>
 
             </div>
             <h3>欢迎注册NDA</h3>
@@ -53,7 +53,7 @@
                     <input type="hidden" id="checkCode">
                     <input type="text" class="form-control" placeholder="请输入验证码" required="" id="code" maxlength="6" oninput = "value=value.replace(/[^\d]/g,'')">
                     <span class="input-group-btn">
-                        <button type="button" class="btn btn-primary" onclick="getCode();">点击获取验证码</button>
+                        <button type="button" class="btn btn-primary" onclick="return getCode();">点击获取验证码</button>
                     </span>
                 </div>
                 <div id="errorCode" class="form-group" style="display: none">
@@ -99,6 +99,10 @@
 
         function getCode() {
             var phone = $("#mobilephone").val();
+            if(phone == null) {
+                alert("请输入手机号");
+                return false;
+            }
             //alert(phone);
             $.ajax({
                 url:"/getCode",
@@ -111,6 +115,7 @@
                     $("#checkCode").val(result);
                 }
             });
+            return true;
         }
         //提交前校验
         function checkForm() {

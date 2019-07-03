@@ -10,10 +10,19 @@
     <div class="modal-body" >
         <div class="row">
             <div class="col-xs-12">
+                <h4>标题</h4>
+                <hr>
+            </div>
+            <div class="col-xs-12" style="margin-bottom: 20px;">
+                <span  th:text="${tblNdaitemtpl.ndatitle}" ></span>
+            </div>
+            <div class="col-xs-12">
+                <h4>NDA条款</h4>
+                <hr>
+            </div>
+            <div class="col-xs-12">
                 <p th:utext="${tblNdaitemtpl.ndaitem}"></p>
             </div>
-
-
         </div>
     </div>
     <div class="modal-footer">

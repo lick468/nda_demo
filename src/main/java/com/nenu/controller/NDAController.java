@@ -1,11 +1,14 @@
 package com.nenu.controller;
 
+import com.nenu.domain.TblNdaitemtpl;
 import com.nenu.domain.TblUserinfo;
+import com.nenu.mapper.TblNdaitemtplMapper;
 import com.nenu.mapper.TblUserinfoMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
+import tk.mybatis.mapper.entity.Example;
 
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
@@ -18,6 +21,8 @@ import java.util.List;
 public class NDAController {
     @Autowired
     private TblUserinfoMapper tblUserinfoMapper;
+    @Autowired
+    private TblNdaitemtplMapper tblNdaitemtplMapper;
 
     /**
      * 创建NDA
@@ -25,11 +30,10 @@ public class NDAController {
      * @param session
      * @return
      */
-    @GetMapping(value = "createNDA")
+    @GetMapping(value = "/createNDA")
     public String createNDA(ModelMap map, HttpSession session) {
         TblUserinfo currentUser = (TblUserinfo) session.getAttribute("currentUser");
         String username = currentUser.getUsername();
-        System.out.println(username);
         List<TblUserinfo> tblUserinfos = tblUserinfoMapper.selectAll();
         List<TblUserinfo> users = new ArrayList<>();
         for (TblUserinfo user:tblUserinfos) {
@@ -37,6 +41,10 @@ public class NDAController {
                 users.add(user);
             }
         }
+        Example example =new Example(TblNdaitemtpl.class);
+        example.createCriteria().andEqualTo("createusername",currentUser.getUsername());
+        List<TblNdaitemtpl> tblNdaitemtpls = tblNdaitemtplMapper.selectByExample(example);
+        map.put("NDAs",tblNdaitemtpls);
         map.put("users",users);
         return "createNDA";
     }
@@ -45,8 +53,14 @@ public class NDAController {
      * 跳转NDAList页面
      * @return
      */
-    @GetMapping(value = "NDAList")
-    public String NDAList() {
+    @GetMapping(value = "/NDAList")
+    public String NDAList(ModelMap map,HttpSession session) {
+        TblUserinfo currentUser = (TblUserinfo) session.getAttribute("currentUser");
+        String username = currentUser.getUsername();
+        Example example =new Example(TblNdaitemtpl.class);
+        example.createCriteria().andEqualTo("createusername",currentUser.getUsername());
+        List<TblNdaitemtpl> tblNdaitemtpls = tblNdaitemtplMapper.selectByExample(example);
+        map.put("NDAs",tblNdaitemtpls);
         return "NDAList";
     }
 }

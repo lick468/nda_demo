@@ -16,6 +16,8 @@
     <result column="CreateTime" jdbcType="TIMESTAMP" property="createtime" />
     <result column="OperateIP" jdbcType="VARCHAR" property="operateip" />
     <result column="Valid" jdbcType="VARCHAR" property="valid" />
-    <result column="Status" jdbcType="VARCHAR" property="status" />
+    <result column="ShareStatus" jdbcType="VARCHAR" property="sharestatus" />
+    <result column="ReceiverStatus" jdbcType="VARCHAR" property="receiverstatus" />
+    <result column="HaveFile" jdbcType="VARCHAR" property="havefile" />
   </resultMap>
 </mapper>

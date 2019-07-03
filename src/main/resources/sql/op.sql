@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50556
 File Encoding         : 65001
 
-Date: 2019-06-22 15:00:11
+Date: 2019-06-27 20:29:20
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -54,10 +54,10 @@ CREATE TABLE `tbl_docbrowseinfo` (
 DROP TABLE IF EXISTS `tbl_ndabasicinfo`;
 CREATE TABLE `tbl_ndabasicinfo` (
   `ID` varchar(32) NOT NULL DEFAULT '1' COMMENT 'ID 同一个文档的不同历史版本公用此ID',
-  `Title` varchar(128) NOT NULL COMMENT '标题',
+  `Title` varchar(128) DEFAULT NULL COMMENT '标题',
   `AbstractContext` varchar(3072) DEFAULT NULL COMMENT '摘要',
-  `KeyWords` varchar(1024) NOT NULL COMMENT '关键词',
-  `FileName` varchar(128) NOT NULL COMMENT '文件名 本文档所属NDA',
+  `KeyWords` varchar(1024) DEFAULT NULL COMMENT '关键词',
+  `FileName` varchar(128) DEFAULT NULL COMMENT '文件名 本文档所属NDA',
   `FileExtension` varchar(32) DEFAULT NULL COMMENT '扩展名',
   `FileHash` varchar(128) DEFAULT NULL COMMENT 'NDA文件Hash',
   `TimeStamp` varchar(128) DEFAULT NULL COMMENT '时间戳',
@@ -68,7 +68,7 @@ CREATE TABLE `tbl_ndabasicinfo` (
   `InitiatorIP` varchar(32) DEFAULT NULL COMMENT '发起IP',
   `UpdateUserName` varchar(32) DEFAULT NULL COMMENT '最近更新人',
   `UpdateTime` datetime DEFAULT NULL COMMENT '最近更新时间 最后一次更新时间',
-  `LastDocNo` int(11) NOT NULL DEFAULT '0' COMMENT '最新文档序号 本NDA最新文档序号，每增加一个新文档，本字段加1',
+  `LastDocNo` int(11) DEFAULT '0' COMMENT '最新文档序号 本NDA最新文档序号，每增加一个新文档，本字段加1',
   `PubKey` varchar(128) DEFAULT NULL COMMENT '公钥',
   `PrivateKey` varchar(128) DEFAULT NULL COMMENT '私钥',
   `NDAItems` text COMMENT 'NDA条款 NDA条款文本',
@@ -80,6 +80,7 @@ CREATE TABLE `tbl_ndabasicinfo` (
 -- ----------------------------
 -- Records of tbl_ndabasicinfo
 -- ----------------------------
+INSERT INTO `tbl_ndabasicinfo` VALUES ('793e0ffd755746898cce1ba95d40cf17', '这是分享给aaa的一个测试', '这是简介', null, null, null, null, null, null, null, 'lick', '2019-06-26 14:18:56', '127.0.0.1', 'lick', '2019-06-27 20:07:11', null, null, null, '<h1>这是一个测sd试sss</h1>\n\n<p>&nbsp;</p>\n\n<h2>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <s><em>仅仅是fff测试</em></s></h2>\n\n<h1><s><em>asdaafasdf</em></s><em>asfasfasfas</em></h1>\n\n<p>&nbsp;</p>\n\n<p><strong><em>sdfd阿斯蒂芬阿斯顿发生士大夫</em></strong></p>\n\n<p>&nbsp;</p>\n\n<p><strong><em>豆腐干地方兄弟v现场v</em></strong></p>\n', '这是备注', null);
 
 -- ----------------------------
 -- Table structure for tbl_ndadocinfo
@@ -117,14 +118,16 @@ CREATE TABLE `tbl_ndaitemtpl` (
   `UpdateUserName` varchar(32) DEFAULT NULL COMMENT '更新人',
   `UpdateTime` datetime DEFAULT NULL COMMENT '更新时间',
   `UpdateIP` varchar(32) DEFAULT NULL COMMENT '更新时IP',
+  `NDATitle` varchar(300) DEFAULT NULL COMMENT 'NDA标题',
   `NDAItem` text NOT NULL COMMENT 'NDA条款',
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COMMENT='tbl_NDAItemTpl NDA条款模板表';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COMMENT='tbl_NDAItemTpl NDA条款模板表';
 
 -- ----------------------------
 -- Records of tbl_ndaitemtpl
 -- ----------------------------
-INSERT INTO `tbl_ndaitemtpl` VALUES ('1', 'lick', '2019-06-22 00:10:28', null, 'lick', '2019-06-22 10:32:04', null, '<h1>这是一个测sd试</h1>\n\n<p>&nbsp;</p>\n\n<h2>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <s><em>仅仅是fff测试</em></s></h2>\n\n<h1><s><em>asdaafasdf</em></s><em>asfasfasfas</em></h1>\n\n<p>&nbsp;</p>\n\n<p><strong><em>sdfd阿斯蒂芬阿斯顿发生士大夫</em></strong></p>\n\n<p>&nbsp;</p>\n\n<p><strong><em>豆腐干地方兄弟v现场v</em></strong></p>\n');
+INSERT INTO `tbl_ndaitemtpl` VALUES ('1', 'lick', '2019-06-22 00:10:28', null, 'lick', '2019-06-22 10:32:04', null, '测试1', '<h1>这是一个测sd试</h1>\n\n<p>&nbsp;</p>\n\n<h2>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; <s><em>仅仅是fff测试</em></s></h2>\n\n<h1><s><em>asdaafasdf</em></s><em>asfasfasfas</em></h1>\n\n<p>&nbsp;</p>\n\n<p><strong><em>sdfd阿斯蒂芬阿斯顿发生士大夫</em></strong></p>\n\n<p>&nbsp;</p>\n\n<p><strong><em>豆腐干地方兄弟v现场v</em></strong></p>\n');
+INSERT INTO `tbl_ndaitemtpl` VALUES ('2', 'lick', '2019-06-25 08:53:21', null, null, null, null, '测试2', '<h1>asf</h1>\n\n<h2>受到</h2>\n');
 
 -- ----------------------------
 -- Table structure for tbl_ndashare
@@ -142,14 +145,22 @@ CREATE TABLE `tbl_ndashare` (
   `CreateTime` datetime DEFAULT NULL COMMENT '创建时间',
   `OperateIP` varchar(32) DEFAULT NULL COMMENT '操作IP',
   `Valid` varchar(1) DEFAULT '1' COMMENT '有效 为以后留证据，取消分享后部真正删除本记录，而是做标记',
-  `Status` varchar(6) DEFAULT NULL COMMENT '是否查看',
+  `ShareStatus` varchar(6) DEFAULT NULL COMMENT '是否查看  0 未查看 1 同意 2 拒绝 3 修改(不同意) 4 回返 5 待确认',
+  `ReceiverStatus` varchar(6) DEFAULT NULL COMMENT '是否查看  0 未查看 1 同意 2 拒绝 3 修改(不同意) 4 回返 5 待确认',
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COMMENT='tbl_NDAShare 创意分享信息表，即确定某创意都谁可以看到';
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COMMENT='tbl_NDAShare 创意分享信息表，即确定某创意都谁可以看到';
 
 -- ----------------------------
 -- Records of tbl_ndashare
 -- ----------------------------
-INSERT INTO `tbl_ndashare` VALUES ('1', '11', null, '0', 'aaa', null, null, 'lick', '2019-06-22 12:54:59', null, '1', null);
+INSERT INTO `tbl_ndashare` VALUES ('1', '11', null, '0', 'aaa', null, null, 'lick', '2019-06-22 12:54:59', null, '1', '0', null);
+INSERT INTO `tbl_ndashare` VALUES ('2', '1', null, '0', 'bbb', null, null, 'lick', '2019-06-23 09:58:07', null, '1', '0', null);
+INSERT INTO `tbl_ndashare` VALUES ('3', '13', null, '0', 'ccc', null, null, 'lick', '2019-06-23 09:58:25', null, '1', '1', null);
+INSERT INTO `tbl_ndashare` VALUES ('4', '4', null, '0', 'lick', null, null, 'aaa', '2019-06-23 09:59:55', null, '1', '0', null);
+INSERT INTO `tbl_ndashare` VALUES ('5', '5', null, '0', 'lick', null, null, 'bbb', '2019-06-23 10:00:10', null, '1', '0', null);
+INSERT INTO `tbl_ndashare` VALUES ('6', '6', null, '0', 'lick', null, null, 'ccc', '2019-06-23 10:00:22', null, '1', '0', null);
+INSERT INTO `tbl_ndashare` VALUES ('7', '7', null, '0', 'lick', null, null, 'aaa', '2019-06-23 10:00:37', null, '1', '0', null);
+INSERT INTO `tbl_ndashare` VALUES ('8', '793e0ffd755746898cce1ba95d40cf17', null, null, 'aaa', null, null, 'lick', '2019-06-26 14:18:56', '127.0.0.1', null, '0', null);
 
 -- ----------------------------
 -- Table structure for tbl_orgnization
@@ -217,7 +228,7 @@ CREATE TABLE `tbl_userinfo` (
   `CAInfo` varchar(1024) DEFAULT NULL COMMENT 'CA信息 用户CA的相关信息',
   PRIMARY KEY (`ID`),
   UNIQUE KEY `UserName` (`UserName`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COMMENT='tbl_UserInfo 用户表';
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COMMENT='tbl_UserInfo 用户表';
 
 -- ----------------------------
 -- Records of tbl_userinfo
@@ -227,6 +238,7 @@ INSERT INTO `tbl_userinfo` VALUES ('2', 'admin', '123456', null, null, null, nul
 INSERT INTO `tbl_userinfo` VALUES ('3', 'aaa', '123456', null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, '1', null, null, null);
 INSERT INTO `tbl_userinfo` VALUES ('4', 'bbb', '123456', null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, '1', null, null, null);
 INSERT INTO `tbl_userinfo` VALUES ('5', 'ccc', '123456', null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, '1', null, null, null);
+INSERT INTO `tbl_userinfo` VALUES ('6', 'hello', '123456', null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, '13913452659', null, '2019-06-23 14:39:54', '127.0.0.1', null, null, null, null, null, null, null, null, null, null, null, null, null);
 
 -- ----------------------------
 -- Table structure for tbl_userlogin

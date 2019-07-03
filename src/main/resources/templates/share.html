@@ -10,6 +10,9 @@
     <title>分享管理</title>
     <meta name="keywords" content="">
     <meta name="description" content="">
+    <script src="https://cdn.ckeditor.com/4.11.4/standard/ckeditor.js"></script>
+    <script src="/js/jquery.min.js?v=2.1.4"></script>
+    <script src="/js/jQuery-2.2.0.min.js"></script>
 
     <!-- 引入bootstrap样式 -->
     <link href="https://cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
@@ -25,6 +28,7 @@
     <!-- 引入中文语言包 -->
     <script src="https://cdn.bootcss.com/bootstrap-table/1.11.1/locale/bootstrap-table-zh-CN.min.js"></script>
     <script src="js/layer.js" type="text/javascript"></script>
+    <script type="text/javascript" src="/wangEditor/release/wangEditor.min.js"></script>
 
     
 
@@ -37,15 +41,19 @@
         <h3>我的分享</h3>
     </div>
     <div class="panel-body form-group" style="margin-bottom:0px;">
-        <label class="col-sm-1 control-label" style="text-align: right; margin-top:5px">用户名：</label>
+        <label class="col-sm-1 control-label" style="text-align: right; margin-top:5px">用户名</label>
         <div class="col-sm-2">
             <input type="text" class="form-control" name="Name" id="search_share"/>
         </div>
         <div class="col-sm-1 col-sm-offset-4">
-            <button class="btn btn-primary" id="search_share_btn">查询</button>
+            <button class="btn btn-primary"  onclick="searchShare();">查询</button>
         </div>
     </div>
 </div>
+
+<button id="btn_add" type="button" class="btn btn-info btn-sm rightSize" style="border-radius: 4px">
+    <span ><a type="button" class="btn btn-primary" href="/createNDA">新建交易</a></span>
+</button>
 <table id="tableShare" class="table table-hover"></table>
 
 <div class="panel panel-default">
@@ -53,17 +61,27 @@
         <h3>分享给我的</h3>
     </div>
     <div class="panel-body form-group" style="margin-bottom:0px;">
-        <label class="col-sm-1 control-label" style="text-align: right; margin-top:5px">用户名：</label>
+        <label class="col-sm-1 control-label" style="text-align: right; margin-top:5px">用户名</label>
         <div class="col-sm-2">
             <input type="text" class="form-control" name="Name" id="search_shareTo_name"/>
         </div>
         <div class="col-sm-1 col-sm-offset-4">
-            <button class="btn btn-primary" id="search_shareTo_btn">查询</button>
+            <button class="btn btn-primary" onclick="searchShareTo();">查询</button>
         </div>
     </div>
 </div>
 <table id="tableShareTo" class="table table-hover"></table>
 
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="modal-show-NDA" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" id="modal-show-NDA-body">
+    </div><!-- /.modal -->
+</div>
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="modal-update-NDA"  tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" id="modal-update-NDA-body">
+    </div><!-- /.modal -->
+</div>
 
 
 <script type="text/javascript">
@@ -102,17 +120,13 @@
                 offset: params.offset, // 每页显示数据的开始行号
                 sort: params.sort, // 要排序的字段
                 sortOrder: params.order, // 排序规则
-                dataId: $("#search_name").val() // 额外添加的参数
+                searchShare: $("#search_share").val() // 额外添加的参数
             }
         },
         sortName: 'id', // 要排序的字段
         sortOrder: 'desc', // 排序规则
         columns: [
             {
-                checkbox: true, // 显示一个勾选框
-                align: 'center', // 居中显示
-                width:100
-            }, {
                 field: 'ndaid', // 返回json数据中的name
                 title: 'NDA编号', // 表格表头显示文字
                 align: 'center', // 左右居中
@@ -124,17 +138,25 @@
                 editable : true,
                 valign: 'middle'
             }, {
-                field: 'id',
+                field: 'sharestatus',
                 title: "操作",
                 align: 'center',
                 valign: 'middle',
                 width: 360, // 定义列的宽度，单位为像素px
 
                 formatter: function (value, row, index) {
-                    console.log(value+"=="+row+"=="+index)
-                    return '<button class="btn-default" ><a  href="/shareFile/'+ value +'"> 分享</a>  </button>  ';
+                    console.log(value+"===="+row.username+"=="+index)
+                    // return '<button class="btn-default" ><a  href="/shareFile/'+ value +'"> 详情</a>  </button>  ';
+                    if(value == "0") { //  0 待确认 1 同意 2 被拒 3 待对方确认
+                        return '<button class="btn btn-default" name="'+ row.ndaid +'" onclick="showNDA(this);" >待确认</button> ';
+                    }else if(value == "1") {
+                        return '<a  class="btn btn-success" name="'+ row.ndaid +'" href="/fileTranslation"  >同意（会话开始）</a> ';
+                    }else if(value == "2") {
+                        return '<button class="btn btn-danger">被拒</button> ';
+                    }else if(value == "3") {
+                        return '<button class="btn btn-primary" >待对方确认</button> ';
+                    }
                 }
-
             }
         ],
     })
@@ -174,17 +196,13 @@
                 offset: params.offset, // 每页显示数据的开始行号
                 sort: params.sort, // 要排序的字段
                 sortOrder: params.order, // 排序规则
-                dataId: $("#search_name").val() // 额外添加的参数
+                searchShareTo: $("#search_shareTo_name").val() // 额外添加的参数
             }
         },
         sortName: 'id', // 要排序的字段
         sortOrder: 'desc', // 排序规则
         columns: [
             {
-                checkbox: true, // 显示一个勾选框
-                align: 'center', // 居中显示
-                width:100
-            }, {
                 field: 'ndaid', // 返回json数据中的name
                 title: 'NDA编号', // 表格表头显示文字
                 align: 'center', // 左右居中
@@ -196,22 +214,118 @@
                 editable : true,
                 valign: 'middle'
             }, {
-                field: 'id',
+                field: 'receiverstatus',
                 title: "操作",
                 align: 'center',
                 valign: 'middle',
                 width: 360, // 定义列的宽度，单位为像素px
 
                 formatter: function (value, row, index) {
-                    console.log(value+"=="+row+"=="+index)
-                    return '<button class="btn-default" ><a  href="/shareFile/'+ value +'"> 分享</a>  </button>  ';
+                    console.log(value+"=="+row.toString()+"=="+index)
+                    if(value == "0") { //  0 待确认 1 同意 2 已拒绝 3 待对方确认
+                        return '<button class="btn btn-default" name="'+ row.ndaid +'" onclick="showNDA(this);" >待确认</button> ';
+                    }else if(value == "1") {
+                        return '<a class="btn btn-success" name="'+ row.ndaid +'" href="/shareFile" >同意（会话开始）</a> ';
+                    }else if(value == "2") {
+                        return '<button class="btn btn-danger" >已拒绝</button> ';
+                    }else if(value == "3") {
+                        return '<button class="btn btn-primary" >待对方确认</button> ';
+                    }
                 }
 
             }
         ],
     })
+    function searchShare() {
+        $("#tableShare").bootstrapTable('refresh');
+    }
+    function  searchShareTo() {
+        $("#tableShareTo").bootstrapTable('refresh');
+    }
 
+    function showNDA(node) {
+        $.ajax({
+            url:"/showNDA",
+            type:"GET",
+            data:{
+                ndaid : node.name,
+            },
+            dateType:"html",
+            success:function(result) {
+                $("#modal-show-NDA-body").html(result);
+                $("#modal-show-NDA").modal("show");
 
+            }
+        });
+    }
+
+    function refuseNDA(node) {
+        $.ajax({
+            url:"/refuseNDA",
+            type:"GET",
+            data:{
+                ndaid : node.name,
+            },
+            dateType:"json",
+            success:function(result) {
+                searchShare();
+                searchShareTo();
+                $("#modal-show-NDA").modal("hide");
+
+            }
+        });
+    }
+    function agreeNDA(node) {
+        $.ajax({
+            url:"/agreeNDA",
+            type:"GET",
+            data:{
+                ndaid : node.name,
+            },
+            dateType:"json",
+            success:function(result) {
+                searchShare();
+                searchShareTo();
+                $("#modal-show-NDA").modal("hide");
+
+            }
+        });
+    }
+    function showUpdateNDA(node) {
+        $.ajax({
+            url:"/showUpdateNDA",
+            type:"GET",
+            data:{
+                ndaid : node.name,
+            },
+            dateType:"html",
+            success:function(result) {
+                $("#modal-show-NDA").modal("hide");
+                $("#modal-update-NDA-body").html(result);
+                $("#modal-update-NDA").modal("show");
+
+            }
+        });
+    }
+    function updateAndAgreeNDA(node) {
+        var value =  ndaitems.txt.html(); //获取值
+        //alert(node.name);
+        //向后台发送处理数据
+        $.ajax({
+            url:"/updateNDA",
+            type:"POST",
+            data:{
+                ndaitems:value,
+                id:node.name,
+            },
+            dateType:"json",
+            success:function(result) {
+                searchShare();
+                searchShareTo();
+                $("#modal-update-NDA").modal("hide");
+            }
+        });
+    }
 
 </script>
 </body>

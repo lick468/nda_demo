@@ -5,6 +5,8 @@ import com.github.pagehelper.PageInfo;
 import com.nenu.domain.TblNdaitemtpl;
 import com.nenu.domain.TblUserinfo;
 import com.nenu.mapper.TblNdaitemtplMapper;
+import com.nenu.utils.IpUtil;
+import org.apache.tomcat.util.net.IPv6Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -37,10 +39,14 @@ public class NDATemplateController {
         TblUserinfo currentUser = (TblUserinfo) session.getAttribute("currentUser");
         String username = currentUser.getUsername();
         String ndaItem = request.getParameter("ndaItem");
+        System.out.println(ndaItem);
+        String ndaTitle = request.getParameter("ndaTitle");
         TblNdaitemtpl tblNdaitemtpl = new TblNdaitemtpl();
         tblNdaitemtpl.setCreateusername(username);
+        tblNdaitemtpl.setNdatitle(ndaTitle);
         tblNdaitemtpl.setCreatetime(new Date());
         tblNdaitemtpl.setNdaitem(ndaItem);
+        tblNdaitemtpl.setCreateip(IpUtil.getIpAddress(request));
         tblNdaitemtplMapper.insert(tblNdaitemtpl);
         return "main";
     }
@@ -51,7 +57,7 @@ public class NDATemplateController {
      * @param map
      * @return
      */
-    @GetMapping(value = "updateNDATemplate")
+    @GetMapping(value = "/updateNDATemplate")
     public String updateNDATemplate(HttpServletRequest request, ModelMap map) {
         String id = request.getParameter("id");
         Example example = new Example(TblNdaitemtpl.class);
@@ -73,11 +79,14 @@ public class NDATemplateController {
         TblUserinfo currentUser = (TblUserinfo) session.getAttribute("currentUser");
         String id = request.getParameter("id");
         String ndaItem = request.getParameter("ndaItem");
-        Example example = new Example(TblNdaitemtpl.class);
+        String ndatitle = request.getParameter("ndatitle");
+
         TblNdaitemtpl tblNdaitemtpl = new TblNdaitemtpl();
         tblNdaitemtpl.setId(Integer.parseInt(id));
         tblNdaitemtpl.setNdaitem(ndaItem);
+        tblNdaitemtpl.setNdatitle(ndatitle);
         tblNdaitemtpl.setUpdatetime(new Date());
+        tblNdaitemtpl.setUpdateip(IpUtil.getIpAddress(request));
         tblNdaitemtpl.setUpdateusername(currentUser.getUsername());
         tblNdaitemtplMapper.updateByPrimaryKeySelective(tblNdaitemtpl);
         return "main";
@@ -90,7 +99,7 @@ public class NDATemplateController {
      * @param map
      * @return
      */
-    @GetMapping(value = "NDATemplateDetail")
+    @GetMapping(value = "/NDATemplateDetail")
     public String NDATemplateDetail(HttpServletRequest request, ModelMap map) {
         String id = request.getParameter("id");
         Example example = new Example(TblNdaitemtpl.class);
@@ -110,14 +119,17 @@ public class NDATemplateController {
      */
     @RequestMapping(value="/getNDATemplateData",method = RequestMethod.POST)
     @ResponseBody
-    public Map<String, Object> getNoDisclosureData(Integer pageSize, Integer offset, String searchTitle) {
+    public Map<String, Object> getNoDisclosureData(HttpSession session,Integer pageSize, Integer offset, String searchTitle) {
+        TblUserinfo currentUser = (TblUserinfo) session.getAttribute("currentUser");
         Map<String, Object> map = new HashMap<String, Object>();
         // PageHelper 使用非常简单，只需要设置页码和每页显示笔数即可
         PageHelper.startPage(offset, pageSize);
         // 设置分页查询条件
         Example example = new Example(TblNdaitemtpl.class);
+        Example.Criteria criteria = example.createCriteria();
+        criteria.andEqualTo("createusername",currentUser.getUsername());
         if(searchTitle!=null && searchTitle.length() > 0) {
-            example.createCriteria().andLike("ndaitem","%" + searchTitle + "%");
+            criteria.andLike("ndatitle","%" + searchTitle + "%");
         }
         PageInfo<TblNdaitemtpl> pageInfo = new PageInfo<TblNdaitemtpl>(tblNdaitemtplMapper.selectByExample(example));
 

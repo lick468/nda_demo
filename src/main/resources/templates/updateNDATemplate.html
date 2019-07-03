@@ -1,5 +1,5 @@
 <div class="modal-content" xmlns:th="http://www.w3.org/1999/xhtml">
-    <script src="https://cdn.ckeditor.com/4.11.4/standard/ckeditor.js"></script>
+    <script type="text/javascript" src="/wangEditor/release/wangEditor.min.js"></script>
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
             &times;
@@ -11,7 +11,18 @@
     <div class="modal-body" >
         <div class="row">
             <div class="col-xs-12">
-                <textarea  id="updateNDAItem" name="updateNDAItem" th:utext="${tblNdaitemtpl.ndaitem}" ></textarea>
+                <h4>标题</h4>
+                <hr>
+            </div>
+            <div class="col-xs-12" style="margin-bottom: 20px;">
+                <input  id="updateNDATitle" class="form-control" th:value="${tblNdaitemtpl.ndatitle}" >
+            </div>
+            <div class="col-xs-12">
+                <h4>NDA条款</h4>
+                <hr>
+            </div>
+            <div class="col-xs-12">
+                <span  id="updateNDAItem" name="updateNDAItem" th:utext="${tblNdaitemtpl.ndaitem}" ></span>
             </div>
         </div>
     </div>
@@ -24,7 +35,30 @@
     </div>
 
     <script type="text/javascript">
-        CKEDITOR.replace('updateNDAItem');
+        var EE = window.wangEditor;
+        var updateNDAItem = new EE('#updateNDAItem');
+        updateNDAItem.create();
+        // 自定义菜单配置
+        updateNDAItem.customConfig.menus = [
+            'head',  // 标题
+            'bold',  // 粗体
+            'fontSize',  // 字号
+            'fontName',  // 字体
+            'italic',  // 斜体
+            'underline',  // 下划线
+            'strikeThrough',  // 删除线
+            'foreColor',  // 文字颜色
+            'backColor',  // 背景颜色
+            'link',  // 插入链接
+            'list',  // 列表
+            'justify',  // 对齐方式
+            'quote',  // 引用
+            'emoticon',  // 表情
+            'image',  // 插入图片
+            'table',  // 表格
+            'undo',  // 撤销
+            'redo'  // 重复
+        ];
     </script>
 </div><!-- /.modal-content -->
 

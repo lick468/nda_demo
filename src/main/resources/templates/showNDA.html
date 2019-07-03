@@ -1,0 +1,43 @@
+<div class="modal-content" xmlns:th="http://www.w3.org/1999/xhtml">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+            &times;
+        </button>
+        <h4 class="modal-title" id="myModalLabel">
+            查看NDA
+        </h4>
+    </div>
+    <div class="modal-body" >
+        <div class="row">
+            <div class="col-xs-12">
+                <h3>简介</h3>
+                <hr>
+            </div>
+            <div class="col-xs-12">
+                <p th:text="${tblNdabasicinfo.abstractcontext}"></p>
+            </div>
+            <div class="col-xs-12">
+                <h3>NDA条款</h3>
+                <hr>
+            </div>
+            <div class="col-xs-12" style="height:400px;overflow:auto;">
+                <span th:utext="${tblNdabasicinfo.ndaitems}" ></span>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-danger" th:name="${tblNdabasicinfo.id}"  onclick="refuseNDA(this);">
+            拒绝
+        </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <button type="button" class="btn btn-primary" th:name="${tblNdabasicinfo.id}"  onclick="showUpdateNDA(this);">
+            修改
+        </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <button type="button" class="btn btn-success" th:name="${tblNdabasicinfo.id}"  onclick="agreeNDA(this);">
+            同意
+        </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <button type="button" class="btn btn-default" data-dismiss="modal">
+            关闭
+        </button>
+    </div>
+</div><!-- /.modal-content -->
+

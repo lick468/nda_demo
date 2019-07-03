@@ -1,7 +1,7 @@
 package com.nenu.domain;
 
-import javax.persistence.*;
 import java.util.Date;
+import javax.persistence.*;
 
 @Table(name = "tbl_ndaitemtpl")
 public class TblNdaitemtpl {
@@ -48,6 +48,12 @@ public class TblNdaitemtpl {
      */
     @Column(name = "UpdateIP")
     private String updateip;
+
+    /**
+     * NDA标题
+     */
+    @Column(name = "NDATitle")
+    private String ndatitle;
 
     /**
      * NDA条款
@@ -179,6 +185,24 @@ public class TblNdaitemtpl {
      */
     public void setUpdateip(String updateip) {
         this.updateip = updateip;
+    }
+
+    /**
+     * 获取NDA标题
+     *
+     * @return NDATitle - NDA标题
+     */
+    public String getNdatitle() {
+        return ndatitle;
+    }
+
+    /**
+     * 设置NDA标题
+     *
+     * @param ndatitle NDA标题
+     */
+    public void setNdatitle(String ndatitle) {
+        this.ndatitle = ndatitle;
     }
 
     /**

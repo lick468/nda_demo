@@ -1,7 +1,7 @@
 package com.nenu.domain;
 
-import javax.persistence.*;
 import java.util.Date;
+import javax.persistence.*;
 
 @Table(name = "tbl_docbrowseinfo")
 public class TblDocbrowseinfo {

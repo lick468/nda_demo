@@ -18,8 +18,14 @@
     <script src="/js/bootstrap.min.js?v=3.3.6"></script>
     <!--<script src="/js/ckeditor.js"></script>-->
     <script src="https://cdn.ckeditor.com/4.11.4/standard/ckeditor.js"></script>
+    <link href="/css/font-awesome.css?v=4.4.0" rel="stylesheet">
+    <link href="/css/animate.css" rel="stylesheet">
 
+    <link href="/css/style.css?v=4.1.0" rel="stylesheet">
     <link href="/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <script type="text/javascript" src="/dropzone/dropzone.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/dropzone/dropzone.min.css" />
+
 
 
 
@@ -31,44 +37,51 @@
     </div>
     <div class="row clearfix">
         <div class="col-md-12 column">
-            <form  action="" class="form-horizontal m-t" id="signupForm1" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label class="col-sm-12 control-label"></label>
+            </div>
+            <form  action="/share" class="form-horizontal m-t"  method="post" enctype="multipart/form-data">
                 <div class="form-group">
                     <label class="col-sm-3 control-label">标题：</label>
                     <div class="col-sm-8">
-                        <input id="assetsTitle" name="assetsTitle" class="form-control valid" placeholder="请输入标题" type="text" aria-required="true" aria-invalid="false">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">关键字：</label>
-                    <div class="col-sm-8">
-                        <input id="assetsTitless" name="assetsTitle" class="form-control valid" placeholder="请输入关键字，多个用空格隔开" type="text" aria-required="true" aria-invalid="false">
+                        <input  name="title" class="form-control valid" placeholder="请输入标题" type="text" aria-required="true" aria-invalid="false">
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-3 control-label">简介：</label>
+
                     <div class="col-sm-8">
-                        <textarea class="form-control valid" id="assetsAbstract" name="assetsAbstract" placeholder="请输入简介"  style="min-height: 100px;max-height: 300px;"></textarea>
+                        <textarea class="form-control valid"  name="abstractcontext" placeholder="请输入简介"  style="min-height: 100px;max-height: 300px;"></textarea>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-3 control-label">NDA条款：</label>
                     <div class="col-sm-8">
-                        <textarea  id="assetsAbstracaat" name="TextArea1" ></textarea>
+                        <select class="form-control" name="ndaid">
+                            <option  th:value="请选择">--选择NDA模板--</option>
+                            <option th:each="nda:${NDAs}" th:text="${nda.ndatitle}" th:value="${nda.id}"></option>
+                        </select>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-3 control-label">分享给：</label>
                     <div class="col-sm-8">
-                        <select class="form-control" name="aa">
+                        <select class="form-control" name="username">
                             <option  th:value="请选择">--请选择--</option>
                             <option th:each="user:${users}" th:text="${user.username}" th:value="${user.username}"></option>
                         </select>
                     </div>
                 </div>
                 <div class="form-group">
+                    <label class="col-sm-3 control-label">附件：</label>
+                    <div class="col-sm-8">
+                        <div id="dropzone" class="dropzone well" >
+                    </div>
+                </div>
+                <div class="form-group">
                     <label class="col-sm-3 control-label">备注：</label>
                     <div class="col-sm-8">
-                        <input id="asdddsetsTitle" name="assetsTitle" class="form-control "  type="text" >
+                        <input id="memo" name="memo" class="form-control "  type="text" >
                     </div>
                 </div>
                 <div class="form-group">
@@ -83,11 +96,83 @@
 
 
 <script type="text/javascript">
-    CKEDITOR.replace('TextArea1');
+    jQuery(function($){
+        // 初始化Dropzone控件
+        var signFileName = [];//上次，文件名称
+        try {
+            Dropzone.autoDiscover = false;
+
+            var myDropzone = new Dropzone('#dropzone', {
+                url:'/upload',
+                method: "post",  //也可用put
+                paramName: "file",
+                maxFilesize: 1000.0, // 上传的文件大小
+                maxFiles:1,//一次性上传的文件数量上限
+                acceptedFiles: ".rmvb,.mkv,.mpg,.psd,.jpg,.png,.gif,.mp3,.wma,.docx,.xls,.xlsx,.ppt,.mov,.mp4,.pdf,.txt,.sql,.doc,.html",
+                addRemoveLinks : true,//添加移除文件
+                autoProcessQueue: true,//不自动上传
+                dictCancelUploadConfirmation:'你确定要取消上传吗？',
+                dictMaxFilesExceeded: "只能上传{{maxFiles}}个文件",
+                dictFileTooBig:"文件过大({{filesize}}MB). 上传文件最大支持: {{maxFilesize}}MB.",
+                dictResponseError: '文件上传失败!',
+                dictInvalidFileType: "你不能上传该类型文件,文件类型只能是.rmvb,.mkv,.mpg,.psd,.jpg,.png,.gif,.mp3,.wma,.docx,.xls，.xlsx,.ppt,.mov,.mp4。",
+                dictCancelUpload: "取消上传",
+                dictCancelUploadConfirmation: "你确定要取消上传吗?",
+                dictRemoveFile: "移除文件",
+                uploadMultiple:true,
+                //无文件时展示的信息
+                dictDefaultMessage:
+                    '<span class="bigger-150 bolder"><i class="ace-icon fa fa-caret-right red"></i> 拖拽文件到此处</span> \
+                    <span class="smaller-80 grey">(或点击下面的上传按钮选择待上传文件)</span> <br /> \
+                    <i class="upload-icon ace-icon fa fa-cloud-upload blue fa-3x"></i>'
+                ,
+                init: function() {
+                    //上传文件时触发的事件
+                    this.on("addedfile", function(file,data) {
+                        //浏览器控制台输出js
+                        console.log("File " + file.name + "uploadedsss");
+                        var fileName = file.name;
+                        // 上传文件存在，就删除
+                        if(signFileName.indexOf(fileName) != -1){
+                            this.removeFile(file);
+                        }else{
+                            signFileName.push(fileName);
+                        }
+                    });
+                    //上传文件成功时触发的事件
+                    this.on("success", function(file,data) {
+                        // var value = $("#nameURL").val();
+                        // var url = "https://ipfs.io/ipfs/"+ data;
+                        // value = value + url + '<br>';
+                        // $("#nameURL").val(value);
+                        //alert(data);
+                        console.log("File " + file.name + "uploaded");
+                    });
+                    //移除文件触发的事件
+                    this.on("removedfile", function(file,data) {
+                        console.log("File " + file.name + "removed");
+                        //向后台发送处理数据
+                        $.ajax({
+                            url:"/user/removedfile",
+                            type:"GET",
+                            data:{
+                                fileName:file.name,
+                            },
+                            dateType:"json",
+                            success:function(result) {
+                                console.log(result);
+                            }
+                        });
+                    });
+                }
+            });
+
+        } catch(e) {
+            alert('文件上传控件不支持当前版本浏览器,请使用IE8及以上浏览器!');
+        }
+    });
 
 </script>
-
-
 
 </body>
 

@@ -1,10 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>分享记录</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <script src="https://cdn.ckeditor.com/4.11.4/standard/ckeditor.js"></script>
+    <script src="/js/jquery.min.js?v=2.1.4"></script>
+    <script src="/js/jQuery-2.2.0.min.js"></script>
+
+    <!-- jquery -->
+    <script src="https://cdn.bootcss.com/jquery/2.2.3/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
     <link href="/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
     <style type="text/css">
         .talk_con{
@@ -103,18 +108,28 @@
 </head>
 <body>
     <div class="talk_con">
+        <button  class="previewBtn">文件预览</button>
+        文件发送
         <div class="talk_show" id="words">
-            <div class="atalk"><span id="asay">A说：吃饭了吗？</span></div>
-            <div class="btalk"><span id="bsay">B说：还没呢，你呢？</span></div>
+            <div class="btalk"><span id="bsay">muqing：创意2.ppt <small style="color: #D3D4D3">2019-06-23 12:33:21</small> </span></div>
+            <div class="atalk"><span id="asay">huaijin：创意1.doc <small style="color: #D3D4D3">2019-06-23 16:23:44</small> </span></div>
         </div>
         <div class="talk_input">
-            <select class="whotalk" id="who">
-                <option value="0">A说：</option>
-                <option value="1">B说：</option>
-            </select>
             <input type="file" class="talk_word" id="talkwords">
-            <input type="button" value="分享" class="talk_sub" id="talksub">
+            <input type="button" value="分享" class="btn btn-primary" id="talksub">
         </div>
     </div>
+<script type="text/javascript">
+    $(".previewBtn").click(function () {
+        var curWwwPath=window.document.location.href;
+        var pathName=window.document.location.pathname;
+        var pos=curWwwPath.indexOf(pathName);
+        var localhostPath=curWwwPath.substring(0,pos);
+        localhostPath = "http://localhost/index";
+        console.log(localhostPath);
+        window.open("/pdfjs/web/viewer.html?file=/previewpdf?fileName=test.pdf");
+
+    });
+</script>
 </body>
 </html>

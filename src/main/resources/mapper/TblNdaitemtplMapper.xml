@@ -12,6 +12,7 @@
     <result column="UpdateUserName" jdbcType="VARCHAR" property="updateusername" />
     <result column="UpdateTime" jdbcType="TIMESTAMP" property="updatetime" />
     <result column="UpdateIP" jdbcType="VARCHAR" property="updateip" />
+    <result column="NDATitle" jdbcType="VARCHAR" property="ndatitle" />
     <result column="NDAItem" jdbcType="LONGVARCHAR" property="ndaitem" />
   </resultMap>
 </mapper>

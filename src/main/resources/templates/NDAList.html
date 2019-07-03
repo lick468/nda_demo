@@ -30,7 +30,9 @@
     <!-- 引入中文语言包 -->
     <script src="https://cdn.bootcss.com/bootstrap-table/1.11.1/locale/bootstrap-table-zh-CN.min.js"></script>
 
-    <script src="https://cdn.ckeditor.com/4.11.4/standard/ckeditor.js"></script>
+    <script type="text/javascript" src="/wangEditor/release/wangEditor.min.js"></script>
+    <script type="text/javascript" src="/wangEditor/fullscreen/wangEditor-fullscreen-plugin.js"></script>
+    <link href="/wangEditor/fullscreen/wangEditor-fullscreen-plugin.css" rel="stylesheet">
 
 
 </head>
@@ -61,13 +63,13 @@
                     <div id="myTabContent" class="tab-content">
                         <div class="tab-pane fade in active" id="myList">
                             <div class="panel panel-default">
-                                <div class="panel-body form-group" style="margin-bottom:0px;">
-                                    <label class="col-sm-1 control-label" style="text-align: right; margin-top:5px">标题：</label>
+                                <div class="panel-body form-group" style="margin-top:0px;">
+                                    <label class="col-sm-1 control-label" style="text-align: right; margin-top:5px">标题</label>
                                     <div class="col-sm-2">
                                         <input type="text" class="form-control" name="searchTitle" id="searchTitle"/>
                                     </div>
                                     <div class="col-sm-1 col-sm-offset-4">
-                                        <button class="btn btn-primary" id="search_btn" onclick="serachTitle();">查询</button>
+                                        <button class="btn btn-primary" id="search_btn" type="button" onclick="serachTitle();">查询</button>
                                     </div>
                                 </div>
                             </div>
@@ -75,16 +77,29 @@
                         </div>
                         <div class="tab-pane fade " id="newList">
                             <div class="ibox-content">
+                                <div class="form-group">
+                                    <label class="col-sm-12 control-label"></label>
+                                </div>
                                 <form   class="form-horizontal m-t"   >
+                                    <div class="form-group">
+                                        <label class="col-sm-3 control-label">标题：</label>
+                                        <div class="col-sm-8">
+                                            <input id="ndatitle" name="ndatitle" class="form-control "  type="text" >
+                                        </div>
+                                    </div>
                                     <div class="form-group">
                                         <label class="col-sm-3 control-label">NDA条款：</label>
                                         <div class="col-sm-8">
-                                            <textarea  id="ndaitem" name="ndaitem" ></textarea>
+                                            <select class="form-control" name="ndaid" onchange="chooseNDATemplate(this);">
+                                                <option  th:value="示例文字" style="text-align: center;">导入已有模板</option>
+                                                <option th:each="nda:${NDAs}" th:text="${nda.ndatitle}" th:value="${nda.ndaitem}"></option>
+                                            </select>
+                                            <span  id="ndaitem" name="ndaitem"></span>
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <div class="col-sm-8 col-sm-offset-3">
-                                            <button class="btn btn-primary" onclick="createNDATemplate();">提交</button>
+                                            <button class="btn btn-primary" type="button" onclick="createNDATemplate();">提交</button>
                                         </div>
                                     </div>
                                 </form>
@@ -111,7 +126,33 @@
 
 
 <script type="text/javascript">
-  var value =   CKEDITOR.replace('ndaitem');
+  var E = window.wangEditor;
+  var editor = new E('#ndaitem');
+  editor.create();
+  // E.fullscreen.init('#ndaitem');
+  // 自定义菜单配置
+  editor.customConfig.menus = [
+      'head',  // 标题
+      'bold',  // 粗体
+      'fontSize',  // 字号
+      'fontName',  // 字体
+      'italic',  // 斜体
+      'underline',  // 下划线
+      'strikeThrough',  // 删除线
+      'foreColor',  // 文字颜色
+      'backColor',  // 背景颜色
+      'link',  // 插入链接
+      'list',  // 列表
+      'justify',  // 对齐方式
+      'quote',  // 引用
+      'emoticon',  // 表情
+      'image',  // 插入图片
+      'table',  // 表格
+      'video',  // 插入视频
+      'code',  // 插入代码
+      'undo',  // 撤销
+      'redo'  // 重复
+  ];
 
 
   $(function () {
@@ -160,17 +201,8 @@
         sortOrder: 'desc', // 排序规则
         columns: [
             {
-                checkbox: true, // 显示一个勾选框
-                align: 'center', // 居中显示
-                width:100
-            }, {
-                field: 'id', // 返回json数据中的name
-                title: '编号', // 表格表头显示文字
-                align: 'center', // 左右居中
-                valign: 'middle' // 上下居中
-            }, {
-                field: 'ndaitem', // 返回json数据中的name
-                title: 'NDA条款', // 表格表头显示文字
+                field: 'ndatitle', // 返回json数据中的name
+                title: 'NDA标题', // 表格表头显示文字
                 align: 'center', // 左右居中
                 valign: 'middle',// 上下居中
 
@@ -184,39 +216,33 @@
                 valign: 'middle',
                 width: 360, // 定义列的宽度，单位为像素px
                 formatter: function (value, row, index) {
-                    console.log(value+"=="+row+"=="+index)
-                    return '<button class="btn-default" name="'+ value +'" onclick="updateNDATemplate(this);" >修改  </button> <button class="btn-default" name="'+ value +'" onclick="NDATemplateDetail(this);">查看 </button>  ';
+                    console.log(value+"===="+row.toString()+"=="+index)
+                    return '<button class="btn btn-primary" type="button" name="'+ value +'" onclick="updateNDATemplate(this);" >修改  </button> &nbsp;&nbsp;&nbsp;&nbsp; <button class="btn btn-success" type="button" name="'+ value +'" onclick="NDATemplateDetail(this);">详情 </button>  ';
                 }
 
             }
         ],
 
 
-        onLoadSuccess: function(res){  //加载成功时执行
-            //$("#table").bootstrapTable("load",res);
-            //console.log(res)
-            console.info("加载成功");
-        },
-        onLoadError: function(){  //加载失败时执行
-            console.info("加载数据失败");
-        }
-
     })
     function  serachTitle() {
         $("#table").bootstrapTable('refresh');
     }
     function createNDATemplate() {
-       // alert(value.getData());
+        var ndaTitle = $("#ndatitle").val();
+        //获取 wangEditor 内容
+        var content = editor.txt.html();
         //向后台发送处理数据
         $.ajax({
             url:"/createNDATemplate",
             type:"POST",
             data:{
-                ndaItem:value.getData(),
+                ndaItem:content,
+                ndaTitle: ndaTitle,
             },
             dateType:"json",
             success:function(result) {
-                window.reload();
+                location.reload();
             }
         });
     }
@@ -251,7 +277,9 @@ function updateNDATemplate(node) {
       });
   }
   function updateNDAItem(node) {
-     var value =  CKEDITOR.instances.updateNDAItem.getData(); //获取值
+     //获取 wangEditor 内容
+     var value = editor.txt.html();
+     var title =  $("#updateNDATitle").val();
       //alert(node.name);
       //向后台发送处理数据
       $.ajax({
@@ -259,6 +287,7 @@ function updateNDATemplate(node) {
           type:"POST",
           data:{
               ndaItem:value,
+              ndatitle:title,
               id:node.name,
           },
           dateType:"json",
@@ -268,6 +297,13 @@ function updateNDATemplate(node) {
           }
       });
   }
+
+  function chooseNDATemplate(node) {
+      var index = node.selectedIndex;
+      // 设置内容
+      editor.txt.html(node.options[index].value);
+  }
+
 </script>
 
 

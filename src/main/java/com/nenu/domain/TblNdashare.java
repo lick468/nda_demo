@@ -1,7 +1,7 @@
 package com.nenu.domain;
 
-import javax.persistence.*;
 import java.util.Date;
+import javax.persistence.*;
 
 @Table(name = "tbl_ndashare")
 public class TblNdashare {
@@ -74,10 +74,22 @@ public class TblNdashare {
     private String valid;
 
     /**
-     * 是否查看 0 未查看 1 同意 2 修改 3 拒绝
+     * 0 待确认 1 同意 2 被拒 3 待对方确认
      */
-    @Column(name = "Status")
-    private String status;
+    @Column(name = "ShareStatus")
+    private String sharestatus;
+
+    /**
+     * 0 待确认 1 同意 2 已拒绝 3 待对方确认
+     */
+    @Column(name = "ReceiverStatus")
+    private String receiverstatus;
+
+    /**
+     * 是否携带文件   1 是  2 不是
+     */
+    @Column(name = "HaveFile")
+    private String havefile;
 
     /**
      * 获取ID
@@ -278,20 +290,56 @@ public class TblNdashare {
     }
 
     /**
-     * 获取是否查看
+     * 获取0 待确认 1 同意 2 被拒 3 待对方确认
      *
-     * @return Status - 是否查看
+     * @return ShareStatus - 0 待确认 1 同意 2 被拒 3 待对方确认
      */
-    public String getStatus() {
-        return status;
+    public String getSharestatus() {
+        return sharestatus;
     }
 
     /**
-     * 设置是否查看
+     * 设置0 待确认 1 同意 2 被拒 3 待对方确认
      *
-     * @param status 是否查看
+     * @param sharestatus 0 待确认 1 同意 2 被拒 3 待对方确认
      */
-    public void setStatus(String status) {
-        this.status = status;
+    public void setSharestatus(String sharestatus) {
+        this.sharestatus = sharestatus;
+    }
+
+    /**
+     * 获取0 待确认 1 同意 2 已拒绝 3 待对方确认
+     *
+     * @return ReceiverStatus - 0 待确认 1 同意 2 已拒绝 3 待对方确认
+     */
+    public String getReceiverstatus() {
+        return receiverstatus;
+    }
+
+    /**
+     * 设置0 待确认 1 同意 2 已拒绝 3 待对方确认
+     *
+     * @param receiverstatus 0 待确认 1 同意 2 已拒绝 3 待对方确认
+     */
+    public void setReceiverstatus(String receiverstatus) {
+        this.receiverstatus = receiverstatus;
+    }
+
+    /**
+     * 获取是否携带文件   1 是  2 不是
+     *
+     * @return HaveFile - 是否携带文件   1 是  2 不是
+     */
+    public String getHavefile() {
+        return havefile;
+    }
+
+    /**
+     * 设置是否携带文件   1 是  2 不是
+     *
+     * @param havefile 是否携带文件   1 是  2 不是
+     */
+    public void setHavefile(String havefile) {
+        this.havefile = havefile;
     }
 }

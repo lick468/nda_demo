@@ -27,17 +27,20 @@
 
             <div class="col-xs-6">
                 <dl>
-                    <dt>创建时间：</dt>
-                    <dd th:text="${userInfo.createtime}"></dd>
+                    <dt>真实姓名：</dt>
+                    <dd th:text="${userInfo.name}"></dd>
                     <br />
 
-                    <dt>更新时间：</dt>
-                    <dd th:text="${userInfo.updatetime}"></dd>
+                    <dt>注册时间：</dt>
+                    <dd th:text="${#dates.format(userInfo.createtime, 'yyyy-MM-dd')}"></dd>
                 </dl>
             </div>
         </div>
     </div>
     <div class="modal-footer">
+        <button type="button" class="btn btn-primary" th:id="${userInfo.id}" onclick="showUserUpdate(this);">
+            编辑
+        </button>
         <button type="button" class="btn btn-primary" th:id="${userInfo.id}" onclick="showPasswordDetail(this);">
             修改密码
         </button>

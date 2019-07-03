@@ -1,0 +1,74 @@
+<div class="modal-content" xmlns:th="http://www.w3.org/1999/xhtml">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+            &times;
+        </button>
+        <h4 class="modal-title" id="myModalLabel">
+            个人信息编辑
+        </h4>
+    </div>
+    <div class="modal-body" >
+        <div class="row">
+            <input type="hidden" id="userID" th:value="${userInfo.id}">
+            <div class="form-group" >
+                <label class="col-sm-3 control-label">用户名：</label>
+                <div class="col-sm-8">
+                    <input id="username" class="form-control valid" placeholder="请输入用户名" type="text" th:value="${userInfo.username}" >
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-12 control-label"></label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">真实姓名：</label>
+                <div class="col-sm-8">
+                    <input id="name"  class="form-control valid" placeholder="请输入真实姓名" type="text" th:value="${userInfo.name}" >
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-12 control-label"></label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">身份证号：</label>
+                <div class="col-sm-8">
+                    <input id="certid" class="form-control valid" placeholder="请输身份证号" type="text" th:value="${userInfo.certid}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-12 control-label"></label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">固定电话：</label>
+                <div class="col-sm-8">
+                    <input id="phoneno"  class="form-control valid" placeholder="请输入固定电话" type="text" th:value="${userInfo.phoneno}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-12 control-label"></label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">移动电话：</label>
+                <div class="col-sm-8">
+                    <input id="mobilephone"  class="form-control valid" placeholder="请输入移动电话" type="text" th:value="${userInfo.mobilephone}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-12 control-label"></label>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">邮箱：</label>
+                <div class="col-sm-8">
+                    <input id="email"  class="form-control valid" placeholder="请输入邮箱" type="text" th:value="${userInfo.email}">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-primary"  onclick="updateUser(this);">
+            提交修改
+        </button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+        </button>
+    </div>
+</div><!-- /.modal-content -->
+
