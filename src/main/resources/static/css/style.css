@@ -50,7 +50,7 @@ a:focus {
 }
 
 .nav > li > a {
-    color: #869fb1;
+    color: white;
     font-weight: 600;
     padding: 14px 20px 14px 25px;
 }
@@ -202,7 +202,7 @@ body.body-small .navbar-top-links li:last-child {
 
 .nav-header {
     padding: 8px 25px;
-    background: #1c2b36;
+    background: #5E6672;
 }
 
 .pace-done .nav-header {
@@ -7590,7 +7590,7 @@ body.skin-3 {
 }
 
 .navbar-static-side {
-    background: #1c2b36;
+    background: #5E6672;
 }
 
 .nav-close {

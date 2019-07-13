@@ -13,20 +13,22 @@
 
     <link rel="shortcut icon" href="favicon.ico">
 
-    <script src="/js/jquery.min.js?v=2.1.4"></script>
-    <script src="/js/jQuery-2.2.0.min.js"></script>
-    <script src="/js/bootstrap.min.js?v=3.3.6"></script>
+    <script src="js/jquery.min.js?v=2.1.4"></script>
+    <script src="js/jQuery-2.2.0.min.js"></script>
+    <script src="js/bootstrap.min.js?v=3.3.6"></script>
     <!--<script src="/js/ckeditor.js"></script>-->
     <script src="https://cdn.ckeditor.com/4.11.4/standard/ckeditor.js"></script>
-    <link href="/css/font-awesome.css?v=4.4.0" rel="stylesheet">
-    <link href="/css/animate.css" rel="stylesheet">
-
-    <link href="/css/style.css?v=4.1.0" rel="stylesheet">
-    <link href="/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="css/font-awesome.css?v=4.4.0" rel="stylesheet">
+    <link href="css/plugins/iCheck/custom.css" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.css?v=4.1.0" rel="stylesheet">
     <script type="text/javascript" src="/dropzone/dropzone.min.js"></script>
     <link rel="stylesheet" type="text/css" href="/dropzone/dropzone.min.css" />
 
-
+    <!-- 信息提示框 -->
+    <script type="text/javascript" src="toastr/toastr.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="toastr/toastr.css" />
 
 
 </head>
@@ -34,31 +36,38 @@
 <body class="gray-bg">
 <div class="container">
     <div class="row clearfix">
-    </div>
-    <div class="row clearfix">
         <div class="col-md-12 column">
             <div class="form-group">
                 <label class="col-sm-12 control-label"></label>
             </div>
-            <form  action="/share" class="form-horizontal m-t"  method="post" enctype="multipart/form-data">
+        </div>
+    </div>
+</div>
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="panel panel-primary " >
+        <div class="panel-heading">
+            <h3 class="panel-title">新建交易</h3>
+        </div>
+        <div class="panel-body">
+            <form  action="/share" class="form-horizontal m-t"  method="post" enctype="multipart/form-data" onsubmit="return checkForm();">
                 <div class="form-group">
                     <label class="col-sm-3 control-label">标题：</label>
                     <div class="col-sm-8">
-                        <input  name="title" class="form-control valid" placeholder="请输入标题" type="text" aria-required="true" aria-invalid="false">
+                        <input  name="title" id="title" class="form-control valid" placeholder="请输入标题" type="text" aria-required="true" aria-invalid="false">
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-3 control-label">简介：</label>
 
                     <div class="col-sm-8">
-                        <textarea class="form-control valid"  name="abstractcontext" placeholder="请输入简介"  style="min-height: 100px;max-height: 300px;"></textarea>
+                        <textarea class="form-control valid"  name="abstractcontext" id="abstractcontext" placeholder="请输入简介"  style="min-height: 100px;max-height: 300px;"></textarea>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-3 control-label">NDA条款：</label>
                     <div class="col-sm-8">
-                        <select class="form-control" name="ndaid">
-                            <option  th:value="请选择">--选择NDA模板--</option>
+                        <select class="form-control" name="ndaid" id="ndaid">
+                            <option  value="">--选择NDA模板--</option>
                             <option th:each="nda:${NDAs}" th:text="${nda.ndatitle}" th:value="${nda.id}"></option>
                         </select>
                     </div>
@@ -66,8 +75,8 @@
                 <div class="form-group">
                     <label class="col-sm-3 control-label">分享给：</label>
                     <div class="col-sm-8">
-                        <select class="form-control" name="username">
-                            <option  th:value="请选择">--请选择--</option>
+                        <select class="form-control" name="username" id="username">
+                            <option  value="">--请选择--</option>
                             <option th:each="user:${users}" th:text="${user.username}" th:value="${user.username}"></option>
                         </select>
                     </div>
@@ -75,7 +84,8 @@
                 <div class="form-group">
                     <label class="col-sm-3 control-label">附件：</label>
                     <div class="col-sm-8">
-                        <div id="dropzone" class="dropzone well" >
+                        <input type="hidden" id="haveFile" value="no">
+                        <div id="dropzone" class="dropzone well" ></div>
                     </div>
                 </div>
                 <div class="form-group">
@@ -86,7 +96,7 @@
                 </div>
                 <div class="form-group">
                     <div class="col-sm-8 col-sm-offset-3">
-                        <button class="btn btn-primary" type="submit">分享</button>
+                        <button class="btn btn-primary" type="submit"><i class="glyphicon glyphicon-send"></i>&nbsp;分享</button>
                     </div>
                 </div>
             </form>
@@ -96,6 +106,7 @@
 
 
 <script type="text/javascript">
+    toastr.options.positionClass = 'toast-top-center';
     jQuery(function($){
         // 初始化Dropzone控件
         var signFileName = [];//上次，文件名称
@@ -108,14 +119,14 @@
                 paramName: "file",
                 maxFilesize: 1000.0, // 上传的文件大小
                 maxFiles:1,//一次性上传的文件数量上限
-                acceptedFiles: ".rmvb,.mkv,.mpg,.psd,.jpg,.png,.gif,.mp3,.wma,.docx,.xls,.xlsx,.ppt,.mov,.mp4,.pdf,.txt,.sql,.doc,.html",
+                acceptedFiles: ".jpg,.png,.gif,.pdf",
                 addRemoveLinks : true,//添加移除文件
                 autoProcessQueue: true,//不自动上传
                 dictCancelUploadConfirmation:'你确定要取消上传吗？',
                 dictMaxFilesExceeded: "只能上传{{maxFiles}}个文件",
                 dictFileTooBig:"文件过大({{filesize}}MB). 上传文件最大支持: {{maxFilesize}}MB.",
                 dictResponseError: '文件上传失败!',
-                dictInvalidFileType: "你不能上传该类型文件,文件类型只能是.rmvb,.mkv,.mpg,.psd,.jpg,.png,.gif,.mp3,.wma,.docx,.xls，.xlsx,.ppt,.mov,.mp4。",
+                dictInvalidFileType: "你不能上传该类型文件,文件类型只能是.jpg,.png,.gif,.pdf。",
                 dictCancelUpload: "取消上传",
                 dictCancelUploadConfirmation: "你确定要取消上传吗?",
                 dictRemoveFile: "移除文件",
@@ -171,6 +182,26 @@
             alert('文件上传控件不支持当前版本浏览器,请使用IE8及以上浏览器!');
         }
     });
+
+    function checkForm() {
+        var flag = true;
+        var title = $("#title").val();
+        if(title == null || title.length <= 0) {
+            toastr.warning('请输入标题');
+            flag = false;
+        }
+        var ndaid = $("#ndaid").val();
+        if(ndaid == null || ndaid.length <= 0) {
+            toastr.warning('请选择NDA模板');
+            flag = false;
+        }
+        var username = $("#username").val();
+        if(username == null || username.length <= 0) {
+            toastr.warning('请选择要分享的交易对象');
+            flag = false;
+        }
+        return flag;
+    }
 
 </script>
 

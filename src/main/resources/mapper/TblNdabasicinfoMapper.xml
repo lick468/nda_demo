@@ -21,10 +21,14 @@
     <result column="UpdateUserName" jdbcType="VARCHAR" property="updateusername" />
     <result column="UpdateTime" jdbcType="TIMESTAMP" property="updatetime" />
     <result column="LastDocNo" jdbcType="INTEGER" property="lastdocno" />
-    <result column="PubKey" jdbcType="VARCHAR" property="pubkey" />
-    <result column="PrivateKey" jdbcType="VARCHAR" property="privatekey" />
+    <result column="SenderPubKey" jdbcType="VARCHAR" property="senderpubkey" />
+    <result column="SenderPrivateKey" jdbcType="VARCHAR" property="senderprivatekey" />
     <result column="memo" jdbcType="VARCHAR" property="memo" />
     <result column="Revision" jdbcType="VARCHAR" property="revision" />
+    <result column="ReceiverPubKey" jdbcType="VARCHAR" property="receiverpubkey" />
+    <result column="ReceiverPrivateKey" jdbcType="VARCHAR" property="receiverprivatekey" />
+    <result column="SenderSign" jdbcType="VARCHAR" property="sendersign" />
+    <result column="ReceiverSign" jdbcType="VARCHAR" property="receiversign" />
     <result column="NDAItems" jdbcType="LONGVARCHAR" property="ndaitems" />
   </resultMap>
 </mapper>

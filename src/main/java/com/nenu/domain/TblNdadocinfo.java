@@ -11,13 +11,19 @@ public class TblNdadocinfo {
     @Id
     @Column(name = "ID")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String id;
+    private Integer id;
 
     /**
      * NDA文档ID tbl_NDADocBasicInfo中的ID
      */
     @Column(name = "NDADocID")
     private String ndadocid;
+
+    /**
+     * NDA条款pdf 文件 上传到IPFS 上返回的hash
+     */
+    @Column(name = "NDAHash")
+    private String ndahash;
 
     /**
      * 文档Hash 文档内容本身的Hash，用于在IPFS中检索
@@ -71,7 +77,7 @@ public class TblNdadocinfo {
      * 前一文档ID 此表中的ID
      */
     @Column(name = "PrevID")
-    private String previd;
+    private Integer previd;
 
     /**
      * 前一文档时间戳
@@ -84,7 +90,7 @@ public class TblNdadocinfo {
      *
      * @return ID - ID
      */
-    public String getId() {
+    public Integer getId() {
         return id;
     }
 
@@ -93,7 +99,7 @@ public class TblNdadocinfo {
      *
      * @param id ID
      */
-    public void setId(String id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -113,6 +119,24 @@ public class TblNdadocinfo {
      */
     public void setNdadocid(String ndadocid) {
         this.ndadocid = ndadocid;
+    }
+
+    /**
+     * 获取NDA条款pdf 文件 上传到IPFS 上返回的hash
+     *
+     * @return NDAHash - NDA条款pdf 文件 上传到IPFS 上返回的hash
+     */
+    public String getNdahash() {
+        return ndahash;
+    }
+
+    /**
+     * 设置NDA条款pdf 文件 上传到IPFS 上返回的hash
+     *
+     * @param ndahash NDA条款pdf 文件 上传到IPFS 上返回的hash
+     */
+    public void setNdahash(String ndahash) {
+        this.ndahash = ndahash;
     }
 
     /**
@@ -264,7 +288,7 @@ public class TblNdadocinfo {
      *
      * @return PrevID - 前一文档ID 此表中的ID
      */
-    public String getPrevid() {
+    public Integer getPrevid() {
         return previd;
     }
 
@@ -273,7 +297,7 @@ public class TblNdadocinfo {
      *
      * @param previd 前一文档ID 此表中的ID
      */
-    public void setPrevid(String previd) {
+    public void setPrevid(Integer previd) {
         this.previd = previd;
     }
 

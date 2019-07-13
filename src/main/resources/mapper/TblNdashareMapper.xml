@@ -7,6 +7,7 @@
     -->
     <id column="ID" jdbcType="INTEGER" property="id" />
     <result column="NDAID" jdbcType="VARCHAR" property="ndaid" />
+    <result column="NDATitle" jdbcType="VARCHAR" property="ndatitle" />
     <result column="OrderNumber" jdbcType="INTEGER" property="ordernumber" />
     <result column="OrgName" jdbcType="VARCHAR" property="orgname" />
     <result column="UserName" jdbcType="VARCHAR" property="username" />
@@ -19,5 +20,6 @@
     <result column="ShareStatus" jdbcType="VARCHAR" property="sharestatus" />
     <result column="ReceiverStatus" jdbcType="VARCHAR" property="receiverstatus" />
     <result column="HaveFile" jdbcType="VARCHAR" property="havefile" />
+    <result column="FilePath" jdbcType="VARCHAR" property="filepath" />
   </resultMap>
 </mapper>

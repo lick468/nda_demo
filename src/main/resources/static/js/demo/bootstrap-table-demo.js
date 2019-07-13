@@ -224,8 +224,8 @@ function buildTable($el, cells, rows) {
       .on('column-switch.bs.table', function(e, field, checked) {
         $result.text('Event: column-switch.bs.table');
       })
-      .on('page-change.bs.table', function(e, size, number) {
-        $result.text('Event: page-change.bs.table');
+      .on('pages-change.bs.table', function(e, size, number) {
+        $result.text('Event: pages-change.bs.table');
       })
       .on('search.bs.table', function(e, text) {
         $result.text('Event: search.bs.table');

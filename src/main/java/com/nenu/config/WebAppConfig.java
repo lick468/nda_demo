@@ -12,9 +12,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class WebAppConfig implements WebMvcConfigurer {
 
     public void addInterceptors(InterceptorRegistry registry) {
-       // registry.addInterceptor(new LoginInterceptor()).addPathPatterns("/**").excludePathPatterns("/login", "/webjars/**");
+       registry.addInterceptor(new LoginInterceptor()).addPathPatterns("/**").excludePathPatterns("/login", "/webjars/**");
     }
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/file/**").addResourceLocations("file:E:/tempFiles/");
+        registry.addResourceHandler("/image/**").addResourceLocations("file:E:/download/");
     }
 }

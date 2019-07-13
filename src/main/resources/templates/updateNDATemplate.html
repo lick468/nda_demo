@@ -15,6 +15,8 @@
                 <hr>
             </div>
             <div class="col-xs-12" style="margin-bottom: 20px;">
+                <input type="hidden" id="ForId" th:value="${tblNdaitemtpl.id}">
+                <input type="hidden" id="ForItems" >
                 <input  id="updateNDATitle" class="form-control" th:value="${tblNdaitemtpl.ndatitle}" >
             </div>
             <div class="col-xs-12">
@@ -27,7 +29,7 @@
         </div>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-primary" th:name="${tblNdaitemtpl.id}"  onclick="updateNDAItem(this);">
+        <button type="button" class="btn btn-primary" th:name="${tblNdaitemtpl.id}" id="btnUpdate" >
             保存
         </button>
         <button type="button" class="btn btn-default" data-dismiss="modal">关闭
@@ -59,6 +61,14 @@
             'undo',  // 撤销
             'redo'  // 重复
         ];
+
+        $("#btnUpdate").click(function(event){
+            var value = updateNDAItem.txt.html();
+            $("#ForItems").val(value);
+            var id = $("#ForId").val();
+            updateNDAItems(id);
+
+        });
     </script>
 </div><!-- /.modal-content -->
 

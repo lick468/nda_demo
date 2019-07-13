@@ -39,7 +39,6 @@ public class NDATemplateController {
         TblUserinfo currentUser = (TblUserinfo) session.getAttribute("currentUser");
         String username = currentUser.getUsername();
         String ndaItem = request.getParameter("ndaItem");
-        System.out.println(ndaItem);
         String ndaTitle = request.getParameter("ndaTitle");
         TblNdaitemtpl tblNdaitemtpl = new TblNdaitemtpl();
         tblNdaitemtpl.setCreateusername(username);
@@ -66,6 +65,22 @@ public class NDATemplateController {
         map.put("tblNdaitemtpl",tblNdaitemtpl);
         return "updateNDATemplate";
     }
+    /**
+     * 跳转NDA模板更新页面
+     * @param request
+     * @param map
+     * @return
+     */
+    @GetMapping(value = "/NDATemplateDelete")
+    @ResponseBody
+    public String NDATemplateDelete(HttpServletRequest request, ModelMap map) {
+        String id = request.getParameter("id");
+        Example example = new Example(TblNdaitemtpl.class);
+        example.createCriteria().andEqualTo("id",Integer.parseInt(id));
+        tblNdaitemtplMapper.deleteByExample(example);
+        return "success";
+    }
+
 
     /**
      * 更新NDA模板

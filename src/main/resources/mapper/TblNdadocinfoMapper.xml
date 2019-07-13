@@ -5,8 +5,9 @@
     <!--
       WARNING - @mbg.generated
     -->
-    <id column="ID" jdbcType="VARCHAR" property="id" />
+    <id column="ID" jdbcType="INTEGER" property="id" />
     <result column="NDADocID" jdbcType="VARCHAR" property="ndadocid" />
+    <result column="NDAHash" jdbcType="VARCHAR" property="ndahash" />
     <result column="DocHash" jdbcType="VARCHAR" property="dochash" />
     <result column="TimeStamp" jdbcType="VARCHAR" property="timestamp" />
     <result column="FileName" jdbcType="VARCHAR" property="filename" />
@@ -15,7 +16,7 @@
     <result column="UploadUserName" jdbcType="VARCHAR" property="uploadusername" />
     <result column="UploadTime" jdbcType="TIMESTAMP" property="uploadtime" />
     <result column="UploadIP" jdbcType="VARCHAR" property="uploadip" />
-    <result column="PrevID" jdbcType="VARCHAR" property="previd" />
+    <result column="PrevID" jdbcType="INTEGER" property="previd" />
     <result column="PrevTimeStamp" jdbcType="VARCHAR" property="prevtimestamp" />
   </resultMap>
 </mapper>

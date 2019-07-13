@@ -382,7 +382,7 @@ var Dropzone = function (_Emitter) {
         /**
          * This is the element the hidden input field (which is used when clicking on the
          * dropzone to trigger file selection) will be appended to. This might
-         * be important in case you use frameworks to switch the content of your page.
+         * be important in case you use frameworks to switch the content of your pages.
          *
          * Can be a selector string, or an element directly.
          */

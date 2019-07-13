@@ -21,7 +21,7 @@
  */
 /*
   Additional modifications for PDF.js project:
-    - Disables language initialization on page loading;
+    - Disables language initialization on pages loading;
     - Removes consoleWarn and consoleLog and use console.log/warn directly.
     - Removes window._ assignment.
     - Remove compatibility code for OldIE.
@@ -42,7 +42,7 @@ document.webL10n = (function(window, document, undefined) {
   /**
    * Synchronously loading l10n resources significantly minimizes flickering
    * from displaying the app with non-localized strings and then updating the
-   * strings. Although this will block all script execution on this page, we
+   * strings. Although this will block all script execution on this pages, we
    * expect that the l10n resources are available locally on flash-storage.
    *
    * As synchronous XHR is generally considered as a bad idea, we're still

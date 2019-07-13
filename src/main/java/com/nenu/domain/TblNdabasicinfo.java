@@ -104,16 +104,16 @@ public class TblNdabasicinfo {
     private Integer lastdocno;
 
     /**
-     * 公钥
+     * 发送人 公钥
      */
-    @Column(name = "PubKey")
-    private String pubkey;
+    @Column(name = "SenderPubKey")
+    private String senderpubkey;
 
     /**
-     * 私钥
+     * 发送人 私钥
      */
-    @Column(name = "PrivateKey")
-    private String privatekey;
+    @Column(name = "SenderPrivateKey")
+    private String senderprivatekey;
 
     /**
      * 备注
@@ -125,6 +125,30 @@ public class TblNdabasicinfo {
      */
     @Column(name = "Revision")
     private String revision;
+
+    /**
+     * 接收人 公钥
+     */
+    @Column(name = "ReceiverPubKey")
+    private String receiverpubkey;
+
+    /**
+     * 接收人 私钥
+     */
+    @Column(name = "ReceiverPrivateKey")
+    private String receiverprivatekey;
+
+    /**
+     * 发送人对NDA条款的签名
+     */
+    @Column(name = "SenderSign")
+    private String sendersign;
+
+    /**
+     * 接收人对NDA条款的签名
+     */
+    @Column(name = "ReceiverSign")
+    private String receiversign;
 
     /**
      * NDA条款 NDA条款文本
@@ -421,39 +445,39 @@ public class TblNdabasicinfo {
     }
 
     /**
-     * 获取公钥
+     * 获取发送人 公钥
      *
-     * @return PubKey - 公钥
+     * @return SenderPubKey - 发送人 公钥
      */
-    public String getPubkey() {
-        return pubkey;
+    public String getSenderpubkey() {
+        return senderpubkey;
     }
 
     /**
-     * 设置公钥
+     * 设置发送人 公钥
      *
-     * @param pubkey 公钥
+     * @param senderpubkey 发送人 公钥
      */
-    public void setPubkey(String pubkey) {
-        this.pubkey = pubkey;
+    public void setSenderpubkey(String senderpubkey) {
+        this.senderpubkey = senderpubkey;
     }
 
     /**
-     * 获取私钥
+     * 获取发送人 私钥
      *
-     * @return PrivateKey - 私钥
+     * @return SenderPrivateKey - 发送人 私钥
      */
-    public String getPrivatekey() {
-        return privatekey;
+    public String getSenderprivatekey() {
+        return senderprivatekey;
     }
 
     /**
-     * 设置私钥
+     * 设置发送人 私钥
      *
-     * @param privatekey 私钥
+     * @param senderprivatekey 发送人 私钥
      */
-    public void setPrivatekey(String privatekey) {
-        this.privatekey = privatekey;
+    public void setSenderprivatekey(String senderprivatekey) {
+        this.senderprivatekey = senderprivatekey;
     }
 
     /**
@@ -490,6 +514,78 @@ public class TblNdabasicinfo {
      */
     public void setRevision(String revision) {
         this.revision = revision;
+    }
+
+    /**
+     * 获取接收人 公钥
+     *
+     * @return ReceiverPubKey - 接收人 公钥
+     */
+    public String getReceiverpubkey() {
+        return receiverpubkey;
+    }
+
+    /**
+     * 设置接收人 公钥
+     *
+     * @param receiverpubkey 接收人 公钥
+     */
+    public void setReceiverpubkey(String receiverpubkey) {
+        this.receiverpubkey = receiverpubkey;
+    }
+
+    /**
+     * 获取接收人 私钥
+     *
+     * @return ReceiverPrivateKey - 接收人 私钥
+     */
+    public String getReceiverprivatekey() {
+        return receiverprivatekey;
+    }
+
+    /**
+     * 设置接收人 私钥
+     *
+     * @param receiverprivatekey 接收人 私钥
+     */
+    public void setReceiverprivatekey(String receiverprivatekey) {
+        this.receiverprivatekey = receiverprivatekey;
+    }
+
+    /**
+     * 获取发送人对NDA条款的签名
+     *
+     * @return SenderSign - 发送人对NDA条款的签名
+     */
+    public String getSendersign() {
+        return sendersign;
+    }
+
+    /**
+     * 设置发送人对NDA条款的签名
+     *
+     * @param sendersign 发送人对NDA条款的签名
+     */
+    public void setSendersign(String sendersign) {
+        this.sendersign = sendersign;
+    }
+
+    /**
+     * 获取接收人对NDA条款的签名
+     *
+     * @return ReceiverSign - 接收人对NDA条款的签名
+     */
+    public String getReceiversign() {
+        return receiversign;
+    }
+
+    /**
+     * 设置接收人对NDA条款的签名
+     *
+     * @param receiversign 接收人对NDA条款的签名
+     */
+    public void setReceiversign(String receiversign) {
+        this.receiversign = receiversign;
     }
 
     /**

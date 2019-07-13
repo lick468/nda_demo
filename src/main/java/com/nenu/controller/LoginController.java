@@ -9,27 +9,30 @@ import com.aliyuncs.exceptions.ServerException;
 import com.aliyuncs.http.MethodType;
 import com.aliyuncs.profile.DefaultProfile;
 import com.nenu.domain.TblNdaitemtpl;
-import com.nenu.domain.TblNdashare;
 import com.nenu.domain.TblUserinfo;
 import com.nenu.mapper.TblNdaitemtplMapper;
 import com.nenu.mapper.TblNdashareMapper;
 import com.nenu.mapper.TblUserinfoMapper;
-import com.nenu.utils.CookieUtils;
 import com.nenu.utils.IpUtil;
+import net.sf.json.JSON;
+import net.sf.json.JSONObject;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import tk.mybatis.mapper.entity.Example;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -68,7 +71,7 @@ public class LoginController {
      */
     @RequestMapping(value = "/findPsd", method = RequestMethod.GET)
     public String findPsd() {
-        return "findPsd";
+        return "findPassword";
     }
     @RequestMapping(value = "/findPsd", method = RequestMethod.POST)
     public String findPsdPost(HttpServletRequest request, ModelMap map) {
@@ -79,7 +82,7 @@ public class LoginController {
         if(tblUserinfo!=null) {
             map.addAttribute("id",tblUserinfo.getId());
         }
-        return "newPsd";
+        return "newPassword";
     }
     @RequestMapping(value = "/updatePsd", method = RequestMethod.POST)
     public String updatePsd(HttpServletRequest request) {
@@ -91,7 +94,7 @@ public class LoginController {
         userinfo.setPassword(password);
         tblUserinfoMapper.updateByPrimaryKeySelective(userinfo);
 
-        return "success";
+        return "redirect:/login";
     }
 
     /**
@@ -103,6 +106,16 @@ public class LoginController {
         return "login";
     }
 
+    @RequestMapping(value = "/file", method = RequestMethod.GET)
+    public String file() {
+        return "fileUpload";
+    }
+    @RequestMapping(value = "/findPassword", method = RequestMethod.GET)
+    public String findPassword() {
+        return "findPassword";
+    }
+
+
     /**
      * 跳转到注册页面
      * @return
@@ -110,6 +123,10 @@ public class LoginController {
     @RequestMapping(value = "/register", method = RequestMethod.GET)
     public String showRegister() {
         return "register";
+    }
+    @RequestMapping(value = "/time", method = RequestMethod.GET)
+    public String time() {
+        return "timeline";
     }
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     public String register(TblUserinfo userinfo, HttpServletRequest request, RedirectAttributes redirectAttributes) {

@@ -22,7 +22,11 @@
 
     <script type="text/javascript" src="/dropzone/dropzone.js"></script>
     <link rel="stylesheet"  href="/dropzone/dropzone.css" >
-    <link href="/css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="css/font-awesome.css?v=4.4.0" rel="stylesheet">
+    <link href="css/plugins/iCheck/custom.css" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.css?v=4.1.0" rel="stylesheet">
     <!-- 引入bootstrap-table样式 -->
     <link href="https://cdn.bootcss.com/bootstrap-table/1.11.1/bootstrap-table.min.css" rel="stylesheet">
     <!-- bootstrap-table.min.js -->
@@ -33,6 +37,10 @@
     <script type="text/javascript" src="/wangEditor/release/wangEditor.min.js"></script>
     <script type="text/javascript" src="/wangEditor/fullscreen/wangEditor-fullscreen-plugin.js"></script>
     <link href="/wangEditor/fullscreen/wangEditor-fullscreen-plugin.css" rel="stylesheet">
+
+    <!-- 信息提示框 -->
+    <script type="text/javascript" src="toastr/toastr.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="toastr/toastr.css" />
 
 
 </head>
@@ -48,68 +56,69 @@
         </div>
     </div>
 </div>
-    <div class="wrapper wrapper-content animated fadeInRight">
-        <div class="row">
-            <div class="col-sm12">
-                <div class="ibox float-e-margins">
-                    <ul id="myTab" class="nav nav-tabs">
-                        <li class="active">
-                            <a href="#myList" data-toggle="tab">我的NDA模板</a>
-                        </li>
-                        <li>
-                            <a href="#newList" data-toggle="tab">新加NDA模板</a>
-                        </li>
-                    </ul>
-                    <div id="myTabContent" class="tab-content">
-                        <div class="tab-pane fade in active" id="myList">
-                            <div class="panel panel-default">
-                                <div class="panel-body form-group" style="margin-top:0px;">
-                                    <label class="col-sm-1 control-label" style="text-align: right; margin-top:5px">标题</label>
-                                    <div class="col-sm-2">
-                                        <input type="text" class="form-control" name="searchTitle" id="searchTitle"/>
-                                    </div>
-                                    <div class="col-sm-1 col-sm-offset-4">
-                                        <button class="btn btn-primary" id="search_btn" type="button" onclick="serachTitle();">查询</button>
-                                    </div>
-                                </div>
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-sm12">
+            <div class="ibox float-e-margins">
+                <ul id="myTab" class="nav nav-tabs">
+                    <li class="active">
+                        <a href="#myList" data-toggle="tab">我的NDA模板</a>
+                    </li>
+                    <li>
+                        <a href="#newList" data-toggle="tab">新加NDA模板</a>
+                    </li>
+                </ul>
+                <div id="myTabContent" class="tab-content">
+                    <div class="tab-pane fade in active" id="myList">
+                        <div class="panel panel-default">
+                            <div class="panel-body form-group" style="margin-top:0px;">
+                                <div class="input-group col-sm-2">
+                                    <input type="text" class="form-control" name="searchTitle" id="searchTitle" placeholder="Search for...">
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-primary" type="button" onclick="serachTitle();"><i class="fa fa-search"></i>&nbsp;搜索</button>
+                                    </span>
+                                </div><!-- /input-group -->
                             </div>
-                            <table id="table" class="table table-hover"></table>
                         </div>
-                        <div class="tab-pane fade " id="newList">
-                            <div class="ibox-content">
-                                <div class="form-group">
-                                    <label class="col-sm-12 control-label"></label>
-                                </div>
-                                <form   class="form-horizontal m-t"   >
-                                    <div class="form-group">
-                                        <label class="col-sm-3 control-label">标题：</label>
-                                        <div class="col-sm-8">
-                                            <input id="ndatitle" name="ndatitle" class="form-control "  type="text" >
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="col-sm-3 control-label">NDA条款：</label>
-                                        <div class="col-sm-8">
-                                            <select class="form-control" name="ndaid" onchange="chooseNDATemplate(this);">
-                                                <option  th:value="示例文字" style="text-align: center;">导入已有模板</option>
-                                                <option th:each="nda:${NDAs}" th:text="${nda.ndatitle}" th:value="${nda.ndaitem}"></option>
-                                            </select>
-                                            <span  id="ndaitem" name="ndaitem"></span>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <div class="col-sm-8 col-sm-offset-3">
-                                            <button class="btn btn-primary" type="button" onclick="createNDATemplate();">提交</button>
-                                        </div>
-                                    </div>
-                                </form>
+                        <!-- 记载模板NDA的ID -->
+                        <input type="hidden" id="modelID" th:value="${modelID}">
+                        <table id="table" class="table table-hover"></table>
+                    </div>
+                    <div class="tab-pane fade " id="newList">
+                        <div class="ibox-content">
+                            <div class="form-group">
+                                <label class="col-sm-12 control-label"></label>
                             </div>
+                            <form   class="form-horizontal m-t"   >
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">标题：</label>
+                                    <div class="col-sm-8">
+                                        <input id="ndatitle" name="ndatitle" class="form-control "  type="text" >
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">NDA条款：</label>
+                                    <div class="col-sm-8">
+                                        <select class="form-control" style="height: 40px;" name="ndaid" onchange="chooseNDATemplate(this);">
+                                            <option  value="" style="text-align: center;">导入已有模板</option>
+                                            <option th:each="nda:${NDAs}" th:text="${nda.ndatitle}" th:value="${nda.ndaitem}"></option>
+                                        </select>
+                                        <span  id="ndaitem" name="ndaitem" ></span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-8 col-sm-offset-3">
+                                        <button class="btn btn-primary" type="button" onclick="createNDATemplate();"><i class="glyphicon glyphicon-send"></i>&nbsp;提交</button>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
 <!-- 模态框（Modal） -->
 <div class="modal fade" id="modal-update-NDATemplate" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -126,6 +135,7 @@
 
 
 <script type="text/javascript">
+    toastr.options.positionClass = 'toast-top-center';
   var E = window.wangEditor;
   var editor = new E('#ndaitem');
   editor.create();
@@ -164,7 +174,7 @@
         contentType: "application/x-www-form-urlencoded",// 解决POST提交问题
         url: "/getNDATemplateData", // 获取表格数据的url
 
-        toolbar: '#toolbar', //工具按钮用哪个容器
+
         cache: false, // 设置为 false 禁用 AJAX 数据缓存， 默认为true
         striped: true,  //表格显示条纹，默认为false
         pagination: true, // 在表格底部显示分页组件，默认false
@@ -176,14 +186,9 @@
         paginationNextText: "下一页",
         paginationFirstText: "首页",
         paginationLastText: "末页",
-        showRefresh:true,//刷新按钮
-        showColumns:true,
-        showExport : true,//按格式导出
-        showToggle:true,                    //是否显示详细视图和列表视图
         clickToSelect: false,//是否启用点击选中行
         toolbarAlign:'right',
         buttonsAlign:'right',//按钮对齐方式
-        toolbar:'#toolbar',//指定工作栏
         sidePagination: 'server', // 设置为服务器端分页
         //queryParamsType:'', //默认值为 'limit' ,在默认情况下 传给服务端的参数为：offset,limit,sort
         // 设置为 ''  在这种情况下传给服务器的参数为：pageSize,pageNumber
@@ -201,30 +206,50 @@
         sortOrder: 'desc', // 排序规则
         columns: [
             {
+                field: 'Number',
+                title: '序号',
+                sortable: false,
+                align: "center",
+                width: 70,
+                formatter: function (value, row, index) {
+                    //获取每页显示的数量
+                    var pageSize=$('#table').bootstrapTable('getOptions').pageSize;
+                    //获取当前是第几页
+                    var pageNumber=$('#table').bootstrapTable('getOptions').pageNumber;
+                    //返回序号，注意index是从0开始的，所以要加上1
+                    return pageSize * (pageNumber - 1) + index + 1;
+                }
+            },{
                 field: 'ndatitle', // 返回json数据中的name
                 title: 'NDA标题', // 表格表头显示文字
                 align: 'center', // 左右居中
                 valign: 'middle',// 上下居中
-
+                width: 500, // 定义列的宽度，单位为像素px
                 formatter: function (value, row, index) {
                     return value;
                 }
-            },{
+            }, {
+                field: 'createtime', // 返回json数据中的name
+                title: '创建时间', // 表格表头显示文字
+                align: 'center', // 左右居中
+                valign: 'middle',// 上下居中
+                width: 360, // 定义列的宽度，单位为像素px
+                formatter: function (value, row, index) {
+                    return value;
+                }
+            }, {
                 field: 'id',
                 title: "操作",
                 align: 'center',
                 valign: 'middle',
                 width: 360, // 定义列的宽度，单位为像素px
                 formatter: function (value, row, index) {
-                    console.log(value+"===="+row.toString()+"=="+index)
-                    return '<button class="btn btn-primary" type="button" name="'+ value +'" onclick="updateNDATemplate(this);" >修改  </button> &nbsp;&nbsp;&nbsp;&nbsp; <button class="btn btn-success" type="button" name="'+ value +'" onclick="NDATemplateDetail(this);">详情 </button>  ';
+                   // console.log(value+"===="+row.toString()+"=="+index)
+                    return '<button class="btn btn-primary" type="button" name="'+ value +'" onclick="updateNDATemplate(this);" ><i class="glyphicon glyphicon-edit"></i>&nbsp;修改  </button> &nbsp;&nbsp;&nbsp;&nbsp; <button class="btn btn-success" type="button" name="'+ value +'" onclick="NDATemplateDetail(this);"><i class="glyphicon glyphicon-list-alt"></i>&nbsp;详情 </button> &nbsp;&nbsp;&nbsp;&nbsp; <button class="btn btn-danger" type="button" name="'+ value +'" onclick="NDATemplateDelete(this);"><i class="glyphicon glyphicon-trash"></i>&nbsp;删除 </button>  ';
                 }
-
             }
         ],
-
-
-    })
+    });
     function  serachTitle() {
         $("#table").bootstrapTable('refresh');
     }
@@ -232,35 +257,52 @@
         var ndaTitle = $("#ndatitle").val();
         //获取 wangEditor 内容
         var content = editor.txt.html();
-        //向后台发送处理数据
-        $.ajax({
-            url:"/createNDATemplate",
-            type:"POST",
-            data:{
-                ndaItem:content,
-                ndaTitle: ndaTitle,
-            },
-            dateType:"json",
-            success:function(result) {
-                location.reload();
-            }
-        });
-    }
-function updateNDATemplate(node) {
-    $.ajax({
-        url:"/updateNDATemplate",
-        type:"GET",
-        data:{
-            id : node.name,
-        },
-        dateType:"html",
-        success:function(result) {
-            $("#modal-update-NDATemplate-body").html(result);
-            $("#modal-update-NDATemplate").modal("show");
-
+        if(ndaTitle == null || ndaTitle.length <=0 ) {
+            toastr.warning('请输入标题');
         }
-    });
-}
+        if(content == null || content.length <=15 ) {
+            toastr.warning('请选择NDA条款模板');
+        }else {
+            //向后台发送处理数据
+            $.ajax({
+                url:"/createNDATemplate",
+                type:"POST",
+                data:{
+                    ndaItem:content,
+                    ndaTitle: ndaTitle,
+                },
+                dateType:"json",
+                success:function(result) {
+                    //alert(data);
+                    toastr.success('新建NDA成功');
+                    // window.location.reload();
+                    window.setTimeout("window.location.reload()",2000);
+                    // location.reload();
+                }
+            });
+        }
+    }
+    function updateNDATemplate(node) {
+        var modelID = $("#modelID").val();
+        if(modelID == node.name) {
+            toastr.warning('不可以编辑模板NDA');
+            //alert("不可以编辑模板NDA");
+        }else {
+            $.ajax({
+                url:"/updateNDATemplate",
+                type:"GET",
+                data:{
+                    id : node.name,
+                },
+                dateType:"html",
+                success:function(result) {
+                    $("#modal-update-NDATemplate-body").html(result);
+                    $("#modal-update-NDATemplate").modal("show");
+
+                }
+            });
+        }
+    }
   function NDATemplateDetail(node) {
       $.ajax({
           url:"/NDATemplateDetail",
@@ -276,19 +318,39 @@ function updateNDATemplate(node) {
           }
       });
   }
-  function updateNDAItem(node) {
-     //获取 wangEditor 内容
-     var value = editor.txt.html();
+  function NDATemplateDelete(node) {
+      var modelID = $("#modelID").val();
+      if(modelID == node.name) {
+          toastr.warning('不可以删除模板NDA');
+          //alert("不可以删除模板NDA");
+      }else {
+          $.ajax({
+              url:"/NDATemplateDelete",
+              type:"GET",
+              data:{
+                  id : node.name,
+              },
+              dateType:"json",
+              success:function(result) {
+                  toastr.success('删除NDA成功');
+                  // window.location.reload();
+                  window.setTimeout("window.location.reload()",2000);
+                 // location.reload();
+              }
+          });
+      }
+  }
+  function updateNDAItems(node) {
+     var updateNDAItem =  $("#ForItems").val();
      var title =  $("#updateNDATitle").val();
-      //alert(node.name);
       //向后台发送处理数据
       $.ajax({
           url:"/updateNDATemplate",
           type:"POST",
           data:{
-              ndaItem:value,
+              ndaItem:updateNDAItem,
               ndatitle:title,
-              id:node.name,
+              id:node,
           },
           dateType:"json",
           success:function(result) {

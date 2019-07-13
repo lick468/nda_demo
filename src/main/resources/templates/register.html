@@ -1,142 +1,294 @@
+<!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-
 <head>
-
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-
-    <title> NDA - 注册</title>
-    <meta name="keywords" content="">
-    <meta name="description" content="">
-
-    <link rel="shortcut icon" href="favicon.ico"> <link href="css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
-    <link href="css/font-awesome.css?v=4.4.0" rel="stylesheet">
+    <title>NDA | 用户注册</title>
+    <link href="http://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <link href="http://cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="css/htmleaf-demo.css">
     <link href="css/plugins/iCheck/custom.css" rel="stylesheet">
-    <link href="css/animate.css" rel="stylesheet">
-    <link href="css/style.css?v=4.1.0" rel="stylesheet">
     <script>if(window.top !== window.self){ window.top.location = window.location;}</script>
-
+    <style type="text/css">
+        .form-bg{
+            padding: 2em 0;
+        }
+        .form-horizontal{
+            background: #fff;
+            padding-bottom: 40px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        .form-horizontal .heading{
+            display: block;
+            font-size: 35px;
+            font-weight: 700;
+            padding: 35px 0;
+            border-bottom: 1px solid #f0f0f0;
+            margin-bottom: 30px;
+        }
+        .form-horizontal .form-group{
+            padding: 0 40px;
+            margin: 0 0 25px 0;
+            position: relative;
+        }
+        .form-horizontal .form-control{
+            background: #f0f0f0;
+            border: none;
+            border-radius: 20px;
+            box-shadow: none;
+            padding: 0 20px 0 45px;
+            height: 40px;
+            transition: all 0.3s ease 0s;
+        }
+        .form-horizontal .form-control:focus{
+            background: #e0e0e0;
+            box-shadow: none;
+            outline: 0 none;
+        }
+        .form-horizontal .form-group i{
+            position: absolute;
+            top: 12px;
+            left: 60px;
+            font-size: 17px;
+            color: #c8c8c8;
+            transition : all 0.5s ease 0s;
+        }
+        .form-horizontal .form-control:focus + i{
+            color: #00b4ef;
+        }
+        .form-horizontal .fa-question-circle{
+            display: inline-block;
+            position: absolute;
+            top: 12px;
+            right: 60px;
+            font-size: 20px;
+            color: #808080;
+            transition: all 0.5s ease 0s;
+        }
+        .form-horizontal .fa-question-circle:hover{
+            color: #000;
+        }
+        .form-horizontal .main-checkbox{
+            float: left;
+            width: 20px;
+            height: 20px;
+            background: #11a3fc;
+            border-radius: 50%;
+            position: relative;
+            margin: 5px 0 0 5px;
+            border: 1px solid #11a3fc;
+        }
+        .form-horizontal .main-checkbox label{
+            width: 20px;
+            height: 20px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            cursor: pointer;
+        }
+        .form-horizontal .main-checkbox label:after{
+            content: "";
+            width: 10px;
+            height: 5px;
+            position: absolute;
+            top: 5px;
+            left: 4px;
+            border: 3px solid #fff;
+            border-top: none;
+            border-right: none;
+            background: transparent;
+            opacity: 0;
+            -webkit-transform: rotate(-45deg);
+            transform: rotate(-45deg);
+        }
+        .form-horizontal .main-checkbox input[type=checkbox]{
+            visibility: hidden;
+        }
+        .form-horizontal .main-checkbox input[type=checkbox]:checked + label:after{
+            opacity: 1;
+        }
+        .form-horizontal .text{
+            float: left;
+            margin-left: 7px;
+            line-height: 20px;
+            padding-top: 5px;
+            text-transform: capitalize;
+        }
+        .form-horizontal .btn{
+            float: right;
+            font-size: 14px;
+            color: #fff;
+            background: #00b4ef;
+            border-radius: 30px;
+            padding: 10px 25px;
+            border: none;
+            text-transform: capitalize;
+            transition: all 0.5s ease 0s;
+        }
+        @media only screen and (max-width: 479px){
+            .form-horizontal .form-group{
+                padding: 0 25px;
+            }
+            .form-horizontal .form-group i{
+                left: 45px;
+            }
+            .form-horizontal .btn{
+                padding: 10px 20px;
+            }
+        }
+    </style>
 </head>
-
-<body class="gray-bg">
-
-    <div class="middle-box text-center loginscreen   animated fadeInDown">
-        <div>
-            <div>
-
-                <h2 class="logo-name">NDA</h2>
-
+<body>
+<div class="htmleaf-container">
+    <header class="htmleaf-header">
+        <h1>NDA</h1>
+    </header>
+    <div class="demo form-bg">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-offset-3 col-md-6">
+                    <form class="form-horizontal" action="/register" method="post" onsubmit="return checkForm();">
+                        <span class="heading">用户注册</span>
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="username" name="username" placeholder="请输入用户名" onfocus="check();">
+                            <i class="fa fa-user"></i>
+                            <span style="display: none" class="text" id="usernameError"><font color="red">请输入用户名</font></span>
+                        </div>
+                        <th:block th:if="${errorUsername != null}">
+                            <div class="form-group">
+                                <span  style="color: red;" th:text="${errorUsername}"></span>
+                            </div>
+                        </th:block>
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="mobilephone" name="mobilephone" placeholder="请输入手机号" onfocus="check();">
+                            <i class="fa fa-phone"></i>
+                            <span style="display: none" class="text" id="phoneError"><font color="red">请输入手机号</font></span>
+                        </div>
+                        <th:block th:if="${ errorMobilephone != null}">
+                            <div class="form-group">
+                                <span  style="color: red;" th:text="${errorMobilephone}"></span>
+                            </div>
+                        </th:block>
+                        <div class="form-group input-group">
+                            <input type="hidden" id="checkCode">
+                            <input type="text" class="form-control" style="border-radius: 20px;" placeholder="请输入验证码" onfocus="check();" id="code" maxlength="6" oninput = "value=value.replace(/[^\d]/g,'')">
+                            <span class="input-group-btn">
+                                <button type="button" class="btn btn-primary" onclick="return getCode();">点击获取验证码</button>
+                            </span>
+                            <span style="display: none" class="text" id="codeError"><font color="red">请输入验证码</font></span>
+                        </div>
+                        <div id="errorCode" class="form-group" style="display: none">
+                            <span style="color: red">验证码输入有误，请检查！</span>
+                        </div>
+                        <div class="form-group help">
+                            <input type="password" class="form-control" id="password" name="password" placeholder="请输入密码" onfocus="check();">
+                            <i class="fa fa-lock"></i>
+                            <span style="display: none" class="text" id="passwordError"><font color="red">请输入密码</font></span>
+                        </div>
+                        <div class="form-group help">
+                            <input type="password" class="form-control" id="rePassword" placeholder="请再次输入密码" onfocus="check();">
+                            <i class="fa fa-lock"></i>
+                            <span style="display: none" class="text" id="rePasswordError"><font color="red">请再次输入密码</font></span>
+                        </div>
+                        <div id="errorPsd" class="form-group" style="display: none">
+                            <span style="color: red">两次密码不一致，请重新输入！</span>
+                        </div>
+                        <div class="form-group">
+                            <div class="checkbox i-checks text">
+                                <label class="no-padding">
+                                    <input type="checkbox"><i></i> 我同意注册协议</label>
+                            </div>
+                            <button type="submit" class="btn btn-default">注册</button>
+                        </div>
+                        <p class="text-muted text-center"><small>已经有账户了？</small><a href="/login">点此登录</a></p>
+                    </form>
+                </div>
             </div>
-            <h3>欢迎注册NDA</h3>
-            <p>创建一个NDA新账户</p>
-            <form class="m-t" role="form" action="/register" method="post" onsubmit="return checkForm();">
-                <div class="form-group">
-                    <input type="text" class="form-control" id="username" name="username" placeholder="请输入用户名" required="">
-                </div>
-                <th:block th:if="${errorUsername != null}">
-                    <div class="form-group">
-                        <span  style="color: red;" th:text="${errorUsername}"></span>
-                    </div>
-                </th:block>
-
-                <div class="form-group">
-                    <input type="text" class="form-control" id="mobilephone"  name="mobilephone" placeholder="请输入手机号" required="">
-                </div>
-                <th:block th:if="${ errorMobilephone != null}">
-                    <div class="form-group">
-                        <span  style="color: red;" th:text="${errorMobilephone}"></span>
-                    </div>
-                </th:block>
-
-                <div class="input-group form-group">
-                    <input type="hidden" id="checkCode">
-                    <input type="text" class="form-control" placeholder="请输入验证码" required="" id="code" maxlength="6" oninput = "value=value.replace(/[^\d]/g,'')">
-                    <span class="input-group-btn">
-                        <button type="button" class="btn btn-primary" onclick="return getCode();">点击获取验证码</button>
-                    </span>
-                </div>
-                <div id="errorCode" class="form-group" style="display: none">
-                    <span style="color: red">验证码输入有误，请检查！</span>
-                </div>
-                <div class="form-group">
-                    <input type="password" class="form-control" id="password" name="password"  placeholder="请输入密码" required="">
-                </div>
-                <div class="form-group">
-                    <input type="password" class="form-control" id="rePassword" placeholder="请再次输入密码" required="">
-                </div>
-                <div id="errorPsd" class="form-group" style="display: none">
-                    <span style="color: red">两次密码不一致，请重新输入！</span>
-                </div>
-                <div class="form-group text-left">
-                    <div class="checkbox i-checks">
-                        <label class="no-padding">
-                            <input type="checkbox"><i></i> 我同意注册协议</label>
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-primary block full-width m-b">注 册</button>
-
-                <p class="text-muted text-center"><small>已经有账户了？</small><a href="/login">点此登录</a>
-                </p>
-
-            </form>
         </div>
     </div>
-
-    <!-- 全局js -->
-    <script src="js/jquery.min.js?v=2.1.4"></script>
-    <script src="js/bootstrap.min.js?v=3.3.6"></script>
-    <!-- iCheck -->
-    <script src="js/plugins/iCheck/icheck.min.js"></script>
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $('.i-checks').iCheck({
-                checkboxClass: 'icheckbox_square-green',
-                radioClass: 'iradio_square-green',
-            });
+</div>
+<script src="js/jquery.min.js?v=2.1.4"></script>
+<script src="js/plugins/iCheck/icheck.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('.i-checks').iCheck({
+            checkboxClass: 'icheckbox_square-green',
+            radioClass: 'iradio_square-green',
         });
+    });
+    function check() {
+        $("#errorPsd").hide();
+        $("#passwordError").hide();
+        $("#rePasswordError").hide();
+        $("#codeError").hide();
+        $("#phoneError").hide();
+        $("#usernameError").hide();
+    }
 
-
-        function getCode() {
-            var phone = $("#mobilephone").val();
-            if(phone == null) {
-                alert("请输入手机号");
-                return false;
-            }
-            //alert(phone);
-            $.ajax({
-                url:"/getCode",
-                type:"GET",
-                data:{
-                    phone : phone,
-                },
-                dateType:"json",
-                success:function(result) {
-                    $("#checkCode").val(result);
-                }
-            });
-            return true;
+    function getCode() {
+        var phone = $("#mobilephone").val();
+        if(phone == null) {
+            alert("请输入手机号");
+            return false;
         }
-        //提交前校验
-        function checkForm() {
-            //检查验证码是否输入正确
-            var inputCode=$("#code").val();
-            var sendCode=$("#checkCode").val();
-            if(inputCode!=sendCode) {
-                $("#errorCode").show();
+        //alert(phone);
+        $.ajax({
+            url:"/getCode",
+            type:"GET",
+            data:{
+                phone : phone,
+            },
+            dateType:"json",
+            success:function(result) {
+                $("#checkCode").val(result);
             }
-            ////检查两次密码是否一致
-            var password=$("#password").val();
-            var rePassword=$("#rePassword").val();
-            if(password!=rePassword) {
-                $("#errorPsd").show();
-                return false;
-            }
-            return true;
+        });
+        return true;
+    }
+    //提交前校验
+    function checkForm() {
+        var flag = true;
+        var username = $("#username").val();
+        if(username == null || username.length <= 0) {
+            $("#usernameError").show();
+            flag = false;
         }
+        var phone = $("#mobilephone").val();
+        if(phone == null || phone.length <= 0) {
+            $("#phoneError").show();
+            flag = false;
+        }
+        //检查验证码是否输入正确
+        var inputCode=$("#code").val();
+        var sendCode=$("#checkCode").val();
+        if(inputCode == null || inputCode.length <=0 ) {
+            $("#codeError").show();
+            flag = false;
+        }
+        if(inputCode!=sendCode) {
+            $("#errorCode").show();
+            flag = false;
+        }
+        ////检查两次密码是否一致
+        var password=$("#password").val();
+        var rePassword=$("#rePassword").val();
+        if(password == null || password.length <=0 ) {
+            $("#passwordError").show();
+            flag = false;
+        }
+        if(rePassword == null || rePassword.length <=0 ) {
+            $("#rePasswordError").show();
+            flag = false;
+        }
+        if(password!=rePassword) {
+            $("#errorPsd").show();
+            flag = false;
+        }
+        return flag;
+    }
 
-    </script>
-
+</script>
 </body>
-
 </html>

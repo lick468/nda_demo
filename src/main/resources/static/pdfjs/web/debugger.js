@@ -161,7 +161,7 @@ var FontInspector = (function FontInspectorClosure() {
   };
 })();
 
-// Manages all the page steppers.
+// Manages all the pages steppers.
 var StepperManager = (function StepperManagerClosure() {
   var steppers = [];
   var stepperDiv = null;
@@ -243,7 +243,7 @@ var StepperManager = (function StepperManagerClosure() {
   };
 })();
 
-// The stepper for each page's IRQueue.
+// The stepper for each pages's IRQueue.
 var Stepper = (function StepperClosure() {
   // Shorter way to create element and optionally set textContent.
   function c(tag, textContent) {

@@ -34,7 +34,9 @@ public class IPFSUtils {
         Multihash filePointer = Multihash.fromBase58(hash);
         byte[] data = ipfs.cat(filePointer);
         if(data != null){
-            File file = new File(filePathName);
+            String path = filePathName.substring(0, filePathName.lastIndexOf("\\"));
+            String fileName = filePathName.substring(filePathName.lastIndexOf("\\")+1,filePathName.length()); //文件名后缀  E:\test.doc  doc
+            File file = new File(path,fileName);
             if(file.exists()){
                 file.delete();
             }

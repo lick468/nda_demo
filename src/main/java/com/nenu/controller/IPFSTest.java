@@ -12,7 +12,7 @@ public class IPFSTest {
         System.out.println("Hello World!");
         try {
             System.out.println(upload("D:\\workShop\\IDEA_work\\test2.pdf"));  //upload
-            //download("d:\\1.pdf","QmZH3sa4EpHNM8bQbp3EJ65LWDDUvCYT8LRZRFK9DtVQhi");  //download
+           // download("d:\\1.pdf","QmZH3sa4EpHNM8bQbp3EJ65LWDDUvCYT8LRZRFK9DtVQhi");  //download
         }
         catch(Exception e) {
             System.out.println("IPFS error!");
@@ -30,6 +30,7 @@ public class IPFSTest {
         Multihash filePointer = Multihash.fromBase58(hash);
         byte[] data = ipfs.cat(filePointer);
         if(data != null){
+            String path = filePathName.substring(0, filePathName.lastIndexOf("\\"));
             File file = new File(filePathName);
             if(file.exists()){
                 file.delete();

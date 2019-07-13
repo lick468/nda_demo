@@ -11,7 +11,8 @@
     <meta name="description" content="">
 
 
-    <link rel="shortcut icon" href="favicon.ico"> <link href="css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link href="css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
     <link href="css/font-awesome.css?v=4.4.0" rel="stylesheet">
 
     <link href="css/animate.css" rel="stylesheet">
@@ -162,13 +163,19 @@
         }
         //提交检查验证码是否正确
         function checkForm() {
+            var flag = true;
+            var phone=$("#mobilephone").val();
+            if(phone == null || phone.length <=0) {
+                $("#errorPhone").show();
+                flag = false;
+            }
             var inputCode=$("#codeValue").val();
             var sendCode=$("#code").val();
             if(inputCode!=sendCode) {
                 $("#errorCode").show();
-                return false;
+                flag = false;
             }
-            return true;
+            return flag;
         }
     </script>
 

@@ -1737,7 +1737,7 @@
 
   // Converts a {top, bottom, left, right} box from line-local
   // coordinates into another coordinate system. Context may be one of
-  // "line", "div" (display.lineDiv), "local"/null (editor), or "page".
+  // "line", "div" (display.lineDiv), "local"/null (editor), or "pages".
   function intoCoordSystem(cm, lineObj, rect, context) {
     if (lineObj.widgets) for (var i = 0; i < lineObj.widgets.length; ++i) if (lineObj.widgets[i].above) {
       var size = widgetHeight(lineObj.widgets[i]);
@@ -1759,11 +1759,11 @@
   }
 
   // Coverts a box from "div" coords to another coordinate system.
-  // Context may be "window", "page", "div", or "local"/null.
+  // Context may be "window", "pages", "div", or "local"/null.
   function fromCoordSystem(cm, coords, context) {
     if (context == "div") return coords;
     var left = coords.left, top = coords.top;
-    // First move into "page" coordinate system
+    // First move into "pages" coordinate system
     if (context == "page") {
       left -= pageScrollX();
       top -= pageScrollY();
@@ -3979,7 +3979,7 @@
   }
 
   // For relative vertical movement. Dir may be -1 or 1. Unit can be
-  // "page" or "line". The resulting position will have a hitSide=true
+  // "pages" or "line". The resulting position will have a hitSide=true
   // property if it reached the end of the document.
   function findPosV(cm, pos, dir, unit) {
     var doc = cm.doc, x = pos.left, y;

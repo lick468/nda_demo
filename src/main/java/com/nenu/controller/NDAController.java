@@ -60,6 +60,7 @@ public class NDAController {
         Example example =new Example(TblNdaitemtpl.class);
         example.createCriteria().andEqualTo("createusername",currentUser.getUsername());
         List<TblNdaitemtpl> tblNdaitemtpls = tblNdaitemtplMapper.selectByExample(example);
+        map.put("modelID",tblNdaitemtpls.get(0).getId());
         map.put("NDAs",tblNdaitemtpls);
         return "NDAList";
     }

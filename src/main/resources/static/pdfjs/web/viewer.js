@@ -1071,7 +1071,7 @@ var PDFFindController = (function PDFFindControllerClosure() {
     this.extractTextPromises = [];
     this.pendingFindMatches = {};
     this.active = false; // If active, find results will be highlighted.
-    this.pageContents = []; // Stores the text for each page.
+    this.pageContents = []; // Stores the text for each pages.
     this.pageMatches = [];
     this.selected = { // Currently selected match.
       pageIdx: -1,
@@ -1236,8 +1236,8 @@ var PDFFindController = (function PDFFindControllerClosure() {
 
     updatePage: function PDFFindController_updatePage(index) {
       if (this.selected.pageIdx === index) {
-        // If the page is selected, scroll the page into view, which triggers
-        // rendering the page, which adds the textLayer. Once the textLayer is
+        // If the pages is selected, scroll the pages into view, which triggers
+        // rendering the pages, which adds the textLayer. Once the textLayer is
         // build, it will scroll onto the selected match.
         this.pdfViewer.scrollPageIntoView(index + 1);
       }
@@ -1287,7 +1287,7 @@ var PDFFindController = (function PDFFindControllerClosure() {
         return;
       }
 
-      // If we're waiting on a page, we return since we can't do anything else.
+      // If we're waiting on a pages, we return since we can't do anything else.
       if (this.resumePageIdx) {
         return;
       }
@@ -1296,24 +1296,24 @@ var PDFFindController = (function PDFFindControllerClosure() {
       // Keep track of how many pages we should maximally iterate through.
       this.pagesToSearch = numPages;
       // If there's already a matchIdx that means we are iterating through a
-      // page's matches.
+      // pages's matches.
       if (offset.matchIdx !== null) {
         var numPageMatches = this.pageMatches[offset.pageIdx].length;
         if ((!previous && offset.matchIdx + 1 < numPageMatches) ||
             (previous && offset.matchIdx > 0)) {
           // The simple case; we just have advance the matchIdx to select
-          // the next match on the page.
+          // the next match on the pages.
           this.hadMatch = true;
           offset.matchIdx = (previous ? offset.matchIdx - 1 :
                                         offset.matchIdx + 1);
           this.updateMatch(true);
           return;
         }
-        // We went beyond the current page's matches, so we advance to
-        // the next page.
+        // We went beyond the current pages's matches, so we advance to
+        // the next pages.
         this.advanceOffsetPage(previous);
       }
-      // Start searching through the page.
+      // Start searching through the pages.
       this.nextPageMatch();
     },
 
@@ -1323,20 +1323,20 @@ var PDFFindController = (function PDFFindControllerClosure() {
       var previous = this.state.findPrevious;
 
       if (numMatches) {
-        // There were matches for the page, so initialize the matchIdx.
+        // There were matches for the pages, so initialize the matchIdx.
         this.hadMatch = true;
         offset.matchIdx = (previous ? numMatches - 1 : 0);
         this.updateMatch(true);
         return true;
       } else {
-        // No matches, so attempt to search the next page.
+        // No matches, so attempt to search the next pages.
         this.advanceOffsetPage(previous);
         if (offset.wrapped) {
           offset.matchIdx = null;
           if (this.pagesToSearch < 0) {
             // No point in wrapping again, there were no matches.
             this.updateMatch(false);
-            // while matches were not found, searching for a page
+            // while matches were not found, searching for a pages
             // with matches should nevertheless halt.
             return true;
           }
@@ -1349,7 +1349,7 @@ var PDFFindController = (function PDFFindControllerClosure() {
     /**
      * The method is called back from the text layer when match presentation
      * is updated.
-     * @param {number} pageIndex - page index.
+     * @param {number} pageIndex - pages index.
      * @param {number} index - match index.
      * @param {Array} elements - text layer div elements array.
      * @param {number} beginIdx - start index of the div array for the match.
@@ -1368,7 +1368,7 @@ var PDFFindController = (function PDFFindControllerClosure() {
 
     nextPageMatch: function PDFFindController_nextPageMatch() {
       if (this.resumePageIdx !== null) {
-        console.error('There can only be one pending page.');
+        console.error('There can only be one pending pages.');
       }
       do {
         var pageIdx = this.offset.pageIdx;
@@ -1406,7 +1406,7 @@ var PDFFindController = (function PDFFindControllerClosure() {
         this.selected.pageIdx = this.offset.pageIdx;
         this.selected.matchIdx = this.offset.matchIdx;
         state = (wrapped ? FindStates.FIND_WRAPPED : FindStates.FIND_FOUND);
-        // Update the currently selected page to wipe out any selected matches.
+        // Update the currently selected pages to wipe out any selected matches.
         if (previousPage !== -1 && previousPage !== this.selected.pageIdx) {
           this.updatePage(previousPage);
         }
@@ -1466,7 +1466,7 @@ var PDFHistory = {
     var state = window.history.state;
     if (this._isStateObjectDefined(state)) {
       // This corresponds to navigating back to the document
-      // from another page in the browser history.
+      // from another pages in the browser history.
       if (state.target.dest) {
         this.initialDestination = state.target.dest;
       } else {
@@ -1711,7 +1711,7 @@ var PDFHistory = {
       return;
     }
     if (!params.hash && params.page) {
-      params.hash = ('page=' + params.page);
+      params.hash = ('pages=' + params.page);
     }
     if (addPrevious && !overwrite) {
       var previousParams = this._getPreviousParams();
@@ -2012,8 +2012,8 @@ var PDFPresentationMode = (function PDFPresentationModeClosure() {
     },
 
     /**
-     * Switches page when the user scrolls (using a scroll wheel or a touchpad)
-     * with large enough motion, to prevent accidental page switches.
+     * Switches pages when the user scrolls (using a scroll wheel or a touchpad)
+     * with large enough motion, to prevent accidental pages switches.
      * @param {number} delta - The delta value from the mouse event.
      */
     mouseScroll: function PDFPresentationMode_mouseScroll(delta) {
@@ -2030,7 +2030,7 @@ var PDFPresentationMode = (function PDFPresentationModeClosure() {
       var currentTime = (new Date()).getTime();
       var storedTime = this.mouseScrollTimeStamp;
 
-      // If we've already switched page, avoid accidentally switching again.
+      // If we've already switched pages, avoid accidentally switching again.
       if (currentTime > storedTime &&
           currentTime - storedTime < MOUSE_SCROLL_COOLDOWN_TIME) {
         return;
@@ -2048,7 +2048,7 @@ var PDFPresentationMode = (function PDFPresentationModeClosure() {
         var page = PDFViewerApplication.page;
         this._resetMouseScrollState();
 
-        // If we're at the first/last page, we don't need to do anything.
+        // If we're at the first/last pages, we don't need to do anything.
         if ((page === 1 && pageSwitchDirection === PageSwitchDirection.UP) ||
             (page === PDFViewerApplication.pagesCount &&
              pageSwitchDirection === PageSwitchDirection.DOWN)) {
@@ -2081,9 +2081,9 @@ var PDFPresentationMode = (function PDFPresentationModeClosure() {
     /**
      * Used to initialize a timeout when requesting Presentation Mode,
      * i.e. when the browser is requested to enter fullscreen mode.
-     * This timeout is used to prevent the current page from being scrolled
+     * This timeout is used to prevent the current pages from being scrolled
      * partially, or completely, out of view when entering Presentation Mode.
-     * NOTE: This issue seems limited to certain zoom levels (e.g. page-width).
+     * NOTE: This issue seems limited to certain zoom levels (e.g. pages-width).
      * @private
      */
     _setSwitchInProgress: function PDFPresentationMode_setSwitchInProgress() {
@@ -2117,11 +2117,11 @@ var PDFPresentationMode = (function PDFPresentationModeClosure() {
       this._notifyStateChange();
       this.container.classList.add(ACTIVE_SELECTOR);
 
-      // Ensure that the correct page is scrolled into view when entering
+      // Ensure that the correct pages is scrolled into view when entering
       // Presentation Mode, by waiting until fullscreen mode in enabled.
       setTimeout(function enterPresentationModeTimeout() {
         PDFViewerApplication.page = this.args.page;
-        PDFViewerApplication.setScale('page-fit', true);
+        PDFViewerApplication.setScale('pages-fit', true);
       }.bind(this), 0);
 
       this._addWindowListeners();
@@ -2142,7 +2142,7 @@ var PDFPresentationMode = (function PDFPresentationModeClosure() {
       var page = PDFViewerApplication.page;
       this.container.classList.remove(ACTIVE_SELECTOR);
 
-      // Ensure that the correct page is scrolled into view when exiting
+      // Ensure that the correct pages is scrolled into view when exiting
       // Presentation Mode, by waiting until fullscreen mode is disabled.
       setTimeout(function exitPresentationModeTimeout() {
         this.active = false;
@@ -2180,7 +2180,7 @@ var PDFPresentationMode = (function PDFPresentationModeClosure() {
         var isInternalLink = (evt.target.href &&
                               evt.target.classList.contains('internalLink'));
         if (!isInternalLink) {
-          // Unless an internal link was clicked, advance one page.
+          // Unless an internal link was clicked, advance one pages.
           evt.preventDefault();
           PDFViewerApplication.page += (evt.shiftKey ? -1 : 1);
         }
@@ -3089,12 +3089,12 @@ var PDFRenderingQueue = (function PDFRenderingQueueClosure() {
 
     getHighestPriority: function
         PDFRenderingQueue_getHighestPriority(visible, views, scrolledDown) {
-      // The state has changed figure out which page has the highest priority to
+      // The state has changed figure out which pages has the highest priority to
       // render next (if any).
       // Priority:
       // 1 visible pages
-      // 2 if last scrolled down page after the visible pages
-      // 2 if last scrolled up page before the visible pages
+      // 2 if last scrolled down pages after the visible pages
+      // 2 if last scrolled up pages before the visible pages
       var visibleViews = visible.views;
 
       var numVisible = visibleViews.length;
@@ -3136,7 +3136,7 @@ var PDFRenderingQueue = (function PDFRenderingQueueClosure() {
     },
 
     /**
-     * Render a page or thumbnail view. This calls the appropriate function
+     * Render a pages or thumbnail view. This calls the appropriate function
      * based on the views state. If the view is already rendered it will return
      * false.
      * @param {IRenderableView} view
@@ -3174,9 +3174,9 @@ var TEXT_LAYER_RENDER_DELAY = 200; // ms
 /**
  * @typedef {Object} PDFPageViewOptions
  * @property {HTMLDivElement} container - The viewer element.
- * @property {number} id - The page unique ID (normally its number).
- * @property {number} scale - The page scale display.
- * @property {PageViewport} defaultViewport - The page viewport.
+ * @property {number} id - The pages unique ID (normally its number).
+ * @property {number} scale - The pages scale display.
+ * @property {PageViewport} defaultViewport - The pages viewport.
  * @property {PDFRenderingQueue} renderingQueue - The rendering queue object.
  * @property {IPDFTextLayerFactory} textLayerFactory
  * @property {IPDFAnnotationsLayerFactory} annotationsLayerFactory
@@ -3230,7 +3230,7 @@ var PDFPageView = (function PDFPageViewClosure() {
     div.className = 'page';
     div.style.width = Math.floor(this.viewport.width) + 'px';
     div.style.height = Math.floor(this.viewport.height) + 'px';
-    div.setAttribute('data-page-number', this.id);
+    div.setAttribute('data-pages-number', this.id);
     this.div = div;
 
     container.appendChild(div);
@@ -3282,7 +3282,7 @@ var PDFPageView = (function PDFPageViewClosure() {
       if (keepAnnotations) {
         if (this.annotationLayer) {
           // Hide annotationLayer until all elements are resized
-          // so they are not displayed on the already-resized page
+          // so they are not displayed on the already-resized pages
           this.annotationLayer.hide();
         }
       } else {
@@ -3353,7 +3353,7 @@ var PDFPageView = (function PDFPageViewClosure() {
     },
 
     cssTransform: function PDFPageView_transform(canvas, redrawAnnotations) {
-      // Scale canvas, canvas wrapper, and page container.
+      // Scale canvas, canvas wrapper, and pages container.
       var width = this.viewport.width;
       var height = this.viewport.height;
       var div = this.div;
@@ -3467,7 +3467,7 @@ var PDFPageView = (function PDFPageViewClosure() {
       if (PDFJS.useOnlyCssZoom) {
         var actualSizeViewport = viewport.clone({ scale: CSS_UNITS });
         // Use a scale that will make the canvas be the original intended size
-        // of the page.
+        // of the pages.
         outputScale.sx *= actualSizeViewport.width / viewport.width;
         outputScale.sy *= actualSizeViewport.height / viewport.height;
         outputScale.scaled = true;
@@ -3681,11 +3681,11 @@ var PDFPageView = (function PDFPageViewClosure() {
         };
 
         pdfPage.render(renderContext).promise.then(function() {
-          // Tell the printEngine that rendering this canvas/page has finished.
+          // Tell the printEngine that rendering this canvas/pages has finished.
           obj.done();
         }, function(error) {
           console.error(error);
-          // Tell the printEngine that rendering this canvas/page has failed.
+          // Tell the printEngine that rendering this canvas/pages has failed.
           // This will make the print proces stop.
           if ('abort' in obj) {
             obj.abort();
@@ -3712,7 +3712,7 @@ function isAllWhitespace(str) {
 /**
  * @typedef {Object} TextLayerBuilderOptions
  * @property {HTMLDivElement} textLayerDiv - The text layer container.
- * @property {number} pageIndex - The page index.
+ * @property {number} pageIndex - The pages index.
  * @property {PageViewport} viewport - The viewport of the text layer.
  * @property {PDFFindController} findController
  */
@@ -3996,7 +3996,7 @@ var TextLayerBuilder = (function TextLayerBuilderClosure() {
         i0 = 0;
         i1 = matches.length;
       } else if (!isSelectedPage) {
-        // Not highlighting all and this isn't the selected page, so do nothing.
+        // Not highlighting all and this isn't the selected pages, so do nothing.
         return;
       }
 
@@ -4071,7 +4071,7 @@ var TextLayerBuilder = (function TextLayerBuilderClosure() {
         return;
       }
 
-      // Convert the matches on the page controller into the match format
+      // Convert the matches on the pages controller into the match format
       // used for the textLayer.
       this.matches = this.convertMatches(this.findController === null ?
         [] : (this.findController.pageMatches[this.pageIdx] || []));
@@ -4465,12 +4465,12 @@ var PDFViewer = (function pdfViewer() {
 
       var bindOnAfterAndBeforeDraw = function (pageView) {
         pageView.onBeforeDraw = function pdfViewLoadOnBeforeDraw() {
-          // Add the page to the buffer at the start of drawing. That way it can
+          // Add the pages to the buffer at the start of drawing. That way it can
           // be evicted from the buffer and destroyed even if we pause its
           // rendering.
           self._buffer.push(this);
         };
-        // when page is painted, using the image as thumbnail base
+        // when pages is painted, using the image as thumbnail base
         pageView.onAfterDraw = function pdfViewLoadOnAfterDraw() {
           if (!isOnePageRenderedResolved) {
             isOnePageRenderedResolved = true;
@@ -4482,7 +4482,7 @@ var PDFViewer = (function pdfViewer() {
       var firstPagePromise = pdfDocument.getPage(1);
       this.firstPagePromise = firstPagePromise;
 
-      // Fetch a single page so we can get a viewport that will be the default
+      // Fetch a single pages so we can get a viewport that will be the default
       // viewport for all pages
       return firstPagePromise.then(function(pdfPage) {
         var scale = this._currentScale || 1.0;
@@ -4506,7 +4506,7 @@ var PDFViewer = (function pdfViewer() {
         }
 
         // Fetch all the pages since the viewport is needed before printing
-        // starts to create the correct size canvas. Wait until one page is
+        // starts to create the correct size canvas. Wait until one pages is
         // rendered so we don't tie up too many resources early on.
         onePageRendered.then(function () {
           if (!PDFJS.disableAutoFetch) {
@@ -4633,22 +4633,22 @@ var PDFViewer = (function pdfViewer() {
         var pageHeightScale = (this.container.clientHeight - vPadding) /
                               currentPage.height * currentPage.scale;
         switch (value) {
-          case 'page-actual':
+          case 'pages-actual':
             scale = 1;
             break;
-          case 'page-width':
+          case 'pages-width':
             scale = pageWidthScale;
             break;
-          case 'page-height':
+          case 'pages-height':
             scale = pageHeightScale;
             break;
-          case 'page-fit':
+          case 'pages-fit':
             scale = Math.min(pageWidthScale, pageHeightScale);
             break;
           case 'auto':
             var isLandscape = (currentPage.width > currentPage.height);
-            // For pages in landscape mode, fit the page height to the viewer
-            // *unless* the page would thus become too wide to fit horizontally.
+            // For pages in landscape mode, fit the pages height to the viewer
+            // *unless* the pages would thus become too wide to fit horizontally.
             var horizontalScale = isLandscape ?
               Math.min(pageHeightScale, pageWidthScale) : pageWidthScale;
             scale = Math.min(MAX_AUTO_SCALE, horizontalScale);
@@ -4663,10 +4663,10 @@ var PDFViewer = (function pdfViewer() {
     },
 
     /**
-     * Scrolls page into view.
+     * Scrolls pages into view.
      * @param {number} pageNumber
      * @param {Array} dest - (optional) original PDF destination array:
-     *   <page-ref> </XYZ|FitXXX> <args..>
+     *   <pages-ref> </XYZ|FitXXX> <args..>
      */
     scrollPageIntoView: function PDFViewer_scrollPageIntoView(pageNumber,
                                                               dest) {
@@ -4679,7 +4679,7 @@ var PDFViewer = (function pdfViewer() {
           return;
         }
         dest = null;
-        // Fixes the case when PDF has different page sizes.
+        // Fixes the case when PDF has different pages sizes.
         this._setScale(this.currentScaleValue, true);
       }
       if (!dest) {
@@ -4701,27 +4701,27 @@ var PDFViewer = (function pdfViewer() {
           y = dest[3];
           scale = dest[4];
           // If x and/or y coordinates are not supplied, default to
-          // _top_ left of the page (not the obvious bottom left,
-          // since aligning the bottom of the intended page with the
+          // _top_ left of the pages (not the obvious bottom left,
+          // since aligning the bottom of the intended pages with the
           // top of the window is rarely helpful).
           x = x !== null ? x : 0;
           y = y !== null ? y : pageHeight;
           break;
         case 'Fit':
         case 'FitB':
-          scale = 'page-fit';
+          scale = 'pages-fit';
           break;
         case 'FitH':
         case 'FitBH':
           y = dest[2];
-          scale = 'page-width';
+          scale = 'pages-width';
           break;
         case 'FitV':
         case 'FitBV':
           x = dest[2];
           width = pageWidth;
           height = pageHeight;
-          scale = 'page-height';
+          scale = 'pages-height';
           break;
         case 'FitR':
           x = dest[2];
@@ -4748,7 +4748,7 @@ var PDFViewer = (function pdfViewer() {
         this.currentScaleValue = DEFAULT_SCALE;
       }
 
-      if (scale === 'page-fit' && !dest[4]) {
+      if (scale === 'pages-fit' && !dest[4]) {
         scrollIntoView(pageView.div);
         return;
       }
@@ -4771,7 +4771,7 @@ var PDFViewer = (function pdfViewer() {
         Math.round(currentScale * 10000) / 100 : currentScaleValue;
 
       var pageNumber = firstPage.id;
-      var pdfOpenParams = '#page=' + pageNumber;
+      var pdfOpenParams = '#pages=' + pageNumber;
       pdfOpenParams += '&zoom=' + normalizedScaleValue;
       var currentPageView = this._pages[pageNumber - 1];
       var container = this.container;
@@ -5020,7 +5020,7 @@ var THUMBNAIL_CANVAS_BORDER_WIDTH = 1; // px
  * @typedef {Object} PDFThumbnailViewOptions
  * @property {HTMLDivElement} container - The viewer element.
  * @property {number} id - The thumbnail's unique ID (normally its number).
- * @property {PageViewport} defaultViewport - The page viewport.
+ * @property {PageViewport} defaultViewport - The pages viewport.
  * @property {IPDFLinkService} linkService - The navigation/linking service.
  * @property {PDFRenderingQueue} renderingQueue - The rendering queue object.
  */
@@ -5084,8 +5084,8 @@ var PDFThumbnailView = (function PDFThumbnailViewClosure() {
     this.scale = this.canvasWidth / this.pageWidth;
 
     var anchor = document.createElement('a');
-    anchor.href = linkService.getAnchorUrl('#page=' + id);
-    anchor.title = mozL10n.get('thumb_page_title', {page: id}, 'Page {{page}}');
+    anchor.href = linkService.getAnchorUrl('#pages=' + id);
+    anchor.title = mozL10n.get('thumb_page_title', {page: id}, 'Page {{pages}}');
     anchor.onclick = function stopNavigation() {
       linkService.page = id;
       return false;
@@ -5097,7 +5097,7 @@ var PDFThumbnailView = (function PDFThumbnailViewClosure() {
     this.div = div;
 
     if (id === 1) {
-      // Highlight the thumbnail of the first page when no page number is
+      // Highlight the thumbnail of the first pages when no pages number is
       // specified (or exists in cache) when the document is loaded.
       div.classList.add('selected');
     }
@@ -5179,7 +5179,7 @@ var PDFThumbnailView = (function PDFThumbnailViewClosure() {
 
       canvas.className = 'thumbnailImage';
       canvas.setAttribute('aria-label', mozL10n.get('thumb_page_canvas',
-        {page: this.id}, 'Thumbnail of Page {{page}}'));
+        {page: this.id}, 'Thumbnail of Page {{pages}}'));
 
       this.canvas = canvas;
       this.div.setAttribute('data-loaded', true);
@@ -5475,7 +5475,7 @@ var PDFThumbnailViewer = (function PDFThumbnailViewerClosure() {
 
     ensureThumbnailVisible:
         function PDFThumbnailViewer_ensureThumbnailVisible(page) {
-      // Ensure that the thumbnail of the current page is visible
+      // Ensure that the thumbnail of the current pages is visible
       // when switching from another view.
       scrollIntoView(document.getElementById('thumbnailContainer' + page));
     },
@@ -5970,7 +5970,7 @@ var PDFViewerApplication = {
 
   setTitle: function pdfViewSetTitle(title) {
     if (this.isViewerEmbedded) {
-      // Embedded PDF viewers should not be changing their parent page's title.
+      // Embedded PDF viewers should not be changing their parent pages's title.
       return;
     }
     document.title = title;
@@ -6113,7 +6113,7 @@ var PDFViewerApplication = {
 
     var goToDestination = function(destRef) {
       self.pendingRefStr = null;
-      // dest array looks like that: <page-ref> </XYZ|FitXXX> <args..>
+      // dest array looks like that: <pages-ref> </XYZ|FitXXX> <args..>
       var pageNumber = destRef instanceof Object ?
         self.pagesRefMap[destRef.num + ' ' + destRef.gen + ' R'] :
         (destRef + 1);
@@ -6202,7 +6202,7 @@ var PDFViewerApplication = {
         this.pagesRefMap[destRef.num + ' ' + destRef.gen + ' R'] :
         (destRef + 1);
       if (pageNumber) {
-        var pdfOpenParams = this.getAnchorUrl('#page=' + pageNumber);
+        var pdfOpenParams = this.getAnchorUrl('#pages=' + pageNumber);
         var destKind = dest[1];
         if (typeof destKind === 'object' && 'name' in destKind &&
             destKind.name === 'XYZ') {
@@ -6373,7 +6373,7 @@ var PDFViewerApplication = {
 
       if (!PDFJS.disableHistory && !self.isViewerEmbedded) {
         // The browsing history is only enabled when the viewer is standalone,
-        // i.e. not when it is embedded in a web page.
+        // i.e. not when it is embedded in a web pages.
         if (!self.preferenceShowPreviousViewOnLoad && window.history.state) {
           window.history.replaceState(null, '');
         }
@@ -6390,15 +6390,15 @@ var PDFViewerApplication = {
           var left = store.get('scrollLeft', '0');
           var top = store.get('scrollTop', '0');
 
-          storedHash = 'page=' + pageNum + '&zoom=' + zoom + ',' +
+          storedHash = 'pages=' + pageNum + '&zoom=' + zoom + ',' +
                        left + ',' + top;
         } else if (self.preferenceDefaultZoomValue) {
-          storedHash = 'page=1&zoom=' + self.preferenceDefaultZoomValue;
+          storedHash = 'pages=1&zoom=' + self.preferenceDefaultZoomValue;
         }
         self.setInitialView(storedHash, scale);
 
         // Make all navigation keys work on document load,
-        // unless the viewer is embedded in a web page.
+        // unless the viewer is embedded in a web pages.
         if (!self.isViewerEmbedded) {
           self.pdfViewer.focus();
         }
@@ -6518,7 +6518,7 @@ var PDFViewerApplication = {
     this.isInitialViewSet = true;
 
     // When opening a new file (when one is already loaded in the viewer):
-    // Reset 'currentPageNumber', since otherwise the page's scale will be wrong
+    // Reset 'currentPageNumber', since otherwise the pages's scale will be wrong
     // if 'currentPageNumber' is larger than the number of pages in the file.
     document.getElementById('pageNumber').value =
       this.pdfViewer.currentPageNumber = 1;
@@ -6615,7 +6615,7 @@ var PDFViewerApplication = {
       if (dest) {
         this.pdfViewer.scrollPageIntoView(pageNumber || this.page, dest);
       } else if (pageNumber) {
-        this.page = pageNumber; // simple page
+        this.page = pageNumber; // simple pages
       }
       if ('pagemode' in params) {
         if (params.pagemode === 'thumbs' || params.pagemode === 'bookmarks' ||
@@ -6626,7 +6626,7 @@ var PDFViewerApplication = {
           document.getElementById('sidebarToggle').click();
         }
       }
-    } else if (/^\d+$/.test(hash)) { // page number
+    } else if (/^\d+$/.test(hash)) { // pages number
       this.page = hash;
     } else { // named destination
       PDFHistory.updateNextHashParam(unescape(hash));
@@ -6760,13 +6760,13 @@ var PDFViewerApplication = {
           'may be incorrect!');
     }
 
-    // Insert a @page + size rule to make sure that the page size is correctly
+    // Insert a @pages + size rule to make sure that the pages size is correctly
     // set. Note that we assume that all pages have the same size, because
     // variable-size pages are not supported yet (at least in Chrome & Firefox).
     // TODO(robwu): Use named pages when size calculation bugs get resolved
     // (e.g. https://crbug.com/355116) AND when support for named pages is
     // added (http://www.w3.org/TR/css3-page/#using-named-pages).
-    // In browsers where @page + size is not supported (such as Firefox,
+    // In browsers where @pages + size is not supported (such as Firefox,
     // https://bugzil.la/851441), the next stylesheet will be ignored and the
     // user has to select the correct paper size in the UI if wanted.
     this.pageStyleSheet = document.createElement('style');
@@ -6775,9 +6775,9 @@ var PDFViewerApplication = {
       // "size:<width> <height>" is what we need. But also add "A4" because
       // Firefox incorrectly reports support for the other value.
       '@supports ((size:A4) and (size:1pt 1pt)) {' +
-      '@page { size: ' + pageSize.width + 'pt ' + pageSize.height + 'pt;}' +
+      '@pages { size: ' + pageSize.width + 'pt ' + pageSize.height + 'pt;}' +
       // The canvas and each ancestor node must have a height of 100% to make
-      // sure that each canvas is printed on exactly one page.
+      // sure that each canvas is printed on exactly one pages.
       '#printContainer {height:100%}' +
       '#printContainer > div {width:100% !important;height:100% !important;}' +
       '}';
@@ -7098,11 +7098,11 @@ document.addEventListener('pagerendered', function (e) {
 
   if (pageView.error) {
     PDFViewerApplication.error(mozL10n.get('rendering_error', null,
-      'An error occurred while rendering the page.'), pageView.error);
+      'An error occurred while rendering the pages.'), pageView.error);
   }
 
-  // If the page is still visible when it has finished rendering,
-  // ensure that the page number input loading indicator is hidden.
+  // If the pages is still visible when it has finished rendering,
+  // ensure that the pages number input loading indicator is hidden.
   if (pageNumber === PDFViewerApplication.page) {
     var pageNumberInput = document.getElementById('pageNumber');
     pageNumberInput.classList.remove(PAGE_NUMBER_LOADING_INDICATOR);
@@ -7155,7 +7155,7 @@ window.addEventListener('updateviewarea', function (evt) {
   // Update the current bookmark in the browsing history.
   PDFHistory.updateCurrentBookmark(location.pdfOpenParams, location.pageNumber);
 
-  // Show/hide the loading indicator in the page number input element.
+  // Show/hide the loading indicator in the pages number input element.
   var pageNumberInput = document.getElementById('pageNumber');
   var currentPage =
     PDFViewerApplication.pdfViewer.getPageView(PDFViewerApplication.page - 1);
@@ -7316,11 +7316,11 @@ window.addEventListener('pagechange', function pagechange(evt) {
     }
   }
 
-  // checking if the this.page was called from the updateViewarea function
+  // checking if the this.pages was called from the updateViewarea function
   if (evt.updateInProgress) {
     return;
   }
-  // Avoid scrolling the first page during loading
+  // Avoid scrolling the first pages during loading
   if (this.loading && page === 1) {
     return;
   }
@@ -7406,7 +7406,7 @@ window.addEventListener('keydown', function keydown(evt) {
       case 48: // '0'
       case 96: // '0' on Numpad of Swedish keyboard
         if (!isViewerInPresentationMode) {
-          // keeping it unhandled (to restore page zoom to 100%)
+          // keeping it unhandled (to restore pages zoom to 100%)
           setTimeout(function () {
             // ... and resetting the scale after browser adjusts its scale
             PDFViewerApplication.setScale(DEFAULT_SCALE, true);
@@ -7466,7 +7466,7 @@ window.addEventListener('keydown', function keydown(evt) {
       case 33: // pg up
       case 8: // backspace
         if (!isViewerInPresentationMode &&
-            PDFViewerApplication.currentScaleValue !== 'page-fit') {
+            PDFViewerApplication.currentScaleValue !== 'pages-fit') {
           break;
         }
         /* in presentation mode */
@@ -7497,7 +7497,7 @@ window.addEventListener('keydown', function keydown(evt) {
       case 34: // pg down
       case 32: // spacebar
         if (!isViewerInPresentationMode &&
-            PDFViewerApplication.currentScaleValue !== 'page-fit') {
+            PDFViewerApplication.currentScaleValue !== 'pages-fit') {
           break;
         }
         /* falls through */
@@ -7542,7 +7542,7 @@ window.addEventListener('keydown', function keydown(evt) {
     switch (evt.keyCode) {
       case 32: // spacebar
         if (!isViewerInPresentationMode &&
-            PDFViewerApplication.currentScaleValue !== 'page-fit') {
+            PDFViewerApplication.currentScaleValue !== 'pages-fit') {
           break;
         }
         PDFViewerApplication.page--;
@@ -7560,7 +7560,7 @@ window.addEventListener('keydown', function keydown(evt) {
     // 37=Left     38=Up         39=Right  40=Down
     if (evt.keyCode >= 33 && evt.keyCode <= 40 &&
         !pdfViewer.containsElement(curElement)) {
-      // The page container is not focused, but a page navigation key has been
+      // The pages container is not focused, but a pages navigation key has been
       // pressed. Change the focus to the viewer container to make sure that
       // navigation by keyboard works as expected.
       pdfViewer.focus();

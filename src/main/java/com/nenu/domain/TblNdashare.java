@@ -20,6 +20,12 @@ public class TblNdashare {
     private String ndaid;
 
     /**
+     * NDA标题
+     */
+    @Column(name = "NDATitle")
+    private String ndatitle;
+
+    /**
      * 人员顺序 暂时保留，如果出现一对多的情况可以保证顺序
      */
     @Column(name = "OrderNumber")
@@ -74,13 +80,13 @@ public class TblNdashare {
     private String valid;
 
     /**
-     * 0 待确认 1 同意 2 被拒 3 待对方确认
+     * 0 等待确认 1 同意 2 我方中止 3 对方拒绝 4 对方修改
      */
     @Column(name = "ShareStatus")
     private String sharestatus;
 
     /**
-     * 0 待确认 1 同意 2 已拒绝 3 待对方确认
+     * 0 交易请求 1 同意 2 对方中止 3 我方拒绝 4 对方修改 5等待确认
      */
     @Column(name = "ReceiverStatus")
     private String receiverstatus;
@@ -90,6 +96,12 @@ public class TblNdashare {
      */
     @Column(name = "HaveFile")
     private String havefile;
+
+    /**
+     * 文件路径
+     */
+    @Column(name = "FilePath")
+    private String filepath;
 
     /**
      * 获取ID
@@ -125,6 +137,24 @@ public class TblNdashare {
      */
     public void setNdaid(String ndaid) {
         this.ndaid = ndaid;
+    }
+
+    /**
+     * 获取NDA标题
+     *
+     * @return NDATitle - NDA标题
+     */
+    public String getNdatitle() {
+        return ndatitle;
+    }
+
+    /**
+     * 设置NDA标题
+     *
+     * @param ndatitle NDA标题
+     */
+    public void setNdatitle(String ndatitle) {
+        this.ndatitle = ndatitle;
     }
 
     /**
@@ -290,36 +320,36 @@ public class TblNdashare {
     }
 
     /**
-     * 获取0 待确认 1 同意 2 被拒 3 待对方确认
+     * 获取0 等待确认 1 同意 2 我方中止 3 对方拒绝 4 对方修改
      *
-     * @return ShareStatus - 0 待确认 1 同意 2 被拒 3 待对方确认
+     * @return ShareStatus - 0 等待确认 1 同意 2 我方中止 3 对方拒绝 4 对方修改
      */
     public String getSharestatus() {
         return sharestatus;
     }
 
     /**
-     * 设置0 待确认 1 同意 2 被拒 3 待对方确认
+     * 设置0 等待确认 1 同意 2 我方中止 3 对方拒绝 4 对方修改
      *
-     * @param sharestatus 0 待确认 1 同意 2 被拒 3 待对方确认
+     * @param sharestatus 0 等待确认 1 同意 2 我方中止 3 对方拒绝 4 对方修改
      */
     public void setSharestatus(String sharestatus) {
         this.sharestatus = sharestatus;
     }
 
     /**
-     * 获取0 待确认 1 同意 2 已拒绝 3 待对方确认
+     * 获取0 交易请求 1 同意 2 对方中止 3 我方拒绝 4 对方修改 5等待确认
      *
-     * @return ReceiverStatus - 0 待确认 1 同意 2 已拒绝 3 待对方确认
+     * @return ReceiverStatus - 0 交易请求 1 同意 2 对方中止 3 我方拒绝 4 对方修改 5等待确认
      */
     public String getReceiverstatus() {
         return receiverstatus;
     }
 
     /**
-     * 设置0 待确认 1 同意 2 已拒绝 3 待对方确认
+     * 设置0 交易请求 1 同意 2 对方中止 3 我方拒绝 4 对方修改 5等待确认
      *
-     * @param receiverstatus 0 待确认 1 同意 2 已拒绝 3 待对方确认
+     * @param receiverstatus 0 交易请求 1 同意 2 对方中止 3 我方拒绝 4 对方修改 5等待确认
      */
     public void setReceiverstatus(String receiverstatus) {
         this.receiverstatus = receiverstatus;
@@ -341,5 +371,23 @@ public class TblNdashare {
      */
     public void setHavefile(String havefile) {
         this.havefile = havefile;
+    }
+
+    /**
+     * 获取文件路径
+     *
+     * @return FilePath - 文件路径
+     */
+    public String getFilepath() {
+        return filepath;
+    }
+
+    /**
+     * 设置文件路径
+     *
+     * @param filepath 文件路径
+     */
+    public void setFilepath(String filepath) {
+        this.filepath = filepath;
     }
 }
