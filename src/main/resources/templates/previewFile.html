@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title> NDA</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+
+    <link rel="shortcut icon" href="favicon.ico">
+
+    <script src="js/jquery.min.js?v=2.1.4"></script>
+    <script src="js/jQuery-2.2.0.min.js"></script>
+    <script src="js/bootstrap.min.js?v=3.3.6"></script>
+    <!--<script src="/js/ckeditor.js"></script>-->
+    <script src="https://cdn.ckeditor.com/4.11.4/standard/ckeditor.js"></script>
+    <link href="css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="css/font-awesome.css?v=4.4.0" rel="stylesheet">
+    <link href="css/plugins/iCheck/custom.css" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.css?v=4.1.0" rel="stylesheet">
+    <style>
+        img {background-color:#fff; text-align:center; width:100%; max-width:100%;margin-top:6px;}
+    </style>
+</head>
+<body class="gray-bg">
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="panel panel-default">
+        <div class="panel-body form-group" style="margin-bottom:0px;background-color: #b3b3b3">
+            <div class="col-sm-12">
+                <a type="button" class="btn btn-primary"  onclick="back();"><i class="glyphicon glyphicon-chevron-left"></i>&nbsp;返回</a>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-body form-group" style="margin-bottom:0px;background-color:gainsboro">
+            <div class="col-sm-12" style="text-align: center">
+                <span style="font-size: 20px;text-align: center;">[[${fileName}]]</span>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-body form-group" style="margin-bottom:0px;">
+            <div class="col-sm-12" id="showPic">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" th:inline="javascript">
+    var fileLists = [[${fileList}]];
+    var path = [[${path}]];
+    initPic();
+    function initPic() {
+        for(var i = 0;i < fileLists.length;i++) {
+            var content = '<img src="/image/'+path+'/'+fileLists[i]  +'"/>';
+            console.log(content);
+            $("#showPic").append(content);
+        }
+    }
+    function back() {
+        window.history.back();
+    }
+</script>
+
+</body>
+</html>

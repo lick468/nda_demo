@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>基于Bootstrap的响应式垂直时间轴jQuery插件</title>
+    <link href="http://cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="css/default.css">
+    <link href="css/fileinput.css" media="all" rel="stylesheet" type="text/css" />
+    <script src="http://cdn.bootcss.com/jquery/1.11.0/jquery.min.js" type="text/javascript"></script>
+    <script>window.jQuery || document.write('<script src="js/jquery-1.11.0.min.js"><\/script>')</script>
+    <script src="js/fileinput.js" type="text/javascript"></script>
+    <!--简体中文-->
+    <script src="js/locales/zh.js" type="text/javascript"></script>
+    <script src="http://cdn.bootcss.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/htmleaf-demo-time.css">
+    <script type="text/javascript" src="js/jquery.eeyellow.Timeline.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/jquery.eeyellow.Timeline.css" />
+
+    <!-- 信息提示框 -->
+    <script type="text/javascript" src="toastr/toastr.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="toastr/toastr.css" />
+    <!--[if IE]>
+    <script src="http://libs.useso.com/js/html5shiv/3.7/html5shiv.min.js"></script>
+    <![endif]-->
+
+
+
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-primary " >
+                <div class="panel-heading">
+                    <h3 class="panel-title">接收人--[[${recevier}]]</h3>
+                    <input type="hidden"  id="sender" th:value="${sender}">
+                    <input type="hidden"  id="recevier" th:value="${recevier}">
+                    <input type="hidden"  id="ndaID" th:value="${ndaID}">
+                </div>
+                <div class="panel-body">
+                    <form enctype="multipart/form-data">
+                        <div class="form-group">
+                            <input id="file-zh" name="file-zh[]" type="file" multiple>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="htmleaf-container" >
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="panel panel-primary">
+                    <div class="panel-heading" >
+                        <h3 class="panel-title">文件记录--时间轴</h3>
+                    </div>
+                    <div class="panel-body" >
+                        <div class="VivaTimeline">
+                            <dl id="timeLine" class="timeLine" >
+
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="panel-title">文件记录--表格</h3>
+                </div>
+                <div class="panel-body">
+                    <table class="table" id="table">
+                        <tr>
+                            <th>序号</th>
+                            <th>文件名</th>
+                            <th>发送人</th>
+                            <th>发送时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript" th:inline="javascript">
+    var ndaDocInfos = [[${ndaDocInfos}]];
+    var recevier = [[${recevier}]];
+    var sender = [[${sender}]];
+    toastr.options.positionClass = 'toast-top-center';
+    $('#file-zh').fileinput({
+        language: 'zh',
+        uploadUrl: '/fileUpload',
+        allowedFileExtensions : ['jpg', 'png','gif','pdf'],
+        uploadExtraData:{
+            recevier:$("#recevier").val(),
+            sender:$("#sender").val(),
+            ndaID:$("#ndaID").val()
+        }
+    }).on("fileuploaded", function(event, data) {
+        if(data.response)
+        {
+            //alert(data);
+            toastr.success('分享文件成功');
+            // window.location.reload();
+            window.setTimeout("window.location.reload()",2000);
+        }
+    });
+
+
+    $(document).ready(function(){
+        $('.VivaTimeline').vivaTimeline({
+            carousel: true,
+            carouselTime: 3000
+        });
+    });
+    initTime();
+    initTable();
+
+    function initTime() {
+        for(var i = 0;i < ndaDocInfos.length;i++) {
+            if(ndaDocInfos[i].uploadusername === sender ) {
+                var content = '<dd class="pos-left clearfix">\n' +
+                    '                                <div class="circ"></div>\n' +
+                    '                                <div class="time">'+ ndaDocInfos[i].uploadtime.substring(5,10) +'</div>\n' +
+                    '                                <div class="events">\n' +
+                    '                                    <div class="events-header">'+ndaDocInfos[i].filename +'</div>\n' +
+                    '                                    <div class="events-body">\n' +
+                    '                                        <div class="events-desc">发 送 人：'+ ndaDocInfos[i].uploadusername +'</div><br>\n' +
+                    '                                        <div class="events-desc">发送日期：<small>'+ ndaDocInfos[i].uploadtime +'</small></div><br>\n' +
+                    '                                        <div class="events-desc">文 件 名：<a  href="/previewFile?id='+ ndaDocInfos[i].id +'">'+ ndaDocInfos[i].filename +'.'+ ndaDocInfos[i].fileextension +'</a></div>\n' +
+                    '                                    </div>\n' +
+                    '                                </div>\n' +
+                    '                            </dd>';
+                $(".timeLine").append(content);
+            }else if(ndaDocInfos[i].uploadusername === recevier){
+                var content = '<dd class="pos-right clearfix">\n' +
+                    '                                <div class="circ"></div>\n' +
+                    '                                <div class="time">'+ ndaDocInfos[i].uploadtime.substring(5,10) +'</div>\n' +
+                    '                                <div class="events">\n' +
+                    '                                    <div class="events-header">'+ndaDocInfos[i].filename +'</div>\n' +
+                    '                                    <div class="events-body">\n' +
+                    '                                        <div class="events-desc">发 送 人：'+ ndaDocInfos[i].uploadusername +'</div><br>\n' +
+                    '                                        <div class="events-desc">发送日期：<small>'+ ndaDocInfos[i].uploadtime +'</small></div><br>\n' +
+                    '                                        <div class="events-desc">文 件 名：<a   href="/previewFile?id='+ ndaDocInfos[i].id +'">'+ ndaDocInfos[i].filename +'.'+ ndaDocInfos[i].fileextension +'</a></div>\n' +
+                    '                                    </div>\n' +
+                    '                                </div>\n' +
+                    '                            </dd>';
+                $(".timeLine").append(content);
+            }
+        }
+    }
+    function initTable() {
+        for(var i = 1;i <= ndaDocInfos.length;i++) {
+            var content ='<tr>' +
+                '<td>'+ i +'</td>' +
+                '<td>'+ ndaDocInfos[i-1].filename +'.'+ ndaDocInfos[i-1].fileextension +'</td>' +
+                '<td>'+ ndaDocInfos[i-1].uploadusername +'</td>' +
+                '<td>'+ ndaDocInfos[i-1].uploadtime +'</td>' +
+                '<td><a class="btn btn-primary"   href="/previewFile?id='+ ndaDocInfos[i-1].id +'"><i class="glyphicon glyphicon-flag"></i>&nbsp;查看</a></td>' +
+                '</tr>';
+            $(".table").append(content);
+        }
+    }
+
+
+</script>
+</body>
+</html>
