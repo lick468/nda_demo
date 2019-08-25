@@ -26,7 +26,7 @@ public class IPFSController {
     @PostMapping(value = "/upload")
     @ResponseBody
     public String upload(MultipartHttpServletRequest requestFile) {
-        String path = "D:\\upload\\";
+        String path = "C:\\upload\\";
         String url = "https://ipfs.io/ipfs/";
         String upload = "";
         Iterator<String> itr = requestFile.getFileNames();

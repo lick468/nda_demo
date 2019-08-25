@@ -296,7 +296,7 @@ public class LoginController {
         CommonResponse commonResponse = aliyunSms(phone, randomNumeric);
 
         String data = commonResponse.getData();
-        System.out.println(data);
+       // System.out.println(data);
 
         return randomNumeric;
     }

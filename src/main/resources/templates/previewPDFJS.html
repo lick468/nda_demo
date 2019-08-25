@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title> NDA</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+
+    <link rel="shortcut icon" href="favicon.ico">
+
+    <script src="js/jquery.min.js?v=2.1.4"></script>
+    <script src="js/jQuery-2.2.0.min.js"></script>
+    <script src="js/bootstrap.min.js?v=3.3.6"></script>
+    <!--<script src="/js/ckeditor.js"></script>-->
+    <script src="https://cdn.ckeditor.com/4.11.4/standard/ckeditor.js"></script>
+    <link href="css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="css/font-awesome.css?v=4.4.0" rel="stylesheet">
+    <link href="css/plugins/iCheck/custom.css" rel="stylesheet">
+    <link href="css/animate.css" rel="stylesheet">
+    <link href="css/style.css?v=4.1.0" rel="stylesheet">
+</head>
+<body class="gray-bg">
+
+
+<script type="text/javascript" th:inline="javascript">
+    var path = [[ ${path} ]]
+    var fullPath = [[ ${fullPath} ]]
+    console.log(path)
+    //获取当前网址，如： http://localhost:8081/index
+    var curWwwPath = window.document.location.href;
+    //获取主机地址之后的目录，如： idnex
+    var pathName = window.document.location.pathname;
+    var pos = curWwwPath.indexOf(pathName);
+    //获取主机地址，如： http://localhost:8081
+    var localhostPaht = curWwwPath.substring(0, pos);
+    var url = localhostPaht+ "/download/"+path
+    console.log(url)
+    window.open("/pdfjs/web/viewer.html?file="+url,"_self");
+</script>
+
+</body>
+</html>

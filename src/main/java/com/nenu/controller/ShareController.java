@@ -126,15 +126,15 @@ public class ShareController {
             TblNdabasicinfo tblNdabasicinfo = tblNdabasicinfoMapper.selectOneByExample(example1);
             //判断发起人是否携带文件发起交易 1 是 2 不是
             if(tblNdashare.getHavefile().equals("1")) {
-                String path = "D:\\upload\\";
+                String path = "C:\\upload\\";
                 String upload = "";
                 String filename = tblNdashare.getFilepath();
                 String fileName = filename.substring(0, filename.lastIndexOf(".")); //文件名   E:\test.doc  test
                 String fileExtension = filename.substring(filename.lastIndexOf(".")+1,filename.length()); //文件名后缀  E:\test.doc  doc
 
                 try {
-
-                    new EncodeUtils(true,path + filename,tblNdabasicinfo.getSenderpubkey()).run();
+                    // 文件加密
+                   // new EncodeUtils(true,path + filename,tblNdabasicinfo.getSenderpubkey()).run();
                     upload = IPFSUtils.upload(path + filename);
                     //对上传文件返回的hash  进行加密
                     // upload = new String(encrypt(upload.getBytes(),tblNdabasicinfo.getSenderpubkey()));
@@ -152,9 +152,9 @@ public class ShareController {
 
                     // 构建时间戳  key=文件hash&sign=send&sender=发件人&recevier=收件人&timestamp=当地时间戳  之后MD5加密
                     String timestamp = "key="+upload+"&sign=send&sender"+tblNdashare.getCreateusername()+"&receiver="+tblNdashare.getUsername()+"&timastamp="+System.currentTimeMillis();
-                    System.out.println("before="+timestamp);
+                    //System.out.println("before="+timestamp);
                     timestamp = MD5Util.getMD5(timestamp);
-                    System.out.println("after="+timestamp);
+                   // System.out.println("after="+timestamp);
                     ndadocinfo.setTimestamp(timestamp);
 
                     //生成NDA条款.pdf文件  上传到IPFS
@@ -164,7 +164,7 @@ public class ShareController {
                     rect.setBackgroundColor(BaseColor.WHITE);
                     Document doc = new Document(rect);
                     PdfWriter writer = null;
-                    String pathNDA = "D:\\"+tblNdashare.getNdatitle() +".pdf";
+                    String pathNDA = "C:\\"+tblNdashare.getNdatitle() +".pdf";
                     try {
                         try {
                             writer = PdfWriter.getInstance(doc, new FileOutputStream(pathNDA));
@@ -195,7 +195,7 @@ public class ShareController {
                     doc.close();
                     //对文件使用发送人公钥加密
                     //new EncodeUtils(true,path+filename,key).run();
-                    new EncodeUtils(true,pathNDA,tblNdabasicinfo.getSenderpubkey()).run();
+                   // new EncodeUtils(true,pathNDA,tblNdabasicinfo.getSenderpubkey()).run();
                     //上传到IPFS上
                     String upload1 = IPFSUtils.upload(pathNDA);
                     ndadocinfo.setNdahash(upload1);
@@ -222,7 +222,7 @@ public class ShareController {
                 rect.setBackgroundColor(BaseColor.WHITE);
                 Document doc = new Document(rect);
                 PdfWriter writer = null;
-                String pathNDA = "D:\\"+tblNdashare.getNdatitle() +".pdf";
+                String pathNDA = "C:\\"+tblNdashare.getNdatitle() +".pdf";
                 try {
                     try {
                         writer = PdfWriter.getInstance(doc, new FileOutputStream(pathNDA));
@@ -253,7 +253,7 @@ public class ShareController {
                 doc.close();
                 //对文件使用发送人公钥加密
                 //new EncodeUtils(true,path+filename,key).run();
-                new EncodeUtils(true,pathNDA,tblNdabasicinfo.getSenderpubkey()).run();
+               // new EncodeUtils(true,pathNDA,tblNdabasicinfo.getSenderpubkey()).run();
                 //上传到IPFS上
                 String upload1 = null;
                 try {
@@ -466,7 +466,7 @@ public class ShareController {
         Example example1 = new Example(TblNdabasicinfo.class);
         example1.createCriteria().andEqualTo("id",ndaID);
         TblNdabasicinfo tblNdabasicinfo = tblNdabasicinfoMapper.selectOneByExample(example1);
-        String path = "D:\\upload\\";
+        String path = "C:\\upload\\";
         String upload = "";
         Iterator<String> itr = requestFile.getFileNames();
         while (itr.hasNext()) {
@@ -475,7 +475,7 @@ public class ShareController {
             String filename = file.getOriginalFilename();
             String fileName = filename.substring(0, filename.lastIndexOf(".")); //文件名   test.doc  test
             String fileExtension = filename.substring(filename.lastIndexOf(".")+1,filename.length()); //文件名后缀  E:\test.doc  doc
-            System.out.println("fileName="+filename);
+            //System.out.println("fileName="+filename);
             File localFile = new File(path, filename);
             if(!localFile.exists()){
                 localFile.mkdirs();
@@ -484,14 +484,14 @@ public class ShareController {
                 file.transferTo(localFile);
                 //上传之前先加密
                 if(tblNdabasicinfo.getInitiatorusername().equals(sender)) {
-                    new EncodeUtils(true,path + filename,tblNdabasicinfo.getSenderpubkey()).run();
+                   // new EncodeUtils(true,path + filename,tblNdabasicinfo.getSenderpubkey()).run();
                     upload = IPFSUtils.upload(path + filename);
                     //对上传文件返回的hash  进行加密
                     // upload = new String(encrypt(upload.getBytes(),tblNdabasicinfo.getSenderpubkey()));
                     upload = Base64.getEncoder().encodeToString(encrypt(upload.getBytes(),tblNdabasicinfo.getSenderpubkey()));
 
                 }else {
-                    new EncodeUtils(true,path + filename,tblNdabasicinfo.getReceiverpubkey()).run();
+                  //  new EncodeUtils(true,path + filename,tblNdabasicinfo.getReceiverpubkey()).run();
                     upload = IPFSUtils.upload(path + filename);
                     //对上传文件返回的hash  进行加密
                     //upload = new String(encrypt(upload.getBytes(),tblNdabasicinfo.getReceiverpubkey()));
@@ -509,9 +509,9 @@ public class ShareController {
 
                 // 构建时间戳  key=文件hash&sign=send&sender=发件人&recevier=收件人&timestamp=当地时间戳  之后MD5加密
                 String timestamp = "key="+upload+"&sign=send&sender"+sender+"&receiver="+receiver+"&timastamp="+System.currentTimeMillis();
-                System.out.println("before="+timestamp);
+               // System.out.println("before="+timestamp);
                 timestamp = MD5Util.getMD5(timestamp);
-                System.out.println("after="+timestamp);
+               // System.out.println("after="+timestamp);
                 ndadocinfo.setTimestamp(timestamp);
 
                 Example example = new Example(TblNdadocinfo.class);
@@ -561,31 +561,34 @@ public class ShareController {
         }
 
         // 根据文件Hash 从IPFS 上下载文件
-        String path = "E:\\download\\"+ndadocinfo.getFilename()+"."+ndadocinfo.getFileextension();
+        String path = "C:\\download\\"+ndadocinfo.getFilename()+"."+ndadocinfo.getFileextension();
         try {
             IPFSUtils.download(path,hash);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        //将下载的文件进行解密
-        if(tblNdabasicinfo.getInitiatorusername().equals(ndadocinfo.getUploadusername())) {
-            new EncodeUtils(false,path,tblNdabasicinfo.getSenderpubkey()).run();
-        }else {
-            new EncodeUtils(false,path,tblNdabasicinfo.getReceiverpubkey()).run();
-        }
+//        //将下载的文件进行解密
+//        if(tblNdabasicinfo.getInitiatorusername().equals(ndadocinfo.getUploadusername())) {
+//            new EncodeUtils(false,path,tblNdabasicinfo.getSenderpubkey()).run();
+//        }else {
+//            new EncodeUtils(false,path,tblNdabasicinfo.getReceiverpubkey()).run();
+//        }
 
-        //将下载的pdf 文件转成图片，在线预览
-        long time = System.currentTimeMillis();
-        String outPath = "E:\\download\\"+time+"\\"+ ndadocinfo.getFilename();
-        String realPath = time+"\\"+ ndadocinfo.getFilename();
-        PDFUtils.PdfToImage(path,outPath);
-        //获取目录下所有图片
-        List<String> fileName = new ArrayList<>();
-        getAllFileName(outPath,fileName);
-        map.put("path",realPath);
-        map.put("fileName",ndadocinfo.getFilename()+"."+ndadocinfo.getFileextension());
-        map.put("fileList",fileName);
-        return "previewFile";
+//        //将下载的pdf 文件转成图片，在线预览
+//        long time = System.currentTimeMillis();
+//        String outPath = "C:\\download\\"+time+"\\"+ ndadocinfo.getFilename();
+//        String realPath = time+"\\"+ ndadocinfo.getFilename();
+//        PDFUtils.PdfToImage(path,outPath);
+//        //获取目录下所有图片
+//        List<String> fileName = new ArrayList<>();
+//        getAllFileName(outPath,fileName);
+//        map.put("path",realPath);
+//        map.put("fileName",ndadocinfo.getFilename()+"."+ndadocinfo.getFileextension());
+//        map.put("fileList",fileName);
+//        return "previewFile";
+        map.put("path",ndadocinfo.getFilename()+"."+ndadocinfo.getFileextension());
+        map.put("fullPath",path);
+        return "previewPDFJS";
     }
 
     /**
@@ -620,7 +623,7 @@ public class ShareController {
         String next = fileNames.next();
         MultipartFile file = requestFile.getFile(next);
         TblUserinfo currentUser = (TblUserinfo) session.getAttribute("currentUser");
-        String path = "E:\\upload\\";
+        String path = "C:\\upload\\";
         String upload = "";
         String filename = file.getOriginalFilename();
         File localFile = new File(path, filename);
@@ -636,7 +639,7 @@ public class ShareController {
             //new EncodeUtils(true,path+filename,key).run();
             //文件上传到IPFS上
             upload = IPFSUtils.upload(path + filename);
-            System.out.println("FileHash==="+upload);
+            //System.out.println("FileHash==="+upload);
             /**
              * 生成时间戳
              * sender  发送人
@@ -649,7 +652,7 @@ public class ShareController {
             e.printStackTrace();
         }
         String result = currentUser.getUsername() + "&&" + filename +"&&"+ new Date();
-        System.out.println(result);
+        //System.out.println(result);
         return result;
 
     }

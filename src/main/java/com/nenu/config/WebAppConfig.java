@@ -15,7 +15,8 @@ public class WebAppConfig implements WebMvcConfigurer {
        registry.addInterceptor(new LoginInterceptor()).addPathPatterns("/**").excludePathPatterns("/login", "/webjars/**");
     }
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/file/**").addResourceLocations("file:E:/tempFiles/");
-        registry.addResourceHandler("/image/**").addResourceLocations("file:E:/download/");
+        registry.addResourceHandler("/file/**").addResourceLocations("file:C:/tempFiles/");
+        registry.addResourceHandler("/image/**").addResourceLocations("file:C:/download/");
+        registry.addResourceHandler("/download/**").addResourceLocations("file:C:/download/");
     }
 }

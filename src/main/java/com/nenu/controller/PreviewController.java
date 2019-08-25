@@ -30,7 +30,7 @@ public class PreviewController {
     public static final String REAL_PATH = "realPath";
     private static final String SUCCESS = "SUCCESS";
     private static final String ERROR = "ERROR";
-    private static final String TEMP_DIR_PATH = "E:\\tempFiles\\";
+    private static final String TEMP_DIR_PATH = "C:\\tempFiles\\";
 
     private static Map<String,String> imageContentType = new HashMap<String,String>();
     static {
@@ -43,14 +43,19 @@ public class PreviewController {
     public String preview(){
         return "preview";
     }
+
     /**
      * 预览pdf文件
      * @param fileName
      */
     @RequestMapping(value = "/previewpdf", method = RequestMethod.GET)
     public void pdfStreamHandler(String fileName,HttpServletRequest request,HttpServletResponse response) {
+        System.out.println(request.getParameter("fileName"));
         System.out.println("fileName="+fileName);
-        File file = new File("D:/file/test.pdf");
+        fileName = "ddd.pdf";
+        String path = "C:/download/"+fileName;
+        System.out.println("path="+path);
+        File file = new File(path);
         if (file.exists()){
             byte[] data = null;
             try {
@@ -298,7 +303,7 @@ public class PreviewController {
     @RequestMapping("/getFileNameList")
     @ResponseBody
     public List<String> getFileNameList(){
-            String path = "E:\\tempFiles\\";
+            String path = "C:\\tempFiles\\";
             File file = new File(path);
             // get the folder list
             File[] array = file.listFiles();

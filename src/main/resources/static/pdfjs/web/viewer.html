@@ -28,6 +28,9 @@ http://sourceforge.net/adobe/cmap/wiki/License/
     <link rel="stylesheet" href="viewer.css"/>
 
     <script src="compatibility.js"></script>
+      <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+      <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+      <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
 
 
@@ -44,6 +47,13 @@ http://sourceforge.net/adobe/cmap/wiki/License/
   </head>
 
   <body tabindex="1" class="loadingInProgress">
+  <div class="panel panel-default">
+    <div class="panel-body form-group" style="margin-bottom:0px;background-color: #b3b3b3">
+      <div class="col-sm-12">
+        <a type="button" class="btn btn-primary"  onclick="window.history.go(-2);"><i class="glyphicon glyphicon-chevron-left"></i>&nbsp;返回</a>
+      </div>
+    </div>
+  </div>
     <div id="outerContainer">
 
       <div id="sidebarContainer">
@@ -169,22 +179,22 @@ http://sourceforge.net/adobe/cmap/wiki/License/
                 <span id="numPages" class="toolbarLabel"></span>
               </div>
               <div id="toolbarViewerRight">
-                <button id="presentationMode" class="toolbarButton presentationMode hiddenLargeView" title="Switch to Presentation Mode" tabindex="31" data-l10n-id="presentation_mode">
+                <button id="presentationMode" style="visibility: hidden" class="toolbarButton presentationMode hiddenLargeView" title="Switch to Presentation Mode" tabindex="31" data-l10n-id="presentation_mode">
                   <span data-l10n-id="presentation_mode_label">Presentation Mode</span>
                 </button>
 
-                <button id="openFile" class="toolbarButton openFile hiddenLargeView" title="Open File" tabindex="32" data-l10n-id="open_file">
+                <button id="openFile" style="visibility: hidden" class="toolbarButton openFile hiddenLargeView" title="Open File" tabindex="32" data-l10n-id="open_file">
                   <span data-l10n-id="open_file_label">Open</span>
                 </button>
 
-                <button id="print" class="toolbarButton print hiddenMediumView" title="Print" tabindex="33" data-l10n-id="print">
+                <button id="print"  style="visibility: hidden" class="toolbarButton print hiddenMediumView" title="Print" tabindex="33" data-l10n-id="print">
                   <span data-l10n-id="print_label">Print</span>
                 </button>
 
-                <button id="download" class="toolbarButton download hiddenMediumView" title="Download" tabindex="34" data-l10n-id="download">
+                <button id="download" style="visibility: hidden" class="toolbarButton download hiddenMediumView" title="Download" tabindex="34" data-l10n-id="download">
                   <span data-l10n-id="download_label">Download</span>
                 </button>
-                <a href="#" id="viewBookmark" class="toolbarButton bookmark hiddenSmallView" title="Current view (copy or open in new window)" tabindex="35" data-l10n-id="bookmark">
+                <a href="#" id="viewBookmark" style="visibility: hidden" class="toolbarButton bookmark hiddenSmallView" title="Current view (copy or open in new window)" tabindex="35" data-l10n-id="bookmark">
                   <span data-l10n-id="bookmark_label">Current View</span>
                 </a>
 
@@ -412,7 +422,11 @@ http://sourceforge.net/adobe/cmap/wiki/License/
     </div>
   </div>
 </div>
-
+<script type="text/javascript">
+    function back() {
+        window.history.back(-1);
+    }
+</script>
   </body>
 </html>
 

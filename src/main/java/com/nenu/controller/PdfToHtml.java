@@ -9,12 +9,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 
 public class PdfToHtml {
-    public static void main(String[] args) {
-        //传入PDF地址
-        PdfToImage("E:\\upload\\test.pdf","E:\\upload\\1");
-
-
-    }
+//    public static void main(String[] args) {
+//        //传入PDF地址
+//        PdfToImage("E:\\upload\\test.pdf","E:\\upload\\1");
+//
+//
+//    }
 
 
     public static void PdfToImage(String pdfurl,String outPath){

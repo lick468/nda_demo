@@ -63,7 +63,9 @@ public class PDFUtils {
                 buffer.append("<img src=\"" + path +"/"+ "image" + "_" + i + ".jpg\"/>\r\n");
                 image = null; out.flush(); out.close();
             }
+            /// 关闭reader
             reader = null;
+            //reader.close();
             document.close();
             buffer.append("</body>\r\n");
             buffer.append("</html>");
