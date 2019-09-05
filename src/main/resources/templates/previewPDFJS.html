@@ -2,7 +2,8 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
 
 
     <title> NDA</title>
@@ -36,7 +37,7 @@
     var pos = curWwwPath.indexOf(pathName);
     //获取主机地址，如： http://localhost:8081
     var localhostPaht = curWwwPath.substring(0, pos);
-    var url = localhostPaht+ "/download/"+path
+    var url = localhostPaht+ "/download/outPath/"+path
     console.log(url)
     window.open("/pdfjs/web/viewer.html?file="+url,"_self");
 </script>

@@ -6,7 +6,9 @@ import org.apache.commons.codec.binary.Base64;
 
 
 import javax.crypto.Cipher;
-import java.io.ByteArrayOutputStream;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import java.io.*;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -63,7 +65,7 @@ public class RSAUtils {
     //获取公钥
     public static PublicKey getPublicKey(String key) throws Exception {
         byte[] keyBytes;
-       // keyBytes = (new BASE64Decoder()).decodeBuffer(key);
+        // keyBytes = (new BASE64Decoder()).decodeBuffer(key);
         keyBytes = Base64.decodeBase64(key);
         X509EncodedKeySpec keySpec = new X509EncodedKeySpec(keyBytes);
         KeyFactory keyFactory = KeyFactory.getInstance(KEY_ALGORITHM);
@@ -74,7 +76,7 @@ public class RSAUtils {
     //获取私钥
     public static PrivateKey getPrivateKey(String key) throws Exception {
         byte[] keyBytes;
-      //  keyBytes = (new BASE64Decoder()).decodeBuffer(key);
+        //  keyBytes = (new BASE64Decoder()).decodeBuffer(key);
         keyBytes = Base64.decodeBase64(key);
         PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
         KeyFactory keyFactory = KeyFactory.getInstance(KEY_ALGORITHM);
@@ -91,7 +93,7 @@ public class RSAUtils {
 
     //编码返回字符串
     public static String encryptBASE64(byte[] key) throws Exception {
-       // return (new BASE64Encoder()).encodeBuffer(key);
+        // return (new BASE64Encoder()).encodeBuffer(key);
         return Base64.encodeBase64String(key);
     }
 
@@ -160,6 +162,83 @@ public class RSAUtils {
         byte[] plainText = out.toByteArray();
         out.close();
         return plainText;
+    }
+    //************************加密文件**************************
+    public static void encryptFile(String inputPath, String outputPath, String publicKeyStr) throws Exception {
+        try {
+            KeyGenerator keygen = KeyGenerator.getInstance("AES");
+            SecureRandom random = new SecureRandom();
+            keygen.init(random);
+            SecretKey key = keygen.generateKey();
+            PublicKey publicKey = getPublicKey(publicKeyStr);
+            Cipher cipher = Cipher.getInstance("RSA");
+            cipher.init(Cipher.WRAP_MODE, publicKey);
+            byte[] wrappedKey = cipher.wrap(key);
+            DataOutputStream out = new DataOutputStream(new FileOutputStream(outputPath));
+            out.writeInt(wrappedKey.length);
+            out.write(wrappedKey);
+            InputStream in = new FileInputStream(inputPath);
+            cipher = Cipher.getInstance("AES");
+            cipher.init(Cipher.ENCRYPT_MODE, key);
+            crypt(in, out, cipher);
+            in.close();
+            out.close();
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //************************解密文件**************************
+    public static void decryptFile(String inputPath, String outputPath, String privateKeyStr) throws Exception {
+        try {
+            DataInputStream in = new DataInputStream(new FileInputStream(inputPath));
+            int length = in.readInt();
+            byte[] wrappedKey = new byte[length];
+            in.read(wrappedKey, 0, length);
+            PrivateKey privateKey = getPrivateKey(privateKeyStr);
+            Cipher cipher = Cipher.getInstance("RSA");
+            cipher.init(Cipher.UNWRAP_MODE, privateKey);
+            Key key = cipher.unwrap(wrappedKey, "AES", Cipher.SECRET_KEY);
+
+            OutputStream out = new FileOutputStream(outputPath);
+            cipher = Cipher.getInstance("AES");
+            cipher.init(Cipher.DECRYPT_MODE, key);
+
+            crypt(in, out, cipher);
+            in.close();
+            out.close();
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    //对数据分段加密解密
+    public static void crypt(InputStream in, OutputStream out, Cipher cipher) throws IOException, GeneralSecurityException {
+        int blockSize = cipher.getBlockSize();
+        int outputSize = cipher.getOutputSize(blockSize);
+        byte[] inBytes = new byte[blockSize];
+        byte[] outBytes = new byte[outputSize];
+
+        int inLength = 0;
+        boolean next = true;
+        while (next) {
+            inLength = in.read(inBytes);
+            if (inLength == blockSize) {
+                int outLength = cipher.update(inBytes, 0, blockSize, outBytes);
+                out.write(outBytes, 0, outLength);
+            } else {
+                next = false;
+            }
+        }
+        if (inLength > 0) {
+            outBytes = cipher.doFinal(inBytes, 0, inLength);
+        } else {
+            outBytes = cipher.doFinal();
+        }
+        out.write(outBytes);
     }
 
 }

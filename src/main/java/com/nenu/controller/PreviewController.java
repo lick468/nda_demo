@@ -53,7 +53,7 @@ public class PreviewController {
         System.out.println(request.getParameter("fileName"));
         System.out.println("fileName="+fileName);
         fileName = "ddd.pdf";
-        String path = "C:/download/"+fileName;
+        String path = "C:/download/outPath/"+fileName;
         System.out.println("path="+path);
         File file = new File(path);
         if (file.exists()){
