@@ -41,26 +41,39 @@
 </head>
 
 <body class="gray-bg">
-
-<div class="wrapper wrapper-content animated fadeInRight">
+<div class="container">
     <div class="panel panel-default">
-        <div class="panel-body form-group" style="margin-bottom:0px;">
-            <div class="col-sm-2">
-                <a type="button" class="btn btn-primary"  href="/createNDA"><i class="glyphicon glyphicon-plus"></i>&nbsp;新建交易</a>
+        <div class="panel-body form-group" style="margin-bottom:0px;background-color: #b3b3b3">
+            <div class="col-sm-12">
+                <a type="button" class="btn btn-primary"  onclick="window.history.go(-1);"><i class="glyphicon glyphicon-chevron-left"></i>&nbsp;返回</a>
             </div>
-            <div class="input-group col-sm-2">
-                <input type="text" class="form-control" name="Name" id="search_share" placeholder="Search for...">
-                <span class="input-group-btn">
-                    <button class="btn btn-default" type="button" onclick="searchShare();"><i class="glyphicon glyphicon-search"></i></button>
-                </span>
-            </div><!-- /input-group -->
         </div>
     </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-body form-group" style="margin-bottom:0px;">
+                    <div class="col-sm-2">
+                        <a type="button" class="btn btn-primary"  href="/createNDA"><i class="glyphicon glyphicon-plus"></i>&nbsp;新建交易</a>
+                    </div>
+                    <div class="input-group col-sm-2">
+                        <input type="text" class="form-control" name="Name" id="search_share" placeholder="Search for...">
+                        <span class="input-group-btn">
+                    <button class="btn btn-default" type="button" onclick="searchShare();"><i class="glyphicon glyphicon-search"></i></button>
+                </span>
+                    </div><!-- /input-group -->
+                </div>
+            </div>
 
-    <table id="tableShare" class="table table-hover table-condensed"></table>
+            <table id="tableShare" class="table table-hover table-condensed"></table>
 
-    <table id="tableShareTo" class="table table-hover"></table>
+            <table id="tableShareTo" class="table table-hover"></table>
+        </div>
+
+    </div>
 </div>
+
+
 <!-- 模态框（Modal） -->
 <div class="modal fade" id="modal-show-NDA" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog" id="modal-show-NDA-body">

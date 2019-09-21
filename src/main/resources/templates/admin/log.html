@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+
+
+    <title>日志管理</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <script src="../js/jquery.min.js?v=2.1.4"></script>
+    <script src="../js/jQuery-2.2.0.min.js"></script>
+    <link href="../css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <!--<link href="../css/font-awesome.css?v=4.4.0" rel="stylesheet">-->
+    <!--<link href="../css/animate.css" rel="stylesheet">-->
+    <!--<link href="../css/style.css?v=4.1.0" rel="stylesheet">-->
+
+    <!--&lt;!&ndash; 引入bootstrap样式 &ndash;&gt;-->
+    <!--<link href="https://cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">-->
+    <!--&lt;!&ndash; 引入bootstrap-table样式 &ndash;&gt;-->
+    <link href="https://cdn.bootcss.com/bootstrap-table/1.11.1/bootstrap-table.min.css" rel="stylesheet">
+
+    <!-- jquery -->
+    <script src="https://cdn.bootcss.com/jquery/2.2.3/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+    <!-- bootstrap-table.min.js -->
+    <script src="https://cdn.bootcss.com/bootstrap-table/1.11.1/bootstrap-table.min.js"></script>
+    <!-- 引入中文语言包 -->
+    <script src="https://cdn.bootcss.com/bootstrap-table/1.11.1/locale/bootstrap-table-zh-CN.min.js"></script>
+
+
+    
+
+</head>
+
+<body class="gray-bg">
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <table id="tableLogin" class="table table-hover table-condensed"></table>
+            <table id="tableOper" class="table table-hover"></table>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    $("#tableLogin").bootstrapTable({ // 对应table标签的id
+        method:'POST',
+        contentType: "application/x-www-form-urlencoded",// 解决POST提交问题
+        url: "/admin/getLoginData", // 获取表格数据的url
+
+        cache: false, // 设置为 false 禁用 AJAX 数据缓存， 默认为true
+        striped: true,  //表格显示条纹，默认为false
+        pagination: true, // 在表格底部显示分页组件，默认false
+        pageList: [10, 20, 50, 100], // 设置页面可以显示的数据条数
+        pageSize: 10, // 页面数据条数
+        pageNumber: 1, // 首页页码
+        showHeader : true,
+        paginationPreText: "上一页",
+        paginationNextText: "下一页",
+        paginationFirstText: "首页",
+        paginationLastText: "末页",
+        clickToSelect: false,//是否启用点击选中行
+        toolbarAlign:'right',
+        buttonsAlign:'right',//按钮对齐方式
+        sidePagination: 'server', // 设置为服务器端分页
+        //queryParamsType:'', //默认值为 'limit' ,在默认情况下 传给服务端的参数为：offset,limit,sort
+                                // 设置为 ''  在这种情况下传给服务器的参数为：pageSize,pageNumber
+        //queryParams: queryParams,//前端调用服务时，会默认传递上边提到的参数，如果需要添加自定义参数，可以自定义一个函数返回请求参数
+        queryParams: function (params) { // 请求服务器数据时发送的参数，可以在这里添加额外的查询参数，返回false则终止请求
+            return {
+                pageSize: params.limit, // 每页要显示的数据条数
+                offset: params.offset, // 每页显示数据的开始行号
+                sort: params.sort, // 要排序的字段
+                sortOrder: params.order // 排序规则
+            }
+        },
+        sortName: 'id', // 要排序的字段
+        sortOrder: 'desc', // 排序规则
+        columns: [
+            [
+                {
+                    "title": "登录日志",
+                    "halign":"center",
+                    "align":"center",
+                    "colspan": 4,
+                    cellStyle:{
+                        css:{"background-color":"red"}
+                    }
+                }
+            ], [
+            {
+                field: 'Number',
+                title: '序号',
+                sortable: false,
+                align: "center",
+                width: 70,
+                formatter: function (value, row, index) {
+                    //获取每页显示的数量
+                    var pageSize=$('#tableLogin').bootstrapTable('getOptions').pageSize;
+                    //获取当前是第几页
+                    var pageNumber=$('#tableLogin').bootstrapTable('getOptions').pageNumber;
+                    //返回序号，注意index是从0开始的，所以要加上1
+                    return pageSize * (pageNumber - 1) + index + 1;
+                }
+            },{
+                field: 'username', // 返回json数据中的name
+                title: '登录人', // 表格表头显示文字
+                align: 'center', // 左右居中
+                width: 500,
+                valign: 'middle' // 上下居中
+            }, {
+                field: 'logintime',
+                title: '登录时间',
+                align: 'center',
+                width: 360, // 定义列的宽度，单位为像素px
+                valign: 'middle'
+            }, {
+                field: 'loginip',
+                title: '登录IP',
+                align: 'center',
+                width: 360, // 定义列的宽度，单位为像素px
+                valign: 'middle'
+            }
+        ]
+    ]
+    })
+
+    $("#tableOper").bootstrapTable({ // 对应table标签的id
+        method:'POST',
+        contentType: "application/x-www-form-urlencoded",// 解决POST提交问题
+        url: "/admin/getOperData", // 获取表格数据的url
+
+        cache: false, // 设置为 false 禁用 AJAX 数据缓存， 默认为true
+        striped: true,  //表格显示条纹，默认为false
+        pagination: true, // 在表格底部显示分页组件，默认false
+        pageList: [10, 20, 50, 100], // 设置页面可以显示的数据条数
+        pageSize: 10, // 页面数据条数
+        pageNumber: 1, // 首页页码
+        showHeader : true,
+        paginationPreText: "上一页",
+        paginationNextText: "下一页",
+        paginationFirstText: "首页",
+        paginationLastText: "末页",
+        clickToSelect: false,//是否启用点击选中行
+        toolbarAlign:'right',
+        buttonsAlign:'right',//按钮对齐方式
+        toolbar:'#toolbar',//指定工作栏
+        sidePagination: 'server', // 设置为服务器端分页
+        //queryParamsType:'', //默认值为 'limit' ,在默认情况下 传给服务端的参数为：offset,limit,sort
+        // 设置为 ''  在这种情况下传给服务器的参数为：pageSize,pageNumber
+        //queryParams: queryParams,//前端调用服务时，会默认传递上边提到的参数，如果需要添加自定义参数，可以自定义一个函数返回请求参数
+        queryParams: function (params) { // 请求服务器数据时发送的参数，可以在这里添加额外的查询参数，返回false则终止请求
+            return {
+                pageSize: params.limit, // 每页要显示的数据条数
+                offset: params.offset, // 每页显示数据的开始行号
+                sort: params.sort, // 要排序的字段
+                sortOrder: params.order// 排序规则
+            }
+        },
+        sortName: 'id', // 要排序的字段
+        sortOrder: 'desc', // 排序规则
+        columns: [
+            [
+                {
+                    "title": "操作日志",
+                    "halign":"center",
+                    "align":"center",
+                    "colspan": 12
+                }
+            ],[
+            {
+                field: 'Number',
+                title: '序号',
+                sortable: false,
+                align: "center",
+                width: 70,
+                formatter: function (value, row, index) {
+                    //获取每页显示的数量
+                    var pageSize=$('#tableOper').bootstrapTable('getOptions').pageSize;
+                    //获取当前是第几页
+                    var pageNumber=$('#tableOper').bootstrapTable('getOptions').pageNumber;
+                    //返回序号，注意index是从0开始的，所以要加上1
+                    return pageSize * (pageNumber - 1) + index + 1;
+                }
+            },{
+                field: 'classFunctionName', // 返回json数据中的name
+                title: '类功能', // 表格表头显示文字
+                width: 500, // 定义列的宽度，单位为像素px
+                align: 'center', // 左右居中
+                valign: 'middle' // 上下居中
+            }, {
+                field: 'methodFunctionName',
+                title: '方法功能',
+                align: 'center',
+                width: 360, // 定义列的宽度，单位为像素px
+                valign: 'middle'
+            }, {
+                field: 'operName',
+                title: '操作人',
+                align: 'center',
+                width: 360, // 定义列的宽度，单位为像素px
+                valign: 'middle'
+            }, {
+                field: 'url',
+                title: 'url',
+                align: 'center',
+                width: 360, // 定义列的宽度，单位为像素px
+                valign: 'middle'
+            }, {
+                field: 'methodName',
+                title: '方法名',
+                align: 'center',
+                width: 360, // 定义列的宽度，单位为像素px
+                valign: 'middle'
+            }, {
+                field: 'ip',
+                title: '操作Ip',
+                align: 'center',
+                width: 360, // 定义列的宽度，单位为像素px
+                valign: 'middle'
+            }, {
+                field: 'os',
+                title: '设备型号',
+                align: 'center',
+                width: 360, // 定义列的宽度，单位为像素px
+                valign: 'middle'
+            }, {
+                field: 'accessModel',
+                title: '方法类型',
+                align: 'center',
+                width: 360, // 定义列的宽度，单位为像素px
+                valign: 'middle'
+            }, {
+                field: 'status',
+                title: '状态',
+                align: 'center',
+                width: 360, // 定义列的宽度，单位为像素px
+                valign: 'middle'
+            }, {
+                field: 'totalTime',
+                title: '耗时',
+                align: 'center',
+                width: 360, // 定义列的宽度，单位为像素px
+                valign: 'middle'
+            }, {
+                field: 'operTime',
+                title: '操作时间',
+                align: 'center',
+                width: 360, // 定义列的宽度，单位为像素px
+                valign: 'middle'
+            }
+        ]
+        ]
+    })
+    function searchShare() {
+        $("#tableLogin").bootstrapTable('refresh');
+        $("#tableOper").bootstrapTable('refresh');
+    }
+    function cellStylesales(value, row, index) {
+        return {css:{background:'#fff',color:'#fff'}};
+    }
+
+</script>
+</body>
+
+</html>

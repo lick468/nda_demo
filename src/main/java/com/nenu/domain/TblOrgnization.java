@@ -1,5 +1,6 @@
 package com.nenu.domain;
 
+import java.util.Date;
 import javax.persistence.*;
 
 @Table(name = "tbl_orgnization")
@@ -71,6 +72,24 @@ public class TblOrgnization {
      */
     @Column(name = "OrgType")
     private String orgtype;
+
+    /**
+     * 密码
+     */
+    @Column(name = "Password")
+    private String password;
+
+    /**
+     * 创建时间
+     */
+    @Column(name = "CreateTime")
+    private Date createtime;
+
+    /**
+     * 修改时间
+     */
+    @Column(name = "UpdateTime")
+    private Date updatetime;
 
     /**
      * 获取ID 组织ID
@@ -268,5 +287,59 @@ public class TblOrgnization {
      */
     public void setOrgtype(String orgtype) {
         this.orgtype = orgtype;
+    }
+
+    /**
+     * 获取密码
+     *
+     * @return Password - 密码
+     */
+    public String getPassword() {
+        return password;
+    }
+
+    /**
+     * 设置密码
+     *
+     * @param password 密码
+     */
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    /**
+     * 获取创建时间
+     *
+     * @return CreateTime - 创建时间
+     */
+    public Date getCreatetime() {
+        return createtime;
+    }
+
+    /**
+     * 设置创建时间
+     *
+     * @param createtime 创建时间
+     */
+    public void setCreatetime(Date createtime) {
+        this.createtime = createtime;
+    }
+
+    /**
+     * 获取修改时间
+     *
+     * @return UpdateTime - 修改时间
+     */
+    public Date getUpdatetime() {
+        return updatetime;
+    }
+
+    /**
+     * 设置修改时间
+     *
+     * @param updatetime 修改时间
+     */
+    public void setUpdatetime(Date updatetime) {
+        this.updatetime = updatetime;
     }
 }

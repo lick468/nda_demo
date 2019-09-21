@@ -36,74 +36,77 @@
 
 <body class="gray-bg">
 <div class="container">
-    <div class="row clearfix">
-        <div class="col-md-12 column">
-            <div class="form-group">
-                <label class="col-sm-12 control-label"></label>
+    <div class="panel panel-default">
+        <div class="panel-body form-group" style="margin-bottom:0px;background-color: #b3b3b3">
+            <div class="col-sm-12">
+                <a type="button" class="btn btn-primary"  onclick="window.history.go(-1);"><i class="glyphicon glyphicon-chevron-left"></i>&nbsp;返回</a>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-primary " >
+                <div class="panel-heading">
+                    <h3 class="panel-title">新建交易</h3>
+                </div>
+                <div class="panel-body">
+                    <form  action="/share" class="form-horizontal m-t"  method="post" enctype="multipart/form-data" onsubmit="return checkForm();">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">标题：</label>
+                            <div class="col-sm-8">
+                                <input  name="title" id="title" class="form-control valid" placeholder="请输入标题" type="text" aria-required="true" aria-invalid="false">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">简介：</label>
+
+                            <div class="col-sm-8">
+                                <textarea class="form-control valid"  name="abstractcontext" id="abstractcontext" placeholder="请输入简介"  style="min-height: 100px;max-height: 300px;"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">NDA条款：</label>
+                            <div class="col-sm-8">
+                                <select class="form-control" name="ndaid" id="ndaid">
+                                    <option  value="">--选择NDA模板--</option>
+                                    <option th:each="nda:${NDAs}" th:text="${nda.ndatitle}" th:value="${nda.id}"></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">分享给：</label>
+                            <div class="col-sm-8">
+                                <select class="form-control" name="username" id="username">
+                                    <option  value="">--请选择--</option>
+                                    <option th:each="user:${users}" th:text="${user.username + user.mobilephone}" th:value="${user.username}"></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">附件：</label>
+                            <div class="col-sm-8">
+                                <input type="hidden" id="haveFile" value="no">
+                                <div id="dropzone" class="dropzone well" ></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">备注：</label>
+                            <div class="col-sm-8">
+                                <input id="memo" name="memo" class="form-control "  type="text" >
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-8 col-sm-offset-3">
+                                <button class="btn btn-primary" type="submit"><i class="glyphicon glyphicon-send"></i>&nbsp;分享</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 </div>
-<div class="wrapper wrapper-content animated fadeInRight">
-    <div class="panel panel-primary " >
-        <div class="panel-heading">
-            <h3 class="panel-title">新建交易</h3>
-        </div>
-        <div class="panel-body">
-            <form  action="/share" class="form-horizontal m-t"  method="post" enctype="multipart/form-data" onsubmit="return checkForm();">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">标题：</label>
-                    <div class="col-sm-8">
-                        <input  name="title" id="title" class="form-control valid" placeholder="请输入标题" type="text" aria-required="true" aria-invalid="false">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">简介：</label>
 
-                    <div class="col-sm-8">
-                        <textarea class="form-control valid"  name="abstractcontext" id="abstractcontext" placeholder="请输入简介"  style="min-height: 100px;max-height: 300px;"></textarea>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">NDA条款：</label>
-                    <div class="col-sm-8">
-                        <select class="form-control" name="ndaid" id="ndaid">
-                            <option  value="">--选择NDA模板--</option>
-                            <option th:each="nda:${NDAs}" th:text="${nda.ndatitle}" th:value="${nda.id}"></option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">分享给：</label>
-                    <div class="col-sm-8">
-                        <select class="form-control" name="username" id="username">
-                            <option  value="">--请选择--</option>
-                            <option th:each="user:${users}" th:text="${user.username + user.mobilephone}" th:value="${user.username}"></option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">附件：</label>
-                    <div class="col-sm-8">
-                        <input type="hidden" id="haveFile" value="no">
-                        <div id="dropzone" class="dropzone well" ></div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">备注：</label>
-                    <div class="col-sm-8">
-                        <input id="memo" name="memo" class="form-control "  type="text" >
-                    </div>
-                </div>
-                <div class="form-group">
-                    <div class="col-sm-8 col-sm-offset-3">
-                        <button class="btn btn-primary" type="submit"><i class="glyphicon glyphicon-send"></i>&nbsp;分享</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
 
 
 <script type="text/javascript">

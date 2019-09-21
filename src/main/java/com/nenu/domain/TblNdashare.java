@@ -1,10 +1,14 @@
 package com.nenu.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.*;
 
 @Table(name = "tbl_ndashare")
-public class TblNdashare {
+public class TblNdashare implements Serializable {
+    private static final long serialVersionUID = 3853162553759692989L;
     /**
      * ID
      */
@@ -64,6 +68,8 @@ public class TblNdashare {
     /**
      * 创建时间
      */
+    // 出参格式化
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "CreateTime")
     private Date createtime;
 

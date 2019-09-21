@@ -1,10 +1,10 @@
 package com.nenu.controller;
 
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.itextpdf.text.*;
 import com.itextpdf.text.html.simpleparser.HTMLWorker;
 import com.itextpdf.text.pdf.PdfWriter;
+import com.nenu.aspect.lang.annotation.Log;
+import com.nenu.aspect.lang.enums.BusinessType;
 import com.nenu.domain.*;
 import com.nenu.mapper.TblNdabasicinfoMapper;
 import com.nenu.mapper.TblNdadocinfoMapper;
@@ -24,7 +24,6 @@ import tk.mybatis.mapper.entity.Example;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.*;
-import java.sql.Timestamp;
 import java.util.*;
 import java.util.List;
 
@@ -34,6 +33,7 @@ import static com.nenu.utils.RSAUtils.*;
  * NDA共享业务层
  */
 @Controller
+@Log(classFunctionDescribe = "用户--交易业务")
 public class ShareController {
     @Autowired
     private TblNdashareMapper tblNdashareMapper;
@@ -80,6 +80,7 @@ public class ShareController {
      * @param session
      * @return
      */
+    @Log(methodFunctionDescribe="拒绝NDA交易请求",businessType = BusinessType.UPDATE)
     @GetMapping(value = "/refuseNDA")
     @ResponseBody
     public String refuseNDA(HttpServletRequest request, ModelMap map,HttpSession session) {
@@ -109,6 +110,7 @@ public class ShareController {
      * @param map
      * @return
      */
+    @Log(methodFunctionDescribe="同意NDA交易请求",businessType = BusinessType.UPDATE)
     @GetMapping(value = "/agreeNDA")
     @ResponseBody
     public String agreeNDA(HttpServletRequest request, ModelMap map) {
@@ -135,7 +137,6 @@ public class ShareController {
                 try {
                     // 文件加密
                     encryptFile(path + filename,passPath + filename,tblNdabasicinfo.getSenderpubkey());
-                   // new EncodeUtils(true,path + filename,tblNdabasicinfo.getSenderpubkey()).run();
                     // 对加密后的进行进行上传
                     upload = IPFSUtils.upload(passPath + filename);
                     //对上传文件返回的hash  进行加密
@@ -152,9 +153,7 @@ public class ShareController {
 
                     // 构建时间戳  key=文件hash&sign=send&sender=发件人&recevier=收件人&timestamp=当地时间戳  之后MD5加密
                     String timestamp = "key="+upload+"&sign=send&sender"+tblNdashare.getCreateusername()+"&receiver="+tblNdashare.getUsername()+"&timastamp="+System.currentTimeMillis();
-                    //System.out.println("before="+timestamp);
                     timestamp = MD5Util.getMD5(timestamp);
-                   // System.out.println("after="+timestamp);
                     ndadocinfo.setTimestamp(timestamp);
 
                     //生成NDA条款.pdf文件  上传到IPFS
@@ -195,8 +194,6 @@ public class ShareController {
                     }
                     doc.close();
                     //对文件使用发送人公钥加密
-                    //new EncodeUtils(true,path+filename,key).run();
-                   // new EncodeUtils(true,pathNDA,tblNdabasicinfo.getSenderpubkey()).run();
                     encryptFile(pathNDA,passPathNDA,tblNdabasicinfo.getSenderpubkey());
                     //将加密后的文件上传到IPFS上
                     String upload1 = IPFSUtils.upload(passPathNDA);
@@ -254,12 +251,11 @@ public class ShareController {
                     e.printStackTrace();
                 }
                 doc.close();
-                //对文件使用发送人公钥加密
-                //new EncodeUtils(true,path+filename,key).run();
-               // new EncodeUtils(true,pathNDA,tblNdabasicinfo.getSenderpubkey()).run();
-                //上传到IPFS上
+
                 String upload1 = null;
                 try {
+                    //对文件使用发送人公钥加密
+                    //上传到IPFS上
                     encryptFile(pathNDA,passPathNDA,tblNdabasicinfo.getSenderpubkey());
                     upload1 = IPFSUtils.upload(passPathNDA);
                 } catch (Exception e) {
@@ -306,6 +302,7 @@ public class ShareController {
      * @param request
      * @return
      */
+    @Log(methodFunctionDescribe="修改NDA条款",businessType = BusinessType.UPDATE)
     @PostMapping(value = "/updateNDA")
     @ResponseBody
     public String updateNDA(HttpSession session, HttpServletRequest request) {
@@ -356,6 +353,7 @@ public class ShareController {
      * @param session
      * @return
      */
+    @Log(methodFunctionDescribe="发起NDA分享",businessType = BusinessType.CREATE)
     @PostMapping(value = "/share")
     public String share(HttpServletRequest request, HttpSession session) {
         String uuid = UUID.randomUUID().toString().replace("-", "").toLowerCase();
@@ -405,6 +403,7 @@ public class ShareController {
 
         TblNdashare tblNdashare = new TblNdashare();
         tblNdashare.setCreateusername(username);
+        tblNdashare.setOrgname(currentUser.getOrgname());
         tblNdashare.setCreatetime(new Date());
         tblNdashare.setOperateip(IpUtil.getIpAddress(request));
         tblNdashare.setNdaid(uuid);
@@ -461,6 +460,7 @@ public class ShareController {
      * @param requestFile  文件集合
      * @return
      */
+    @Log(methodFunctionDescribe="分享文件",businessType = BusinessType.CREATE)
     @PostMapping(value = "/fileUpload")
     @ResponseBody
     public JSON files(MultipartHttpServletRequest requestFile,HttpServletRequest request){
@@ -480,7 +480,6 @@ public class ShareController {
             String filename = file.getOriginalFilename();
             String fileName = filename.substring(0, filename.lastIndexOf(".")); //文件名   test.doc  test
             String fileExtension = filename.substring(filename.lastIndexOf(".")+1,filename.length()); //文件名后缀  E:\test.doc  doc
-            //System.out.println("fileName="+filename);
             File localFile = new File(path, filename);
             if(!localFile.exists()){
                 localFile.mkdirs();
@@ -490,14 +489,12 @@ public class ShareController {
                 //上传之前先加密
                 if(tblNdabasicinfo.getInitiatorusername().equals(sender)) {
                     encryptFile(path + filename,passPath + filename,tblNdabasicinfo.getSenderpubkey());
-                   // new EncodeUtils(true,path + filename,tblNdabasicinfo.getSenderpubkey()).run();
                     upload = IPFSUtils.upload(passPath + filename);
                     //对上传文件返回的hash  进行加密
                     upload = Base64.getEncoder().encodeToString(encrypt(upload.getBytes(),tblNdabasicinfo.getSenderpubkey()));
 
                 }else {
                     encryptFile(path + filename,passPath + filename,tblNdabasicinfo.getReceiverpubkey());
-                  //  new EncodeUtils(true,path + filename,tblNdabasicinfo.getReceiverpubkey()).run();
                     upload = IPFSUtils.upload(passPath + filename);
                     //对上传文件返回的hash  进行加密
                     upload = Base64.getEncoder().encodeToString(encrypt(upload.getBytes(),tblNdabasicinfo.getReceiverpubkey()));
@@ -514,9 +511,7 @@ public class ShareController {
 
                 // 构建时间戳  key=文件hash&sign=send&sender=发件人&recevier=收件人&timestamp=当地时间戳  之后MD5加密
                 String timestamp = "key="+upload+"&sign=send&sender"+sender+"&receiver="+receiver+"&timastamp="+System.currentTimeMillis();
-               // System.out.println("before="+timestamp);
                 timestamp = MD5Util.getMD5(timestamp);
-               // System.out.println("after="+timestamp);
                 ndadocinfo.setTimestamp(timestamp);
 
                 Example example = new Example(TblNdadocinfo.class);
@@ -539,6 +534,7 @@ public class ShareController {
      * 文件预览 pdf文件
      * @return
      */
+    @Log(methodFunctionDescribe="文件预览",businessType = BusinessType.LIST)
     @GetMapping(value = "/previewFile")
     public String previewFile(HttpServletRequest request,ModelMap map) {
         String id = request.getParameter("id");
@@ -580,97 +576,17 @@ public class ShareController {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            //  new EncodeUtils(false,path,tblNdabasicinfo.getSenderpubkey()).run();
         }else {
             try {
                 decryptFile(path,noPassPath,tblNdabasicinfo.getReceiverprivatekey());
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            // new EncodeUtils(false,path,tblNdabasicinfo.getReceiverpubkey()).run();
         }
 
-//        //将下载的pdf 文件转成图片，在线预览
-//        long time = System.currentTimeMillis();
-//        String outPath = "C:\\download\\"+time+"\\"+ ndadocinfo.getFilename();
-//        String realPath = time+"\\"+ ndadocinfo.getFilename();
-//        PDFUtils.PdfToImage(path,outPath);
-//        //获取目录下所有图片
-//        List<String> fileName = new ArrayList<>();
-//        getAllFileName(outPath,fileName);
-//        map.put("path",realPath);
-//        map.put("fileName",ndadocinfo.getFilename()+"."+ndadocinfo.getFileextension());
-//        map.put("fileList",fileName);
-//        return "previewFile";
         map.put("path",ndadocinfo.getFilename()+"."+ndadocinfo.getFileextension());
         map.put("fullPath",noPassPath);
         return "previewPDFJS";
-    }
-
-    /**
-     * 获取文件下所有文件名称
-     * @param path
-     * @param fileName
-     */
-    public static void getAllFileName(String path,List<String> fileName)
-    {
-        File file = new File(path);
-        File [] files = file.listFiles();
-        String [] names = file.list();
-        if(names != null)
-            fileName.addAll(Arrays.asList(names));
-        for(File a:files)
-        {
-            if(a.isDirectory())
-            {
-                getAllFileName(a.getAbsolutePath(),fileName);
-            }
-        }
-    }
-
-    /**
-     * 文件加密
-     * @return
-     */
-    @PostMapping(value = "/encodeFile")
-    @ResponseBody
-    public String encodeFile(MultipartHttpServletRequest requestFile, HttpSession session) {
-        Iterator<String> fileNames = requestFile.getFileNames();
-        String next = fileNames.next();
-        MultipartFile file = requestFile.getFile(next);
-        TblUserinfo currentUser = (TblUserinfo) session.getAttribute("currentUser");
-        String path = "C:\\upload\\";
-        String upload = "";
-        String filename = file.getOriginalFilename();
-        File localFile = new File(path, filename);
-        if(!localFile.exists()){
-            localFile.mkdirs();
-        }
-        try {
-            //文件写到新的文件中
-            file.transferTo(localFile);
-            //文件加密
-//            String  key = "asfafsdvter";
-//            System.out.println("path="+path+filename);
-            //new EncodeUtils(true,path+filename,key).run();
-            //文件上传到IPFS上
-            upload = IPFSUtils.upload(path + filename);
-            //System.out.println("FileHash==="+upload);
-            /**
-             * 生成时间戳
-             * sender  发送人
-             * recevier 接收人
-             * upload 文件上传返回的hash
-             * key  文件加密的密钥
-             * time  当前时间
-             */
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        String result = currentUser.getUsername() + "&&" + filename +"&&"+ new Date();
-        //System.out.println(result);
-        return result;
-
     }
 
 
@@ -685,47 +601,38 @@ public class ShareController {
     @RequestMapping(value="/getShareData",method = RequestMethod.POST)
     @ResponseBody
     public Map<String, Object> getShareData(HttpSession session, Integer pageSize, Integer offset, String searchShare) {
-        List<TblNdashare> list = new ArrayList<>();
-        List<Integer> ids = new ArrayList<>();
         TblUserinfo currentUser = (TblUserinfo) session.getAttribute("currentUser");
         Map<String, Object> map = new HashMap<String, Object>();
-        // PageHelper 使用非常简单，只需要设置页码和每页显示笔数即可
-        PageHelper.startPage(offset, pageSize);
-        // 设置分页查询条件
         Example example = new Example(TblNdashare.class);
         Example.Criteria criteria = example.createCriteria();
-        criteria.andEqualTo("createusername",currentUser.getUsername());
+        List<TblNdashare> tblNdashares = new ArrayList<>();
         if(searchShare!=null && searchShare.length() > 0) {
-            Example exampleTitle = new Example(TblNdashare.class);
-            Example.Criteria titleCriteria = exampleTitle.createCriteria();
-            titleCriteria.andEqualTo("createusername",currentUser.getUsername());
-            titleCriteria.andLike("ndatitle","%" + searchShare + "%");
-            PageInfo<TblNdashare> pageInfoTitle = new PageInfo<TblNdashare>(tblNdashareMapper.selectByExample(exampleTitle));
+            criteria.orLike("ndatitle","%" + searchShare + "%").orLike("username","%" + searchShare + "%");
+            Example.Criteria name = example.createCriteria();
+            name.andEqualTo("createusername",currentUser.getUsername());
+            example.and(name);
 
-            Example exampleUser = new Example(TblNdashare.class);
-            Example.Criteria userCriteria = exampleUser.createCriteria();
-            userCriteria.andEqualTo("createusername",currentUser.getUsername());
-            userCriteria.andLike("username","%" + searchShare + "%");
-            PageInfo<TblNdashare> pageInfoUser = new PageInfo<TblNdashare>(tblNdashareMapper.selectByExample(exampleUser));
-
-            for (int i = 0 ;i < pageInfoTitle.getList().size();i++) {
-                list.add(pageInfoTitle.getList().get(i));
-                ids.add(pageInfoTitle.getList().get(i).getId());
-            }
-            for (int i = 0 ;i < pageInfoUser.getList().size();i++) {
-                if(!ids.contains(pageInfoUser.getList().get(i).getId())) {
-                    list.add(pageInfoUser.getList().get(i));
+            tblNdashares = tblNdashareMapper.selectByExample(example);
+            List<TblNdashare> rows = new ArrayList<>();
+            for(int i=offset;i<offset+pageSize;i++) {
+                if(tblNdashares.size() > i) {
+                    rows.add(tblNdashares.get(i));
                 }
             }
-            map.put("total", pageInfoUser.getTotal());
-            map.put("rows", list);
+            map.put("total", tblNdashares.size());
+            map.put("rows", rows);
             return map;
         }
-
-        PageInfo<TblNdashare> pageInfo = new PageInfo<TblNdashare>(tblNdashareMapper.selectByExample(example));
-
-        map.put("total", pageInfo.getTotal());
-        map.put("rows", pageInfo.getList());
+        criteria.andEqualTo("createusername",currentUser.getUsername());
+        tblNdashares = tblNdashareMapper.selectByExample(example);
+        List<TblNdashare> rows = new ArrayList<>();
+        for(int i=offset;i<offset+pageSize;i++) {
+            if(tblNdashares.size() > i) {
+                rows.add(tblNdashares.get(i));
+            }
+        }
+        map.put("total", tblNdashares.size());
+        map.put("rows", rows);
         return map;
     }
 
@@ -740,46 +647,37 @@ public class ShareController {
     @RequestMapping(value="/getShareToData",method = RequestMethod.POST)
     @ResponseBody
     public Map<String, Object> getShareToData(HttpSession session, Integer pageSize, Integer offset, String searchShareTo) {
-        List<TblNdashare> list = new ArrayList<>();
-        List<Integer> ids = new ArrayList<>();
         TblUserinfo currentUser = (TblUserinfo) session.getAttribute("currentUser");
         Map<String, Object> map = new HashMap<String, Object>();
-        // PageHelper 使用非常简单，只需要设置页码和每页显示笔数即可
-        PageHelper.startPage(offset, pageSize);
-        // 设置分页查询条件
         Example example = new Example(TblNdashare.class);
         Example.Criteria criteria = example.createCriteria();
-        criteria.andEqualTo("username",currentUser.getUsername());
+        List<TblNdashare> tblNdashares = new ArrayList<>();
         if(searchShareTo!=null && searchShareTo.length() > 0) {
-            Example exampleTitle = new Example(TblNdashare.class);
-            Example.Criteria titleCriteria = exampleTitle.createCriteria();
-            titleCriteria.andEqualTo("username",currentUser.getUsername());
-            titleCriteria.andLike("ndatitle","%" + searchShareTo + "%");
-            PageInfo<TblNdashare> pageInfoTitle = new PageInfo<TblNdashare>(tblNdashareMapper.selectByExample(exampleTitle));
-
-            Example exampleUser = new Example(TblNdashare.class);
-            Example.Criteria userCriteria = exampleUser.createCriteria();
-            userCriteria.andEqualTo("username",currentUser.getUsername());
-            userCriteria.andLike("createusername","%" + searchShareTo + "%");
-            PageInfo<TblNdashare> pageInfoUser = new PageInfo<TblNdashare>(tblNdashareMapper.selectByExample(exampleUser));
-
-            for (int i = 0 ;i < pageInfoTitle.getList().size();i++) {
-                list.add(pageInfoTitle.getList().get(i));
-                ids.add(pageInfoTitle.getList().get(i).getId());
-            }
-            for (int i = 0 ;i < pageInfoUser.getList().size();i++) {
-                if(!ids.contains(pageInfoUser.getList().get(i).getId())) {
-                    list.add(pageInfoUser.getList().get(i));
+            criteria.orLike("ndatitle","%" + searchShareTo + "%").orLike("createusername","%" + searchShareTo + "%");
+            Example.Criteria name = example.createCriteria();
+            name.andEqualTo("username",currentUser.getUsername());
+            example.and(name);
+            tblNdashares = tblNdashareMapper.selectByExample(example);
+            List<TblNdashare> rows = new ArrayList<>();
+            for(int i=offset;i<offset+pageSize;i++) {
+                if(tblNdashares.size() > i) {
+                    rows.add(tblNdashares.get(i));
                 }
             }
-            map.put("total", pageInfoUser.getTotal());
-            map.put("rows", list);
+            map.put("total", tblNdashares.size());
+            map.put("rows", rows);
             return map;
         }
-        PageInfo<TblNdashare> pageInfo = new PageInfo<TblNdashare>(tblNdashareMapper.selectByExample(example));
-
-        map.put("total", pageInfo.getTotal());
-        map.put("rows", pageInfo.getList());
+        criteria.andEqualTo("username",currentUser.getUsername());
+        tblNdashares = tblNdashareMapper.selectByExample(example);
+        List<TblNdashare> rows = new ArrayList<>();
+        for(int i=offset;i<offset+pageSize;i++) {
+            if(tblNdashares.size() > i) {
+                rows.add(tblNdashares.get(i));
+            }
+        }
+        map.put("total", tblNdashares.size());
+        map.put("rows", rows);
         return map;
     }
 }

@@ -1,12 +1,12 @@
 package com.nenu.controller;
 
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
+
+import com.nenu.aspect.lang.annotation.Log;
+import com.nenu.aspect.lang.enums.BusinessType;
 import com.nenu.domain.TblNdaitemtpl;
 import com.nenu.domain.TblUserinfo;
 import com.nenu.mapper.TblNdaitemtplMapper;
 import com.nenu.utils.IpUtil;
-import org.apache.tomcat.util.net.IPv6Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -15,14 +15,13 @@ import tk.mybatis.mapper.entity.Example;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * NDA模板业务层
  */
 @Controller
+@Log(classFunctionDescribe = "用户--NDA模板业务")
 public class NDATemplateController {
     @Autowired
     private TblNdaitemtplMapper tblNdaitemtplMapper;
@@ -33,13 +32,14 @@ public class NDATemplateController {
      * @param request
      * @return
      */
+    @Log(methodFunctionDescribe = "创建NDA模板",businessType = BusinessType.CREATE)
     @PostMapping(value = "/createNDATemplate")
     @ResponseBody
     public String createNDATemplate(HttpSession session, HttpServletRequest request) {
         TblUserinfo currentUser = (TblUserinfo) session.getAttribute("currentUser");
         String username = currentUser.getUsername();
-        String ndaItem = request.getParameter("ndaItem");
-        String ndaTitle = request.getParameter("ndaTitle");
+        String ndaItem = request.getParameter("ndaitem");
+        String ndaTitle = request.getParameter("ndatitle");
         TblNdaitemtpl tblNdaitemtpl = new TblNdaitemtpl();
         tblNdaitemtpl.setCreateusername(username);
         tblNdaitemtpl.setNdatitle(ndaTitle);
@@ -66,11 +66,12 @@ public class NDATemplateController {
         return "updateNDATemplate";
     }
     /**
-     * 跳转NDA模板更新页面
+     * 删除NDA模板
      * @param request
      * @param map
      * @return
      */
+    @Log(methodFunctionDescribe = "删除NDA模板",businessType = BusinessType.DELETE)
     @GetMapping(value = "/NDATemplateDelete")
     @ResponseBody
     public String NDATemplateDelete(HttpServletRequest request, ModelMap map) {
@@ -88,6 +89,7 @@ public class NDATemplateController {
      * @param request
      * @return
      */
+    @Log(methodFunctionDescribe = "更新NDA模板",businessType = BusinessType.UPDATE)
     @PostMapping(value = "/updateNDATemplate")
     @ResponseBody
     public String updateNDATemplate(HttpSession session, HttpServletRequest request) {
@@ -132,24 +134,29 @@ public class NDATemplateController {
      * @param searchTitle
      * @return
      */
+    @Log(methodFunctionDescribe = "查看NDA模板列表",businessType = BusinessType.PAGELIST)
     @RequestMapping(value="/getNDATemplateData",method = RequestMethod.POST)
     @ResponseBody
     public Map<String, Object> getNoDisclosureData(HttpSession session,Integer pageSize, Integer offset, String searchTitle) {
         TblUserinfo currentUser = (TblUserinfo) session.getAttribute("currentUser");
         Map<String, Object> map = new HashMap<String, Object>();
-        // PageHelper 使用非常简单，只需要设置页码和每页显示笔数即可
-        PageHelper.startPage(offset, pageSize);
-        // 设置分页查询条件
+
+        // 设置查询条件
         Example example = new Example(TblNdaitemtpl.class);
         Example.Criteria criteria = example.createCriteria();
         criteria.andEqualTo("createusername",currentUser.getUsername());
         if(searchTitle!=null && searchTitle.length() > 0) {
             criteria.andLike("ndatitle","%" + searchTitle + "%");
         }
-        PageInfo<TblNdaitemtpl> pageInfo = new PageInfo<TblNdaitemtpl>(tblNdaitemtplMapper.selectByExample(example));
-
-        map.put("total", pageInfo.getTotal());
-        map.put("rows", pageInfo.getList());
+        List<TblNdaitemtpl> tblNdaitemtpls = tblNdaitemtplMapper.selectByExample(example);
+        List<TblNdaitemtpl> rows = new ArrayList<>();
+        for(int i=offset;i<offset+pageSize;i++) {
+            if(tblNdaitemtpls.size() > i) {
+                rows.add(tblNdaitemtpls.get(i));
+            }
+        }
+        map.put("total", tblNdaitemtpls.size());
+        map.put("rows", rows);
         return map;
     }
 

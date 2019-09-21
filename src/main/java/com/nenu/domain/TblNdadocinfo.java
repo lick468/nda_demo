@@ -2,11 +2,13 @@ package com.nenu.domain;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.*;
 
 @Table(name = "tbl_ndadocinfo")
-public class TblNdadocinfo {
+public class TblNdadocinfo implements Serializable {
+    private static final long serialVersionUID = -4165844540041677925L;
     /**
      * ID
      */
@@ -66,8 +68,9 @@ public class TblNdadocinfo {
     /**
      * 上传时间
      */
+    // 出参格式化
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "UploadTime")
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone="GMT+8")
     private Date uploadtime;
 
     /**
