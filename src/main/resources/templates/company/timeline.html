@@ -46,6 +46,13 @@
                             <th>发送时间</th>
                             <th>操作</th>
                         </tr>
+                        <tr th:each="doc :${ndaDocInfos}">
+                            <td th:text="${doc.id}"></td>
+                            <td th:text="${doc.filename + '.' + doc.fileextension}"></td>
+                            <td th:text="${doc.uploadusername}"></td>
+                            <td th:text="${#dates.format(doc.uploadtime,'yyyy-MM-dd HH:mm:ss')}"></td>
+                            <td > <a class="btn btn-primary"   th:href="@{'/company/previewFile?id='+${doc.id}}" ><i class="glyphicon glyphicon-flag"></i>&nbsp;查看</a></td>
+                        </tr>
                     </table>
                 </div>
             </div>

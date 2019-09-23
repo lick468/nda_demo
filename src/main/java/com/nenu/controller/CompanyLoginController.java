@@ -11,12 +11,14 @@ import com.aliyuncs.profile.DefaultProfile;
 import com.nenu.aspect.lang.annotation.Log;
 import com.nenu.aspect.lang.enums.BusinessType;
 import com.nenu.domain.TblNdabasicinfo;
+import com.nenu.domain.TblNdadocinfo;
 import com.nenu.domain.TblNdashare;
 import com.nenu.domain.TblOrgnization;
 import com.nenu.mapper.TblNdabasicinfoMapper;
 import com.nenu.mapper.TblNdadocinfoMapper;
 import com.nenu.mapper.TblNdashareMapper;
 import com.nenu.mapper.TblOrgnizationMapper;
+import com.nenu.utils.IPFSUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -27,7 +29,12 @@ import tk.mybatis.mapper.entity.Example;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
+
+import static com.nenu.utils.RSAUtils.decrypt;
+import static com.nenu.utils.RSAUtils.decryptFile;
 
 /**
  * 公司登录业务层
@@ -45,6 +52,9 @@ public class CompanyLoginController {
 
     @Autowired
     private TblNdabasicinfoMapper tblNdabasicinfoMapper;
+
+    @Autowired
+    private TblNdadocinfoMapper tblNdadocinfoMapper;
 
 
 
@@ -315,9 +325,113 @@ public class CompanyLoginController {
      * @return
      */
     @GetMapping(value = "/fileTranslation")
-    public String shareFile() {
+    public String shareFile(HttpServletRequest request,ModelMap map) {
+        String id = request.getParameter("id");
+        Example example = new Example(TblNdashare.class);
+        example.createCriteria().andEqualTo("id",Integer.parseInt(id));
+        TblNdashare tblNdashare = tblNdashareMapper.selectOneByExample(example);
+        Example exampleTime = new Example(TblNdadocinfo.class);
+        exampleTime.createCriteria().andEqualTo("ndadocid",tblNdashare.getNdaid());
+        List<TblNdadocinfo> tblNdadocinfos = tblNdadocinfoMapper.selectByExample(exampleTime);
+        map.put("ndaDocInfos",tblNdadocinfos);
         return "company/timeline";
     }
+    /**
+     * 文件预览 pdf文件
+     * @return
+     */
+    @Log(methodFunctionDescribe="文件预览",businessType = BusinessType.DETAIL)
+    @GetMapping(value = "/previewFile")
+    public String previewFile(HttpServletRequest request,ModelMap map) {
+        String id = request.getParameter("id");
+        Example example = new Example(TblNdadocinfo.class);
+        example.createCriteria().andEqualTo("id",Integer.parseInt(id));
+        TblNdadocinfo ndadocinfo = tblNdadocinfoMapper.selectOneByExample(example);
+        Example example1 = new Example(TblNdabasicinfo.class);
+        example1.createCriteria().andEqualTo("id",ndadocinfo.getNdadocid());
+        TblNdabasicinfo tblNdabasicinfo = tblNdabasicinfoMapper.selectOneByExample(example1);
+        String hash = "";
+        //使用文件上传人的密钥解密
+
+        if(tblNdabasicinfo.getInitiatorusername().equals(ndadocinfo.getUploadusername())) {
+            try {
+                hash = new String(decrypt(Base64.getDecoder().decode(ndadocinfo.getDochash()),tblNdabasicinfo.getSenderprivatekey()));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }else {
+            try {
+                hash = new String(decrypt(Base64.getDecoder().decode(ndadocinfo.getDochash()),tblNdabasicinfo.getReceiverprivatekey()));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        // 根据文件Hash 从IPFS 上下载文件
+        long time = System.currentTimeMillis();
+        String path = "C:\\download\\"+time+"\\"+ndadocinfo.getFilename()+"."+ndadocinfo.getFileextension();
+        String noPassPath = "C:\\download\\outPath\\"+time+"\\"+ndadocinfo.getFilename()+"."+ndadocinfo.getFileextension();
+        int i1 = path.lastIndexOf("\\");
+        int j1 = noPassPath.lastIndexOf("\\");
+        File file=new File(path.substring(0,i1));
+        if(!file.exists()){
+            file.mkdirs();
+        }
+        File file1=new File(noPassPath.substring(0,j1));
+        if(!file1.exists()){
+            file1.mkdirs();
+        }
+        File file2 = new File(path);
+        File file3 = new File(noPassPath);
+        if(!file2.exists()) {
+            try {
+                file2.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if(!file3.exists()) {
+            try {
+                file3.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            IPFSUtils.download(path,hash);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //将下载的文件进行解密
+        if(tblNdabasicinfo.getInitiatorusername().equals(ndadocinfo.getUploadusername())) {
+            try {
+                decryptFile(path,noPassPath,tblNdabasicinfo.getSenderprivatekey());
+                // 删除下载的文件
+                if(file.exists()) {
+                    file.delete();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }else {
+            try {
+                decryptFile(path,noPassPath,tblNdabasicinfo.getReceiverprivatekey());
+                // 删除下载的文件
+                if(file.exists()) {
+                    file.delete();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        map.put("path",ndadocinfo.getFilename()+"."+ndadocinfo.getFileextension());
+        map.put("time",time);
+        return "company/previewPDFJS";
+    }
+
     /**
      * 跳转到详情页面
      * @param

@@ -669,7 +669,7 @@ public class ShareController {
      * 文件预览 pdf文件
      * @return
      */
-    @Log(methodFunctionDescribe="文件预览",businessType = BusinessType.LIST)
+    @Log(methodFunctionDescribe="文件预览",businessType = BusinessType.DETAIL)
     @GetMapping(value = "/previewFile")
     public String previewFile(HttpServletRequest request,ModelMap map) {
         String id = request.getParameter("id");

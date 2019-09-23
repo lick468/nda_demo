@@ -21,6 +21,7 @@ public class WebAppConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/file/**").addResourceLocations("file:C:/tempFiles/");
         registry.addResourceHandler("/image/**").addResourceLocations("file:C:/download/");
         registry.addResourceHandler("/download/**").addResourceLocations("file:C:/download/");
+        registry.addResourceHandler("/company/download/**").addResourceLocations("file:C:/download/");
     }
 
 }

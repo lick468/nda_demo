@@ -37,7 +37,7 @@
     var pos = curWwwPath.indexOf(pathName);
     //获取主机地址，如： http://localhost:8081
     var localhostPaht = curWwwPath.substring(0, pos);
-    var url = localhostPaht+ "/download/outPath/"+path
+    var url = localhostPaht+ "/company/download/outPath/"+path
    // console.log(url)
     window.open("/pdfjs/web/viewer.html?file="+url,"_self");
 </script>

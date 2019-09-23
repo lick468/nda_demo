@@ -57,6 +57,9 @@ public class LoginInterceptor implements HandlerInterceptor {
             response.sendRedirect("/main");
             return true;
         }
+        if(url.indexOf("pdfjs") >=0) {
+            return true;
+        }
         if(url.indexOf("company")>=0) {
             if (currentCompany == null) {
                 response.sendRedirect("/company/login");
