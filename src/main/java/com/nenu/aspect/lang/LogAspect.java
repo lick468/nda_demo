@@ -220,11 +220,10 @@ public class LogAspect {
         //主机地址
         operateLog.setIp(hostIp);
 
-        //  HttpServletRequest request = ServletUtils.getRequest();
         // 接收到请求，记录请求内容
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = attributes.getRequest();
-        String requestURI = request.getRequestURI().toString();
+        String requestURI = request.getRequestURI();
         //请求地址
         operateLog.setUrl(requestURI);
         //浏览器类型
@@ -238,10 +237,6 @@ public class LogAspect {
 
 
         // 请求参数
-        endTime = System.currentTimeMillis();
-        Long total = endTime - startTime;
-        operateLog.setTotalTime(total.intValue());
-
         operateLog.setParams(params);
 
         //设置方法名称
@@ -279,6 +274,10 @@ public class LogAspect {
                 TblOrgnization currentCompany = (TblOrgnization) session.getAttribute("currentCompany");
                 //操作人
                 operateLog.setOperName(currentCompany.getOrgleader());
+            }else if(requestURI.indexOf("admin")>=0) {
+                TblAdmin admin = (TblAdmin) session.getAttribute("currentAdmin");
+                //操作人
+                operateLog.setOperName(admin.getUsername());
             }else {
                 TblUserinfo currentUser = (TblUserinfo) session.getAttribute("currentUser");
                 //操作人
@@ -294,6 +293,9 @@ public class LogAspect {
         operateLog.setStatus(BusinessStatus.SUCCESS.name());
         try {
             result = joinPoint.proceed();
+            endTime = System.currentTimeMillis();
+            Long total = endTime - startTime;
+            operateLog.setTotalTime(total.intValue());
             //保存数据库
             logMapper.insert(operateLog);
         }catch (Exception e) {
@@ -302,7 +304,10 @@ public class LogAspect {
             // 操作状态
             operateLog.setStatus(BusinessStatus.FAIL.name());
 
-            operateLog.setErrorMsg(baos.toString());
+            operateLog.setErrorMsg(baos.toString().substring(0,3000));
+            endTime = System.currentTimeMillis();
+            Long total = endTime - startTime;
+            operateLog.setTotalTime(total.intValue());
             //保存数据库
             logMapper.insert(operateLog);
             e.printStackTrace();

@@ -7,7 +7,7 @@ import java.lang.annotation.*;
 /**
  * 自定义操作记录注解
  */
-@Target({ElementType.TYPE,ElementType.METHOD})
+@Target({ElementType.TYPE,ElementType.METHOD,ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Log {

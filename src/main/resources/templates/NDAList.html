@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
 
 
-    <title> 创建新的保密协议</title>
+    <title>NDA | 保密协议</title>
     <meta name="keywords" content="">
     <meta name="description" content="">
 
@@ -244,7 +244,7 @@
                 width: 360, // 定义列的宽度，单位为像素px
                 formatter: function (value, row, index) {
                    // console.log(value+"===="+row.toString()+"=="+index)
-                    return '<button class="btn btn-primary" type="button" name="'+ value +'" onclick="updateNDATemplate(this);" ><i class="glyphicon glyphicon-edit"></i>&nbsp;修改  </button> &nbsp;&nbsp;&nbsp;&nbsp; <button class="btn btn-success" type="button" name="'+ value +'" onclick="NDATemplateDetail(this);"><i class="glyphicon glyphicon-list-alt"></i>&nbsp;详情 </button> &nbsp;&nbsp;&nbsp;&nbsp; <button class="btn btn-danger" type="button" name="'+ value +'" onclick="NDATemplateDelete(this);"><i class="glyphicon glyphicon-trash"></i>&nbsp;删除 </button>  ';
+                    return '<button class="btn btn-primary" type="button" name="'+ value +'" onclick="updateNDATemplate(this);" ><i class="glyphicon glyphicon-edit"></i>&nbsp;修改  </button> <button class="btn btn-success" type="button" name="'+ value +'" onclick="NDATemplateDetail(this);"><i class="glyphicon glyphicon-list-alt"></i>&nbsp;详情 </button> <button class="btn btn-danger" type="button" name="'+ value +'" onclick="NDATemplateDelete(this);"><i class="glyphicon glyphicon-trash"></i>&nbsp;删除 </button> ';
                 }
             }
         ],

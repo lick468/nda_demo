@@ -167,7 +167,7 @@
                 width: 360, // 定义列的宽度，单位为像素px
 
                 formatter: function (value, row, index) {
-                    console.log(value+"===="+row.username+"=="+index)
+                    //console.log(value+"===="+row.username+"=="+index)
                     if(value == "0") { //  0 等待确认 1 同意 2 我方中止 3 对方拒绝 4 对方修改
                         return '<button class="btn btn-warning" ><i class="glyphicon glyphicon-time"></i>&nbsp;等待确认</button> ';
                     }else if(value == "1") {
@@ -263,7 +263,6 @@
                 width: 360, // 定义列的宽度，单位为像素px
 
                 formatter: function (value, row, index) {
-                    console.log(value+"=="+row.toString()+"=="+index)
                     if(value == "0") { //  0 交易请求 1 同意 2 对方中止 3 我方拒绝 4 对方修改 5等待确认
                         return '<button class="btn btn-info" name="'+ row.ndaid +'" onclick="showNDA(this);" ><i class="glyphicon glyphicon-send"></i>&nbsp;交易请求</button> ';
                     }else if(value == "1") {

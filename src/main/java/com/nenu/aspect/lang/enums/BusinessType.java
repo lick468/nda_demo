@@ -46,4 +46,8 @@ public enum BusinessType {
      * 注册
      */
     REGISTER,
+    /**
+     * 查看详情
+     */
+    DETAIL,
 }

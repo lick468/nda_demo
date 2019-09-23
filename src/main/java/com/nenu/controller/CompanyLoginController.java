@@ -10,8 +10,10 @@ import com.aliyuncs.http.MethodType;
 import com.aliyuncs.profile.DefaultProfile;
 import com.nenu.aspect.lang.annotation.Log;
 import com.nenu.aspect.lang.enums.BusinessType;
+import com.nenu.domain.TblNdabasicinfo;
 import com.nenu.domain.TblNdashare;
 import com.nenu.domain.TblOrgnization;
+import com.nenu.mapper.TblNdabasicinfoMapper;
 import com.nenu.mapper.TblNdadocinfoMapper;
 import com.nenu.mapper.TblNdashareMapper;
 import com.nenu.mapper.TblOrgnizationMapper;
@@ -40,6 +42,9 @@ public class CompanyLoginController {
 
     @Autowired
     private TblNdashareMapper tblNdashareMapper;
+
+    @Autowired
+    private TblNdabasicinfoMapper tblNdabasicinfoMapper;
 
 
 
@@ -311,7 +316,7 @@ public class CompanyLoginController {
      */
     @GetMapping(value = "/fileTranslation")
     public String shareFile() {
-        return "/company/timeline";
+        return "company/timeline";
     }
     /**
      * 跳转到详情页面
@@ -322,14 +327,24 @@ public class CompanyLoginController {
     public String detail(HttpSession session,ModelMap map) {
         TblOrgnization currentCompany = (TblOrgnization) session.getAttribute("currentCompany");
         map.put("company",currentCompany);
-        return "/company/detail";
+        return "company/detail";
     }
     @Log(methodFunctionDescribe="修改个人信息",businessType = BusinessType.UPDATE)
     @PostMapping(value = "/updateCompany")
     public String updateCompany(TblOrgnization orgnization,ModelMap map) {
         orgnizationMapper.updateByPrimaryKeySelective(orgnization);
         map.put("company",orgnization);
-        return "/company/detail";
+        return "company/detail";
+    }
+@Log(methodFunctionDescribe = "查看NDA条款",businessType = BusinessType.DETAIL)
+    @GetMapping(value = "/showNDA")
+    public String showNDA(HttpServletRequest request, ModelMap map) {
+        String ndaid = request.getParameter("ndaid");
+        Example example = new Example(TblNdabasicinfo.class);
+        example.createCriteria().andEqualTo("id",ndaid);
+        TblNdabasicinfo tblNdabasicinfo = tblNdabasicinfoMapper.selectOneByExample(example);
+        map.put("tblNdabasicinfo",tblNdabasicinfo);
+        return "company/showNDA";
     }
 
 

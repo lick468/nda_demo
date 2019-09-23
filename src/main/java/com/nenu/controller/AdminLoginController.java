@@ -18,6 +18,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -33,19 +34,15 @@ import java.util.*;
  */
 @Controller
 @RequestMapping(value = "/admin")
+@Log(classFunctionDescribe = "管理员业务")
 public class AdminLoginController {
 
    @Autowired
    private TblAdminMapper adminMapper;
 
-   @Autowired
-   private TblUserloginMapper userloginMapper;
 
    @Autowired
    private TblLogMapper logMapper;
-
-    @Autowired
-    private TblNdashareMapper tblNdashareMapper;
 
 
 

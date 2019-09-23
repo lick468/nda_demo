@@ -124,7 +124,7 @@
                     "title": "交易记录",
                     "halign":"center",
                     "align":"center",
-                    "colspan": 6,
+                    "colspan": 7,
                     cellStyle:{
                         css:{"background-color":"red"}
                     }
@@ -170,6 +170,15 @@
                 width: 360, // 定义列的宽度，单位为像素px
                 valign: 'middle'
             }, {
+                field: 'id',
+                title: 'NDA条款',
+                align: 'center',
+                width: 360, // 定义列的宽度，单位为像素px
+                valign: 'middle',
+                formatter: function (value, row, index) {
+                    return '<button class="btn btn-primary"  name="'+ row.ndaid +'" onclick="showNDA(this);"><i class="glyphicon glyphicon-fullscreen"></i>&nbsp;条款详情</button> ';
+                }
+            }, {
                 field: 'sharestatus',
                 title: "操作",
                 align: 'center',
@@ -177,7 +186,7 @@
                 width: 360, // 定义列的宽度，单位为像素px
 
                 formatter: function (value, row, index) {
-                    console.log(value+"===="+row.username+"=="+index)
+                   // console.log(value+"===="+row.username+"=="+index)
                     if(value == "1") {
                         return '<a  class="btn btn-success" name="'+ row.ndaid +'" href="/company/fileTranslation?id='+row.id +'" ><i class="glyphicon glyphicon-flag"></i>&nbsp;活动交易</a> ';
                     }else {
@@ -198,7 +207,7 @@
 
     function showNDA(node) {
         $.ajax({
-            url:"/showNDA",
+            url:"/company/showNDA",
             type:"GET",
             data:{
                 ndaid : node.name,

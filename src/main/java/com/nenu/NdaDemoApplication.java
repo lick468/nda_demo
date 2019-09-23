@@ -8,7 +8,7 @@ import tk.mybatis.spring.annotation.MapperScan;
 
 
 @SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
-@MapperScan(basePackages = "com.nenu")
+@MapperScan(basePackages = "com.nenu.mapper")
 public class NdaDemoApplication  {
 
     public static void main(String[] args) {

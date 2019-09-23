@@ -50,7 +50,7 @@ public class LoginInterceptor implements HandlerInterceptor {
         //System.out.println(url);
         //System.out.println("缓存user_name是否是值:" + name);
         // 静态资源放行
-        if(url.contains(".js") || url.contains(".css") || url.contains(".jpg")|| url.contains(".svg")|| url.contains(".png") || url.contains(".ico")) {
+        if(url.contains(".js") || url.contains(".css") || url.contains(".jpg")|| url.contains(".svg")|| url.contains(".png") || url.contains(".ico") || url.contains(".eot")|| url.contains(".ttf")|| url.contains(".woff") || url.contains(".woff2")) {
             return true;
         }
         if (url.length() == 1) {
