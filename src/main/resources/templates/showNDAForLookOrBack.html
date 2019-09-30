@@ -27,9 +27,6 @@
                 <h3>NDA条款</h3>
                 <hr>
             </div>
-            <!--<div class="col-xs-12" style="height:400px;overflow:auto;">-->
-                <!--<span th:utext="${tblNdabasicinfo.ndaitems}" ></span>-->
-            <!--</div>-->
             <div class="col-xs-12">
                 <p>1.本条传送信息（包括正文和附件）为发送方的智慧劳动成果，属于保密信息。</p>
                 <p>2.收件方应严格遵守与保密条款有关的法律法规，承担保密义务，不以任何形式对外宣传。</p>
@@ -38,14 +35,8 @@
         </div>
     </div>
     <div class="modal-footer">
-        <button type="button" class="btn btn-danger" th:name="${tblNdabasicinfo.id}"  onclick="refuseNDA(this);">
-            拒绝
-        </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <!--<button type="button" class="btn btn-primary" th:name="${tblNdabasicinfo.id}"  onclick="showUpdateNDA(this);">-->
-            <!--修改-->
-        <!--</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->
-        <button type="button" class="btn btn-success" th:name="${tblNdabasicinfo.id}"  onclick="agreeNDA(this);">
-            同意
+        <button type="button" class="btn btn-danger" th:name="${tblNdabasicinfo.id}"  onclick="deleteNDA(this);">
+            撤回交易
         </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <button type="button" class="btn btn-default" data-dismiss="modal">
             关闭

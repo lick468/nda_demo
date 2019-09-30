@@ -8,7 +8,8 @@ import javax.persistence.*;
 
 @Table(name = "tbl_ndashare")
 public class TblNdashare implements Serializable {
-    private static final long serialVersionUID = 3853162553759692989L;
+
+    private static final long serialVersionUID = -6071827215904943510L;
     /**
      * ID
      */
@@ -69,7 +70,7 @@ public class TblNdashare implements Serializable {
      * 创建时间
      */
     // 出参格式化
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
     @Column(name = "CreateTime")
     private Date createtime;
 
@@ -108,6 +109,18 @@ public class TblNdashare implements Serializable {
      */
     @Column(name = "FilePath")
     private String filepath;
+
+    /**
+     * 交易创建人提交的分享人未查看的文件数
+     */
+    @Column(name = "CreateUserUploadCount")
+    private Integer createuseruploadcount;
+
+    /**
+     * 交易分享人提交的交易创建人未查看的文件数
+     */
+    @Column(name = "ShareUserUploadCount")
+    private Integer shareuseruploadcount;
 
     /**
      * 获取ID
@@ -395,5 +408,21 @@ public class TblNdashare implements Serializable {
      */
     public void setFilepath(String filepath) {
         this.filepath = filepath;
+    }
+
+    public Integer getCreateuseruploadcount() {
+        return createuseruploadcount;
+    }
+
+    public void setCreateuseruploadcount(Integer createuseruploadcount) {
+        this.createuseruploadcount = createuseruploadcount;
+    }
+
+    public Integer getShareuseruploadcount() {
+        return shareuseruploadcount;
+    }
+
+    public void setShareuseruploadcount(Integer shareuseruploadcount) {
+        this.shareuseruploadcount = shareuseruploadcount;
     }
 }

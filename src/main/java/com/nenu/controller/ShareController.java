@@ -13,6 +13,7 @@ import com.nenu.mapper.TblNdashareMapper;
 import com.nenu.utils.*;
 import net.sf.json.JSON;
 import net.sf.json.JSONObject;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -71,6 +72,37 @@ public class ShareController {
         TblNdabasicinfo tblNdabasicinfo = tblNdabasicinfoMapper.selectOneByExample(example);
         map.put("tblNdabasicinfo",tblNdabasicinfo);
         return "showNDA";
+    }
+    /**
+     * 显示NDA条款(未同意之前的查看)
+     * @param request
+     * @param map
+     * @return
+     */
+    @GetMapping(value = "/showNDAForLookOrBack")
+    public String showNDAForLookOrBack(HttpServletRequest request, ModelMap map) {
+        String ndaid = request.getParameter("ndaid");
+        Example example = new Example(TblNdabasicinfo.class);
+        example.createCriteria().andEqualTo("id",ndaid);
+        TblNdabasicinfo tblNdabasicinfo = tblNdabasicinfoMapper.selectOneByExample(example);
+        map.put("tblNdabasicinfo",tblNdabasicinfo);
+        return "showNDAForLookOrBack";
+    }
+    /**
+     * 删除NDA交易请求
+     * @param request
+     * @return
+     */
+    @Log(methodFunctionDescribe="删除NDA交易请求",businessType = BusinessType.DELETE)
+    @GetMapping(value = "/deleteNDA")
+    @ResponseBody
+    public String deleteNDA(HttpServletRequest request) {
+        String ndaid = request.getParameter("ndaid");
+        Example example =  new Example(TblNdashare.class);
+        example.createCriteria().andEqualTo("ndaid",ndaid);
+        tblNdashareMapper.deleteByExample(example);
+        tblNdabasicinfoMapper.deleteByPrimaryKey(ndaid);
+        return "success";
     }
 
     /**
@@ -507,6 +539,9 @@ public class ShareController {
         tblNdashare.setSharestatus("0");
         tblNdashare.setReceiverstatus("0");
 
+        tblNdashare.setShareuseruploadcount(0);//初始化未读数量
+        tblNdashare.setCreateuseruploadcount(0);//初始化未读数量
+
         if(haveFile != null && haveFile.length() > 0) {
             tblNdashare.setHavefile("1");
             tblNdashare.setFilepath(haveFile);
@@ -517,7 +552,7 @@ public class ShareController {
         //插入一条分享记录
         tblNdashareMapper.insert(tblNdashare);
 
-        return "share";
+        return "redirect:/share";
     }
 
     @PostMapping(value = "/upload")
@@ -566,10 +601,16 @@ public class ShareController {
         if(tblNdashare.getUsername().equals(currentUser.getUsername())) {
             map.put("recevier",tblNdashare.getCreateusername());
             map.put("sender",tblNdashare.getUsername());
+            // 更改未读信息数量
+            tblNdashare.setCreateuseruploadcount(0);
+            tblNdashareMapper.updateByPrimaryKeySelective(tblNdashare);
             // 该用户是交易发起人
         }else {
             map.put("recevier",tblNdashare.getUsername());
             map.put("sender",tblNdashare.getCreateusername());
+            // 更改未读信息数量
+            tblNdashare.setShareuseruploadcount(0);
+            tblNdashareMapper.updateByPrimaryKeySelective(tblNdashare);
         }
         map.put("ndaID",tblNdashare.getNdaid());
         //获取已发送文件记录用于 时间轴展示
@@ -657,6 +698,17 @@ public class ShareController {
                     ndadocinfo.setPrevtimestamp(tblNdadocinfos.get(tblNdadocinfos.size()-1).getTimestamp());
                 }
                 tblNdadocinfoMapper.insert(ndadocinfo);
+                // 文件上传人添加一个文件未读
+                Example example2 = new Example(TblNdashare.class);
+                example2.createCriteria().andEqualTo("ndaid",tblNdabasicinfo.getId());
+                TblNdashare tblNdashare = tblNdashareMapper.selectOneByExample(example2);
+                if(tblNdabasicinfo.getInitiatorusername().equals(sender)) {
+                    tblNdashare.setCreateuseruploadcount(tblNdashare.getCreateuseruploadcount()+1);
+                    tblNdashareMapper.updateByPrimaryKeySelective(tblNdashare);
+                }else {
+                    tblNdashare.setShareuseruploadcount(tblNdashare.getShareuseruploadcount()+1);
+                    tblNdashareMapper.updateByPrimaryKeySelective(tblNdashare);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
