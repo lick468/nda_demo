@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
 
 
-    <title> 创建新的保密协议</title>
+    <title>NDA | 保密协议</title>
     <meta name="keywords" content="">
     <meta name="description" content="">
 
@@ -29,11 +29,11 @@
     <link href="css/animate.css" rel="stylesheet">
     <link href="css/style.css?v=4.1.0" rel="stylesheet">
     <!-- 引入bootstrap-table样式 -->
-    <link href="https://cdn.bootcss.com/bootstrap-table/1.11.1/bootstrap-table.min.css" rel="stylesheet">
+    <link href="css/plugins/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
     <!-- bootstrap-table.min.js -->
-    <script src="https://cdn.bootcss.com/bootstrap-table/1.11.1/bootstrap-table.min.js"></script>
+    <script src="js/plugins/bootstrap-table/bootstrap-table.min.js"></script>
     <!-- 引入中文语言包 -->
-    <script src="https://cdn.bootcss.com/bootstrap-table/1.11.1/locale/bootstrap-table-zh-CN.min.js"></script>
+    <script src="js/plugins/bootstrap-table/locale/bootstrap-table-zh-CN.min.js"></script>
 
     <script type="text/javascript" src="/wangEditor/release/wangEditor.min.js"></script>
     <script type="text/javascript" src="/wangEditor/fullscreen/wangEditor-fullscreen-plugin.js"></script>
@@ -48,16 +48,14 @@
 
 <body class="gray-bg">
 <div class="container">
-    <div class="row clearfix">
-
-    </div>
-    <div class="row clearfix">
-        <div class="col-md-12 column">
-
+    <div class="panel panel-default">
+        <div class="panel-body form-group" style="margin-bottom:0px;background-color: #b3b3b3">
+            <div class="col-sm-12">
+                <a type="button" class="btn btn-primary"  onclick="window.history.go(-1);"><i class="glyphicon glyphicon-chevron-left"></i>&nbsp;返回</a>
+            </div>
         </div>
     </div>
-</div>
-<div class="wrapper wrapper-content animated fadeInRight">
+
     <div class="row">
         <div class="col-sm12">
             <div class="ibox float-e-margins">
@@ -120,7 +118,6 @@
         </div>
     </div>
 </div>
-
 <!-- 模态框（Modal） -->
 <div class="modal fade" id="modal-update-NDATemplate" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog" id="modal-update-NDATemplate-body">
@@ -195,6 +192,7 @@
         // 设置为 ''  在这种情况下传给服务器的参数为：pageSize,pageNumber
         //queryParams: queryParams,//前端调用服务时，会默认传递上边提到的参数，如果需要添加自定义参数，可以自定义一个函数返回请求参数
         queryParams: function (params) { // 请求服务器数据时发送的参数，可以在这里添加额外的查询参数，返回false则终止请求
+            console.log(params)
             return {
                 pageSize: params.limit, // 每页要显示的数据条数
                 offset: params.offset, // 每页显示数据的开始行号
@@ -246,7 +244,7 @@
                 width: 360, // 定义列的宽度，单位为像素px
                 formatter: function (value, row, index) {
                    // console.log(value+"===="+row.toString()+"=="+index)
-                    return '<button class="btn btn-primary" type="button" name="'+ value +'" onclick="updateNDATemplate(this);" ><i class="glyphicon glyphicon-edit"></i>&nbsp;修改  </button> &nbsp;&nbsp;&nbsp;&nbsp; <button class="btn btn-success" type="button" name="'+ value +'" onclick="NDATemplateDetail(this);"><i class="glyphicon glyphicon-list-alt"></i>&nbsp;详情 </button> &nbsp;&nbsp;&nbsp;&nbsp; <button class="btn btn-danger" type="button" name="'+ value +'" onclick="NDATemplateDelete(this);"><i class="glyphicon glyphicon-trash"></i>&nbsp;删除 </button>  ';
+                    return '<button class="btn btn-primary" type="button" name="'+ value +'" onclick="updateNDATemplate(this);" ><i class="glyphicon glyphicon-edit"></i>&nbsp;修改  </button> <button class="btn btn-success" type="button" name="'+ value +'" onclick="NDATemplateDetail(this);"><i class="glyphicon glyphicon-list-alt"></i>&nbsp;详情 </button> <button class="btn btn-danger" type="button" name="'+ value +'" onclick="NDATemplateDelete(this);"><i class="glyphicon glyphicon-trash"></i>&nbsp;删除 </button> ';
                 }
             }
         ],
@@ -269,8 +267,8 @@
                 url:"/createNDATemplate",
                 type:"POST",
                 data:{
-                    ndaItem:content,
-                    ndaTitle: ndaTitle,
+                    ndaitem:content,
+                    ndatitle: ndaTitle,
                 },
                 dateType:"json",
                 success:function(result) {

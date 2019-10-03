@@ -29,6 +29,7 @@
 <script type="text/javascript" th:inline="javascript">
     var path = [[ ${path} ]]
     var fullPath = [[ ${fullPath} ]]
+    var time = [[ ${time} ]]
     console.log(path)
     //获取当前网址，如： http://localhost:8081/index
     var curWwwPath = window.document.location.href;
@@ -37,8 +38,8 @@
     var pos = curWwwPath.indexOf(pathName);
     //获取主机地址，如： http://localhost:8081
     var localhostPaht = curWwwPath.substring(0, pos);
-    var url = localhostPaht+ "/download/outPath/"+path
-    console.log(url)
+    var url = localhostPaht+ "/download/outPath/"+time+"/"+path
+   // console.log(url)
     window.open("/pdfjs/web/viewer.html?file="+url,"_self");
 </script>
 

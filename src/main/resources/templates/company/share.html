@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+
+
+    <title>公司管理后台| 文档管理</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <script src="../js/jquery.min.js?v=2.1.4"></script>
+    <script src="../js/jQuery-2.2.0.min.js"></script>
+    <link href="../css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
+    <link href="../css/font-awesome.css?v=4.4.0" rel="stylesheet">
+    <link href="../css/plugins/iCheck/custom.css" rel="stylesheet">
+    <link href="../css/animate.css" rel="stylesheet">
+    <link href="../css/style.css?v=4.1.0" rel="stylesheet">
+
+    <!--&lt;!&ndash; 引入bootstrap样式 &ndash;&gt;-->
+    <!--<link href="https://cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">-->
+    <!--&lt;!&ndash; 引入bootstrap-table样式 &ndash;&gt;-->
+    <link href="https://cdn.bootcss.com/bootstrap-table/1.11.1/bootstrap-table.min.css" rel="stylesheet">
+
+    <!-- jquery -->
+    <script src="https://cdn.bootcss.com/jquery/2.2.3/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+    <!-- bootstrap-table.min.js -->
+    <script src="https://cdn.bootcss.com/bootstrap-table/1.11.1/bootstrap-table.min.js"></script>
+    <!-- 引入中文语言包 -->
+    <script src="https://cdn.bootcss.com/bootstrap-table/1.11.1/locale/bootstrap-table-zh-CN.min.js"></script>
+    <script src="../js/layer.js" type="text/javascript"></script>
+    <script type="text/javascript" src="../wangEditor/release/wangEditor.min.js"></script>
+
+    
+
+</head>
+
+<body class="gray-bg">
+<div class="container">
+    <!--<div class="panel panel-default">-->
+        <!--<div class="panel-body form-group" style="margin-bottom:0px;background-color: #b3b3b3">-->
+            <!--<div class="col-sm-12">-->
+                <!--<a type="button" class="btn btn-primary"  onclick="window.history.go(-1);"><i class="glyphicon glyphicon-chevron-left"></i>&nbsp;返回</a>-->
+            <!--</div>-->
+        <!--</div>-->
+    <!--</div>-->
+    <br>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="panel panel-default">
+                <div class="panel-body form-group" style="margin-bottom:0px;">
+                    <div class="input-group col-sm-4">
+                        <input type="text" class="form-control" name="Name" id="search_share" placeholder="Search for...">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button" onclick="searchShare();"><i class="glyphicon glyphicon-search"></i></button>
+                        </span>
+                    </div><!-- /input-group -->
+                </div>
+            </div>
+
+            <table id="tableShare" class="table table-hover table-condensed"></table>
+
+        </div>
+
+    </div>
+</div>
+
+
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="modal-show-NDA" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" id="modal-show-NDA-body">
+    </div><!-- /.modal -->
+</div>
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="modal-update-NDA"  tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" id="modal-update-NDA-body">
+    </div><!-- /.modal -->
+</div>
+
+
+<script type="text/javascript">
+    $("#tableShare").bootstrapTable({ // 对应table标签的id
+        method:'POST',
+        contentType: "application/x-www-form-urlencoded",// 解决POST提交问题
+        url: "/company/getShareData", // 获取表格数据的url
+
+        cache: false, // 设置为 false 禁用 AJAX 数据缓存， 默认为true
+        striped: true,  //表格显示条纹，默认为false
+        pagination: true, // 在表格底部显示分页组件，默认false
+        pageList: [10, 20], // 设置页面可以显示的数据条数
+        pageSize: 10, // 页面数据条数
+        pageNumber: 1, // 首页页码
+        showHeader : true,
+        paginationPreText: "上一页",
+        paginationNextText: "下一页",
+        paginationFirstText: "首页",
+        paginationLastText: "末页",
+        clickToSelect: false,//是否启用点击选中行
+        toolbarAlign:'right',
+        buttonsAlign:'right',//按钮对齐方式
+        sidePagination: 'server', // 设置为服务器端分页
+        //queryParamsType:'', //默认值为 'limit' ,在默认情况下 传给服务端的参数为：offset,limit,sort
+                                // 设置为 ''  在这种情况下传给服务器的参数为：pageSize,pageNumber
+        //queryParams: queryParams,//前端调用服务时，会默认传递上边提到的参数，如果需要添加自定义参数，可以自定义一个函数返回请求参数
+        queryParams: function (params) { // 请求服务器数据时发送的参数，可以在这里添加额外的查询参数，返回false则终止请求
+            return {
+                pageSize: params.limit, // 每页要显示的数据条数
+                offset: params.offset, // 每页显示数据的开始行号
+                sort: params.sort, // 要排序的字段
+                sortOrder: params.order, // 排序规则
+                searchShare: $("#search_share").val() // 额外添加的参数
+            }
+        },
+        sortName: 'id', // 要排序的字段
+        sortOrder: 'desc', // 排序规则
+        columns: [
+            [
+                {
+                    "title": "交易记录",
+                    "halign":"center",
+                    "align":"center",
+                    "colspan": 7,
+                    cellStyle:{
+                        css:{"background-color":"red"}
+                    }
+                }
+            ], [
+            {
+                field: 'Number',
+                title: '序号',
+                sortable: false,
+                align: "center",
+                width: 70,
+                formatter: function (value, row, index) {
+                    //获取每页显示的数量
+                    var pageSize=$('#tableShare').bootstrapTable('getOptions').pageSize;
+                    //获取当前是第几页
+                    var pageNumber=$('#tableShare').bootstrapTable('getOptions').pageNumber;
+                    //返回序号，注意index是从0开始的，所以要加上1
+                    return pageSize * (pageNumber - 1) + index + 1;
+                }
+            },{
+                field: 'createusername', // 返回json数据中的name
+                title: '分享人', // 表格表头显示文字
+                align: 'center', // 左右居中
+                width: 500,
+                valign: 'middle' // 上下居中
+
+            },{
+                field: 'ndatitle', // 返回json数据中的name
+                title: 'NDA标题', // 表格表头显示文字
+                align: 'center', // 左右居中
+                width: 500,
+                valign: 'middle' // 上下居中
+            }, {
+                field: 'username',
+                title: '交易对象',
+                align: 'center',
+                width: 360, // 定义列的宽度，单位为像素px
+                valign: 'middle'
+            }, {
+                field: 'createtime',
+                title: '创建时间',
+                align: 'center',
+                width: 360, // 定义列的宽度，单位为像素px
+                valign: 'middle'
+            }, {
+                field: 'id',
+                title: 'NDA条款',
+                align: 'center',
+                width: 360, // 定义列的宽度，单位为像素px
+                valign: 'middle',
+                formatter: function (value, row, index) {
+                    return '<button class="btn btn-primary"  name="'+ row.ndaid +'" onclick="showNDA(this);"><i class="glyphicon glyphicon-fullscreen"></i>&nbsp;条款详情</button> ';
+                }
+            }, {
+                field: 'sharestatus',
+                title: "操作",
+                align: 'center',
+                valign: 'middle',
+                width: 360, // 定义列的宽度，单位为像素px
+
+                formatter: function (value, row, index) {
+                   // console.log(value+"===="+row.username+"=="+index)
+                    if(value == "1") {
+                        return '<a  class="btn btn-success" name="'+ row.ndaid +'" href="/company/fileTranslation?id='+row.id +'" ><i class="glyphicon glyphicon-flag"></i>&nbsp;活动交易</a> ';
+                    }else {
+                        return '<button class="btn btn-warning"><i class="glyphicon glyphicon-time"></i>&nbsp;等待确认</button> ';
+                    }
+                }
+            }
+        ]
+    ]
+    })
+
+    function searchShare() {
+        $("#tableShare").bootstrapTable('refresh');
+    }
+    function cellStylesales(value, row, index) {
+        return {css:{background:'#fff',color:'#fff'}};
+    }
+
+    function showNDA(node) {
+        $.ajax({
+            url:"/company/showNDA",
+            type:"GET",
+            data:{
+                ndaid : node.name,
+            },
+            dateType:"html",
+            success:function(result) {
+                $("#modal-show-NDA-body").html(result);
+                $("#modal-show-NDA").modal("show");
+
+            }
+        });
+    }
+
+    function refuseNDA(node) {
+        $.ajax({
+            url:"/refuseNDA",
+            type:"GET",
+            data:{
+                ndaid : node.name,
+            },
+            dateType:"json",
+            success:function(result) {
+                searchShare();
+                $("#modal-show-NDA").modal("hide");
+
+            }
+        });
+    }
+    function agreeNDA(node) {
+        $.ajax({
+            url:"/agreeNDA",
+            type:"GET",
+            data:{
+                ndaid : node.name,
+            },
+            dateType:"json",
+            success:function(result) {
+                searchShare();
+                $("#modal-show-NDA").modal("hide");
+
+            }
+        });
+    }
+    function showUpdateNDA(node) {
+        $.ajax({
+            url:"/showUpdateNDA",
+            type:"GET",
+            data:{
+                ndaid : node.name,
+            },
+            dateType:"html",
+            success:function(result) {
+                $("#modal-show-NDA").modal("hide");
+                $("#modal-update-NDA-body").html(result);
+                $("#modal-update-NDA").modal("show");
+
+            }
+        });
+    }
+    function updateAndAgreeNDA(node) {
+        var value =  ndaitems.txt.html(); //获取值
+        //alert(node.name);
+        //向后台发送处理数据
+        $.ajax({
+            url:"/updateNDA",
+            type:"POST",
+            data:{
+                ndaitems:value,
+                id:node.name,
+            },
+            dateType:"json",
+            success:function(result) {
+                searchShare();
+                $("#modal-update-NDA").modal("hide");
+            }
+        });
+    }
+
+</script>
+</body>
+
+</html>

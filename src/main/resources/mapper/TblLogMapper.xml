@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.nenu.mapper.TblLogMapper">
+  <resultMap id="BaseResultMap" type="com.nenu.domain.TblLog">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="class_function_name" jdbcType="VARCHAR" property="classFunctionName" />
+    <result column="method_function_name" jdbcType="VARCHAR" property="methodFunctionName" />
+    <result column="oper_name" jdbcType="VARCHAR" property="operName" />
+    <result column="url" jdbcType="VARCHAR" property="url" />
+    <result column="method_name" jdbcType="VARCHAR" property="methodName" />
+    <result column="ip" jdbcType="VARCHAR" property="ip" />
+    <result column="params" jdbcType="VARCHAR" property="params" />
+    <result column="access_model" jdbcType="VARCHAR" property="accessModel" />
+    <result column="error_msg" jdbcType="VARCHAR" property="errorMsg" />
+    <result column="oper_time" jdbcType="TIMESTAMP" property="operTime" />
+    <result column="deviceType" jdbcType="VARCHAR" property="devicetype" />
+    <result column="os" jdbcType="VARCHAR" property="os" />
+    <result column="browser" jdbcType="VARCHAR" property="browser" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="total_time" jdbcType="INTEGER" property="totalTime" />
+  </resultMap>
+</mapper>

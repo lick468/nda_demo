@@ -8,6 +8,8 @@ server:
   # 单位 KB
   max-http-header-size: 100000
 spring:
+  aop:
+    auto: true
   main:
     allow-bean-definition-overriding: true
   datasource:

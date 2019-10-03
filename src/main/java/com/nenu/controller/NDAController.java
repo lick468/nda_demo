@@ -1,5 +1,6 @@
 package com.nenu.controller;
 
+import com.nenu.aspect.lang.annotation.Log;
 import com.nenu.domain.TblNdaitemtpl;
 import com.nenu.domain.TblUserinfo;
 import com.nenu.mapper.TblNdaitemtplMapper;
@@ -18,6 +19,7 @@ import java.util.List;
  * NDA业务层
  */
 @Controller
+@Log(classFunctionDescribe = "NDA业务")
 public class NDAController {
     @Autowired
     private TblUserinfoMapper tblUserinfoMapper;
@@ -25,7 +27,7 @@ public class NDAController {
     private TblNdaitemtplMapper tblNdaitemtplMapper;
 
     /**
-     * 创建NDA
+     * 跳转到创建NDA页面
      * @param map
      * @param session
      * @return
@@ -56,7 +58,6 @@ public class NDAController {
     @GetMapping(value = "/NDAList")
     public String NDAList(ModelMap map,HttpSession session) {
         TblUserinfo currentUser = (TblUserinfo) session.getAttribute("currentUser");
-        String username = currentUser.getUsername();
         Example example =new Example(TblNdaitemtpl.class);
         example.createCriteria().andEqualTo("createusername",currentUser.getUsername());
         List<TblNdaitemtpl> tblNdaitemtpls = tblNdaitemtplMapper.selectByExample(example);

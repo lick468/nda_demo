@@ -30,6 +30,9 @@
                     <dt>真实姓名：</dt>
                     <dd th:text="${userInfo.name}"></dd>
                     <br />
+                    <dt>所在公司：</dt>
+                    <dd th:text="${userInfo.orgname}"></dd>
+                    <br />
 
                     <dt>注册时间：</dt>
                     <dd th:text="${#dates.format(userInfo.createtime, 'yyyy-MM-dd')}"></dd>

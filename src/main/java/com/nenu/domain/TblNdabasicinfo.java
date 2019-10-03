@@ -1,10 +1,12 @@
 package com.nenu.domain;
 
+import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.*;
 
 @Table(name = "tbl_ndabasicinfo")
-public class TblNdabasicinfo {
+public class TblNdabasicinfo implements Serializable {
+    private static final long serialVersionUID = -2797579602567812643L;
     /**
      * ID 同一个文档的不同历史版本公用此ID
      */

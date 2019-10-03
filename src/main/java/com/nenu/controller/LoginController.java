@@ -8,6 +8,8 @@ import com.aliyuncs.exceptions.ClientException;
 import com.aliyuncs.exceptions.ServerException;
 import com.aliyuncs.http.MethodType;
 import com.aliyuncs.profile.DefaultProfile;
+import com.nenu.aspect.lang.annotation.Log;
+import com.nenu.aspect.lang.enums.BusinessType;
 import com.nenu.domain.TblNdaitemtpl;
 import com.nenu.domain.TblUserinfo;
 import com.nenu.mapper.TblNdaitemtplMapper;
@@ -20,10 +22,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -39,19 +38,24 @@ import java.util.List;
  * 登录业务层
  */
 @Controller
+@Log(classFunctionDescribe = "用户业务")
 public class LoginController {
 
     @Autowired
     private TblUserinfoMapper tblUserinfoMapper;
 
-    @Autowired
-    private TblNdashareMapper tblNdashareMapper;
 
     @Autowired
     private TblNdaitemtplMapper tblNdaitemtplMapper;
 
+
+  @GetMapping(value = {"/main","/"})
+    public String index() {
+        return "index";
+    }
+
     /**
-     *  登录成功后，进入main页面
+     *  登录成功后，进入index页面
      * @param session
      * @param map
      * @return
@@ -62,7 +66,7 @@ public class LoginController {
         List<TblUserinfo> tblUserinfos = tblUserinfoMapper.selectAll();
         map.put("users",tblUserinfos);
         map.put("currentUser",currentUser);
-        return "main";
+        return "index";
     }
 
     /**
@@ -73,6 +77,7 @@ public class LoginController {
     public String findPsd() {
         return "findPassword";
     }
+
     @RequestMapping(value = "/findPsd", method = RequestMethod.POST)
     public String findPsdPost(HttpServletRequest request, ModelMap map) {
         String phone = request.getParameter("mobilephone");
@@ -84,6 +89,7 @@ public class LoginController {
         }
         return "newPassword";
     }
+    @Log(methodFunctionDescribe = "用户修改密码",businessType = BusinessType.UPDATE)
     @RequestMapping(value = "/updatePsd", method = RequestMethod.POST)
     public String updatePsd(HttpServletRequest request) {
         String id = request.getParameter("id");
@@ -128,6 +134,7 @@ public class LoginController {
     public String time() {
         return "timeline";
     }
+    @Log(methodFunctionDescribe = "用户注册",businessType = BusinessType.REGISTER)
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     public String register(TblUserinfo userinfo, HttpServletRequest request, RedirectAttributes redirectAttributes) {
         Example example = new Example(TblUserinfo.class);
@@ -253,6 +260,7 @@ public class LoginController {
      * @param redirectAttributes 登录失败信息
      * @return
      */
+    @Log(methodFunctionDescribe = "用户登录",businessType = BusinessType.LOGIN)
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public String login(TblUserinfo tbUser, HttpSession session, RedirectAttributes redirectAttributes) {
 
@@ -279,6 +287,7 @@ public class LoginController {
      * @param request
      * @return
      */
+    @Log(methodFunctionDescribe = "用户退出登录",businessType = BusinessType.LOGOUT)
     @RequestMapping(value = "/logout", method = RequestMethod.GET)
     public String logout(HttpServletRequest request) {
         HttpSession session = request.getSession();

@@ -1,9 +1,11 @@
 package com.nenu.domain;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Table(name = "tbl_dictdoctypes")
-public class TblDictdoctypes {
+public class TblDictdoctypes implements Serializable {
+    private static final long serialVersionUID = -8436505294446097189L;
     /**
      * ID
      */

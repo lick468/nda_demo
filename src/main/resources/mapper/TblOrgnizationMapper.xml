@@ -16,5 +16,8 @@
     <result column="Telephone" jdbcType="VARCHAR" property="telephone" />
     <result column="Email" jdbcType="VARCHAR" property="email" />
     <result column="OrgType" jdbcType="VARCHAR" property="orgtype" />
+    <result column="Password" jdbcType="VARCHAR" property="password" />
+    <result column="CreateTime" jdbcType="TIMESTAMP" property="createtime" />
+    <result column="UpdateTime" jdbcType="TIMESTAMP" property="updatetime" />
   </resultMap>
 </mapper>

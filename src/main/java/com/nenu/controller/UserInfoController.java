@@ -1,5 +1,7 @@
 package com.nenu.controller;
 
+import com.nenu.aspect.lang.annotation.Log;
+import com.nenu.aspect.lang.enums.BusinessType;
 import com.nenu.domain.TblUserinfo;
 import com.nenu.mapper.TblUserinfoMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
  * 用户信息业务层
  */
 @Controller
+@Log(classFunctionDescribe = "用户业务")
 public class UserInfoController {
 
     @Autowired
@@ -47,20 +50,19 @@ public class UserInfoController {
 
         return "userUpdate";
     }
+    @Log(methodFunctionDescribe="修改秘密",businessType = BusinessType.UPDATE)
     @RequestMapping(value = "/updatePassword", method = RequestMethod.POST)
     @ResponseBody
     public String updatePsd(HttpServletRequest request) {
         String id = request.getParameter("id");
         String password = request.getParameter("password");
-        //Example example = new Example(TbUser.class);
-        //  example.createCriteria().andEqualTo("id", id);
         TblUserinfo userinfo = new TblUserinfo();
         userinfo.setId(Integer.valueOf(id));
         userinfo.setPassword(password);
         tblUserinfoMapper.updateByPrimaryKeySelective(userinfo);
         return "success";
     }
-
+    @Log(methodFunctionDescribe="修改个人信息",businessType = BusinessType.UPDATE)
     @RequestMapping(value = "/updateUser", method = RequestMethod.POST)
     public String updateUser(HttpServletRequest request) {
         String id = request.getParameter("id");
@@ -68,7 +70,7 @@ public class UserInfoController {
         String name = request.getParameter("name");
         String certid = request.getParameter("certid");
         String mobilephone = request.getParameter("mobilephone");
-        String phoneno = request.getParameter("phoneno");
+        String orgname = request.getParameter("orgname");
         String email = request.getParameter("email");
 
         TblUserinfo userinfo = new TblUserinfo();
@@ -76,10 +78,17 @@ public class UserInfoController {
         userinfo.setCertid(certid);
         userinfo.setMobilephone(mobilephone);
         userinfo.setUsername(username);
-        userinfo.setPhoneno(phoneno);
+        userinfo.setOrgname(orgname);
         userinfo.setName(name);
         userinfo.setEmail(email);
         tblUserinfoMapper.updateByPrimaryKeySelective(userinfo);
+        TblUserinfo userinfo1 = tblUserinfoMapper.selectByPrimaryKey(Integer.parseInt(id));
+        if(userinfo1.getOrgname().equals(orgname)) {
+            // do nothing
+        }else {
+          // 是否应该修改分享记录里的公司名称
+        }
+
         return "success";
     }
 }
