@@ -35,7 +35,7 @@ import static com.nenu.utils.RSAUtils.*;
  */
 @Controller
 @Log(classFunctionDescribe = "用户--交易业务")
-public class ShareController {
+public class ShareController{
     @Autowired
     private TblNdashareMapper tblNdashareMapper;
 
@@ -827,38 +827,10 @@ public class ShareController {
     @ResponseBody
     public Map<String, Object> getShareData(HttpSession session, Integer pageSize, Integer offset, String searchShare) {
         TblUserinfo currentUser = (TblUserinfo) session.getAttribute("currentUser");
-        Map<String, Object> map = new HashMap<String, Object>();
-        Example example = new Example(TblNdashare.class);
-        Example.Criteria criteria = example.createCriteria();
-        List<TblNdashare> tblNdashares = new ArrayList<>();
-        if(searchShare!=null && searchShare.length() > 0) {
-            criteria.orLike("ndatitle","%" + searchShare + "%").orLike("username","%" + searchShare + "%");
-            Example.Criteria name = example.createCriteria();
-            name.andEqualTo("createusername",currentUser.getUsername());
-            example.and(name);
+        if (null == currentUser)
+            return null;
 
-            tblNdashares = tblNdashareMapper.selectByExample(example);
-            List<TblNdashare> rows = new ArrayList<>();
-            for(int i=offset;i<offset+pageSize;i++) {
-                if(tblNdashares.size() > i) {
-                    rows.add(tblNdashares.get(i));
-                }
-            }
-            map.put("total", tblNdashares.size());
-            map.put("rows", rows);
-            return map;
-        }
-        criteria.andEqualTo("createusername",currentUser.getUsername());
-        tblNdashares = tblNdashareMapper.selectByExample(example);
-        List<TblNdashare> rows = new ArrayList<>();
-        for(int i=offset;i<offset+pageSize;i++) {
-            if(tblNdashares.size() > i) {
-                rows.add(tblNdashares.get(i));
-            }
-        }
-        map.put("total", tblNdashares.size());
-        map.put("rows", rows);
-        return map;
+        return getShareInfo(currentUser.getUsername(), pageSize, offset, searchShare, false);
     }
 
     /**
@@ -873,36 +845,51 @@ public class ShareController {
     @ResponseBody
     public Map<String, Object> getShareToData(HttpSession session, Integer pageSize, Integer offset, String searchShareTo) {
         TblUserinfo currentUser = (TblUserinfo) session.getAttribute("currentUser");
+        if (null == currentUser)
+            return null;
+
+        return getShareInfo(currentUser.getUsername(), pageSize, offset, searchShareTo, true);
+    }
+
+    /**Sunct, 2010.10.13
+     * 获取别人分享信息,用于getShare和getShareTo调用，最后表格显示
+     * @param UserName:当前用户名
+     * @param pageSize
+     * @param offset
+     * @param searchString
+     * @param share2me:用于标记是查询分享给我的(true)还是我分享的(false)
+     * @return
+     */
+    private Map<String, Object> getShareInfo(String UserName,
+                                             Integer pageSize, Integer offset, String searchString, boolean share2me) {
         Map<String, Object> map = new HashMap<String, Object>();
         Example example = new Example(TblNdashare.class);
         Example.Criteria criteria = example.createCriteria();
+        Example.Criteria searchCriteria = example.createCriteria();
         List<TblNdashare> tblNdashares = new ArrayList<>();
-        if(searchShareTo!=null && searchShareTo.length() > 0) {
-            criteria.orLike("ndatitle","%" + searchShareTo + "%").orLike("createusername","%" + searchShareTo + "%");
-            Example.Criteria name = example.createCriteria();
-            name.andEqualTo("username",currentUser.getUsername());
-            example.and(name);
-            tblNdashares = tblNdashareMapper.selectByExample(example);
-            List<TblNdashare> rows = new ArrayList<>();
-            for(int i=offset;i<offset+pageSize;i++) {
-                if(tblNdashares.size() > i) {
-                    rows.add(tblNdashares.get(i));
-                }
+        if (share2me) {
+            if(searchString != null && searchString.length() > 0) {
+                searchCriteria.orLike("ndatitle", "%" + searchString + "%").orLike("createusername", "%" + searchString + "%");
             }
-            map.put("total", tblNdashares.size());
-            map.put("rows", rows);
-            return map;
+            criteria.andEqualTo("username", UserName);
         }
-        criteria.andEqualTo("username",currentUser.getUsername());
+        else {
+            if(searchString != null && searchString.length() > 0) {
+                searchCriteria.orLike("ndatitle", "%" + searchString + "%").orLike("username", "%" + searchString + "%");
+            }
+            criteria.andEqualTo("createusername", UserName);
+        }
+        example.and(searchCriteria);
+        example.orderBy("createtime").desc();//Sunct,2019.10.04
         tblNdashares = tblNdashareMapper.selectByExample(example);
         List<TblNdashare> rows = new ArrayList<>();
-        for(int i=offset;i<offset+pageSize;i++) {
-            if(tblNdashares.size() > i) {
-                rows.add(tblNdashares.get(i));
-            }
+        if (offset < tblNdashares.size()) {
+            int lastIdx = Integer.min(offset + pageSize, tblNdashares.size());
+            rows.addAll(tblNdashares.subList(offset, lastIdx));
         }
         map.put("total", tblNdashares.size());
         map.put("rows", rows);
         return map;
     }
+
 }

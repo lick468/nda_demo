@@ -39,7 +39,7 @@
     <script src="/js/layer.js" type="text/javascript"></script>
     <script type="text/javascript" src="/wangEditor/release/wangEditor.min.js"></script>
 
-    
+
 
 </head>
 
@@ -52,25 +52,78 @@
             </div>
         </div>
     </div>
+
+    <div class="panel panel-default">
+        <div class="panel-body form-group" style="margin-bottom:0px;">
+            <div class="col-sm-2">
+                <a type="button" class="btn btn-primary"  href="/createNDA"><i class="glyphicon glyphicon-plus"></i>&nbsp;新建交易</a>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-md-12">
-            <div class="panel panel-default">
-                <div class="panel-body form-group" style="margin-bottom:0px;">
-                    <div class="col-sm-2">
-                        <a type="button" class="btn btn-primary"  href="/createNDA"><i class="glyphicon glyphicon-plus"></i>&nbsp;新建交易</a>
+            <div class="ibox float-e-margins">
+                <ul id="myTab" class="nav nav-tabs">
+                    <li class="active">
+                        <a href="#myShare" data-toggle="tab">我的分享</a>
+                    </li>
+                    <li>
+                        <a href="#Shared2me" data-toggle="tab">来自分享</a>
+                    </li>
+                </ul>
+                <div id="myTabContent" class="tab-content">
+                    <div class="tab-pane fade in active" id="myShare">
+                        <div class="panel panel-default">
+                            <div class="panel-body form-group" style="margin-top:0px;">
+                                <div class="input-group col-sm-2">
+                                    <input type="text" class="form-control" name="search_share" id="search_share" placeholder="我分享的...">
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-primary" type="button" onclick="searchShare();"><i class="fa fa-search"></i>&nbsp;搜索</button>
+                                    </span>
+                                </div><!-- /input-group -->
+                            </div>
+                        </div>
+                        <table id="tableShare" class="table table-hover"></table>
                     </div>
-                    <div class="input-group col-sm-2">
-                        <input type="text" class="form-control" name="Name" id="search_share" placeholder="Search for...">
-                        <span class="input-group-btn">
-                    <button class="btn btn-default" type="button" onclick="searchShare();"><i class="glyphicon glyphicon-search"></i></button>
-                </span>
-                    </div><!-- /input-group -->
+
+                    <div class="tab-pane fade " id="Shared2me">
+                        <div class="panel panel-default">
+                            <div class="panel-body form-group" style="margin-top:0px;">
+                                <div class="input-group col-sm-2">
+                                    <input type="text" class="form-control" name="search_share2me" id="search_share2me" placeholder="分享给我的...">
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-primary" type="button" onclick="searchShare2me();"><i class="fa fa-search"></i>&nbsp;搜索</button>
+                                    </span>
+                                </div><!-- /input-group -->
+                            </div>
+                        </div>
+                        <table id="tableShareTo" class="table table-hover"></table>
+                    </div>
                 </div>
             </div>
-            <table id="tableShare" class="table table-hover table-condensed"></table>
-
-            <table id="tableShareTo" class="table table-hover"></table>
         </div>
+    </div>
+
+    <!--<div class="row">-->
+        <!--<div class="col-md-12">-->
+            <!--<div class="panel panel-default">-->
+                <!--<div class="panel-body form-group" style="margin-bottom:0px;">-->
+                    <!--<div class="col-sm-2">-->
+                        <!--<a type="button" class="btn btn-primary"  href="/createNDA"><i class="glyphicon glyphicon-plus"></i>&nbsp;新建交易</a>-->
+                    <!--</div>-->
+                    <!--<div class="input-group col-sm-2">-->
+                        <!--<input type="text" class="form-control" name="Name" id="search_share" placeholder="Search for...">-->
+                        <!--<span class="input-group-btn">-->
+                    <!--<button class="btn btn-default" type="button" onclick="searchShare();"><i class="glyphicon glyphicon-search"></i></button>-->
+                <!--</span>-->
+                    <!--</div>&lt;!&ndash; /input-group &ndash;&gt;-->
+                <!--</div>-->
+            <!--</div>-->
+            <!--&lt;!&ndash;<table id="tableShare" class="table table-hover table-condensed"></table>&ndash;&gt;-->
+
+            <!--&lt;!&ndash;<table id="tableShareTo" class="table table-hover"></table>&ndash;&gt;-->
+        <!--</div>-->
 
     </div>
 </div>
@@ -89,6 +142,9 @@
 
 
 <script type="text/javascript">
+    $(function () {
+        $('#myTab li:eq(0) a').tab('show');
+    });
     $("#tableShare").bootstrapTable({ // 对应table标签的id
         method:'POST',
         contentType: "application/x-www-form-urlencoded",// 解决POST提交问题
@@ -110,7 +166,7 @@
         buttonsAlign:'right',//按钮对齐方式
         sidePagination: 'server', // 设置为服务器端分页
         //queryParamsType:'', //默认值为 'limit' ,在默认情况下 传给服务端的参数为：offset,limit,sort
-                                // 设置为 ''  在这种情况下传给服务器的参数为：pageSize,pageNumber
+        // 设置为 ''  在这种情况下传给服务器的参数为：pageSize,pageNumber
         //queryParams: queryParams,//前端调用服务时，会默认传递上边提到的参数，如果需要添加自定义参数，可以自定义一个函数返回请求参数
         queryParams: function (params) { // 请求服务器数据时发送的参数，可以在这里添加额外的查询参数，返回false则终止请求
             return {
@@ -135,68 +191,71 @@
                     }
                 }
             ], [
-            {
-                field: 'Number',
-                title: '序号',
-                sortable: false,
-                align: "center",
-                width: 70,
-                formatter: function (value, row, index) {
-                    //获取每页显示的数量
-                    var pageSize=$('#tableShare').bootstrapTable('getOptions').pageSize;
-                    //获取当前是第几页
-                    var pageNumber=$('#tableShare').bootstrapTable('getOptions').pageNumber;
-                    //返回序号，注意index是从0开始的，所以要加上1
-                    return pageSize * (pageNumber - 1) + index + 1;
-                }
-            },{
-                field: 'ndatitle', // 返回json数据中的name
-                title: 'NDA标题', // 表格表头显示文字
-                align: 'center', // 左右居中
-                width: 500,
-                valign: 'middle' // 上下居中
-            }, {
-                field: 'username',
-                title: '交易对象',
-                align: 'center',
-                width: 360, // 定义列的宽度，单位为像素px
-                valign: 'middle'
-            }, {
-                field: 'sharestatus',
-                title: "操作",
-                align: 'center',
-                valign: 'middle',
-                width: 360, // 定义列的宽度，单位为像素px
+                {
+                    field: 'Number',
+                    title: '序号',
+                    sortable: false,
+                    align: "center",
+                    width: 70,
+                    formatter: function (value, row, index) {
+                        //获取每页显示的数量
+                        var pageSize=$('#tableShare').bootstrapTable('getOptions').pageSize;
+                        //获取当前是第几页
+                        var pageNumber=$('#tableShare').bootstrapTable('getOptions').pageNumber;
+                        //返回序号，注意index是从0开始的，所以要加上1
+                        return pageSize * (pageNumber - 1) + index + 1;
+                    }
+                },{
+                    field: 'ndatitle', // 返回json数据中的name
+                    title: 'NDA标题', // 表格表头显示文字
+                    align: 'center', // 左右居中
+                    width: 500,
+                    valign: 'middle' // 上下居中
+                }, {
+                    field: 'username',
+                    title: '交易对象',
+                    align: 'center',
+                    width: 360, // 定义列的宽度，单位为像素px
+                    valign: 'middle'
+                }, {
+                    field: 'sharestatus',
+                    title: "操作",
+                    align: 'center',
+                    valign: 'middle',
+                    width: 360, // 定义列的宽度，单位为像素px
 
-                formatter: function (value, row, index) {
-                    //console.log(value+"===="+row.username+"=="+index)
-                    if (value == "0") { //  0 等待确认 1 同意 2 我方中止 3 对方拒绝 4 对方修改
-                        return '<button class="btn btn-warning" name="'+ row.ndaid +'" onclick="showNDAForLookOrBack(this);"><i class="glyphicon glyphicon-time"></i>&nbsp;等待确认</button> ';
-                    } else if (value == "1") {
-                        var num = row.shareuseruploadcount
-                        if( num == 0) { //交易对象没有新发文件
-                            return '<a  class="btn btn-success" name="' + row.ndaid + '" href="/fileTranslation?id=' + row.id + '" ><i class="glyphicon glyphicon-flag"></i>&nbsp;活动交易</a> ';
-                        }else {
-                            return '<a  class="btn btn-success" name="' + row.ndaid + '" href="/fileTranslation?id=' + row.id + '" ><i class="glyphicon glyphicon-flag"></i>&nbsp;活动交易 <span class="label label-danger" style="padding: 1px 3px;line-height: 10px;right: 0px;">'+ num +'</span></a> ';
+                    formatter: function (value, row, index) {
+                        //console.log(value+"===="+row.username+"=="+index)
+                        if (value == "0") { //  0 等待确认 1 同意 2 我方中止 3 对方拒绝 4 对方修改
+                            return '<button class="btn btn-warning" name="'+ row.ndaid +'" onclick="showNDAForLookOrBack(this);"><i class="glyphicon glyphicon-time"></i>&nbsp;等待确认</button> ';
+                        } else if (value == "1") {
+                            var num = row.shareuseruploadcount
+                            if( num == 0) { //交易对象没有新发文件
+                                return '<a  class="btn btn-success" name="' + row.ndaid + '" href="/fileTranslation?id=' + row.id + '" ><i class="glyphicon glyphicon-flag"></i>&nbsp;活动交易</a> ';
+                            }else {
+                                return '<a  class="btn btn-success" name="' + row.ndaid + '" href="/fileTranslation?id=' + row.id + '" ><i class="glyphicon glyphicon-flag"></i>&nbsp;活动交易 <span class="label label-danger" style="padding: 1px 3px;line-height: 10px;right: 0px;">'+ num +'</span></a> ';
+                            }
+                            //  return '<a  class="btn btn-success" name="' + row.ndaid + '" href="/fileTranslation?id=' + row.id + '" ><i class="glyphicon glyphicon-flag"></i>&nbsp;活动交易 <span class="label label-danger" style="padding: 1px 3px;line-height: 10px;right: 0px;">16</span></a> ';
+                        } else if (value == "2") {
+                            return '<button class="btn btn-danger"><i class="glyphicon glyphicon-remove"></i>&nbsp;我方中止</button> ';
+                        } else if (value == "3") {
+                            return '<button class="btn btn-danger" ><i class="glyphicon glyphicon-remove"></i>&nbsp;对方拒绝</button> ';
+                        } else if (value == "4") {
+                            return '<button class="btn btn-primary" name="' + row.ndaid + '" onclick="showNDA(this);"><i class="glyphicon glyphicon-edit"></i>&nbsp;对方修改</button> ';
                         }
-                      //  return '<a  class="btn btn-success" name="' + row.ndaid + '" href="/fileTranslation?id=' + row.id + '" ><i class="glyphicon glyphicon-flag"></i>&nbsp;活动交易 <span class="label label-danger" style="padding: 1px 3px;line-height: 10px;right: 0px;">16</span></a> ';
-                    } else if (value == "2") {
-                        return '<button class="btn btn-danger"><i class="glyphicon glyphicon-remove"></i>&nbsp;我方中止</button> ';
-                    } else if (value == "3") {
-                        return '<button class="btn btn-danger" ><i class="glyphicon glyphicon-remove"></i>&nbsp;对方拒绝</button> ';
-                    } else if (value == "4") {
-                        return '<button class="btn btn-primary" name="' + row.ndaid + '" onclick="showNDA(this);"><i class="glyphicon glyphicon-edit"></i>&nbsp;对方修改</button> ';
+                    }
+                }, {
+                    field: 'createtime',
+                    title: '日期',
+                    align: 'center',
+                    width: 360, // 定义列的宽度，单位为像素px
+                    valign: 'middle',
+                    formatter: function (value, row, index) {
+                        return value.substring(0,10);
                     }
                 }
-            }, {
-                field: 'createtime',
-                title: '日期',
-                align: 'center',
-                width: 360, // 定义列的宽度，单位为像素px
-                valign: 'middle'
-            }
+            ]
         ]
-    ]
     })
 
     $("#tableShareTo").bootstrapTable({ // 对应table标签的id
@@ -229,86 +288,88 @@
                 offset: params.offset, // 每页显示数据的开始行号
                 sort: params.sort, // 要排序的字段
                 sortOrder: params.order, // 排序规则
-                searchShareTo: $("#search_share").val() // 额外添加的参数
+                searchShareTo: $("#search_share2me").val() // 额外添加的参数
             }
         },
-        sortName: 'id', // 要排序的字段
+        sortName: 'createtime', // 要排序的字段
         sortOrder: 'desc', // 排序规则
         columns: [
             [
                 {
-                    "title": "来自分享",
-                    "halign":"center",
-                    "align":"center",
-                    "colspan": 5
-                }
-            ],[
-            {
-                field: 'Number',
-                title: '序号',
-                sortable: false,
-                align: "center",
-                width: 70,
-                formatter: function (value, row, index) {
-                    //获取每页显示的数量
-                    var pageSize=$('#tableShareTo').bootstrapTable('getOptions').pageSize;
-                    //获取当前是第几页
-                    var pageNumber=$('#tableShareTo').bootstrapTable('getOptions').pageNumber;
-                    //返回序号，注意index是从0开始的，所以要加上1
-                    return pageSize * (pageNumber - 1) + index + 1;
-                }
-            },{
-                field: 'ndatitle', // 返回json数据中的name
-                title: 'NDA标题', // 表格表头显示文字
-                width: 500, // 定义列的宽度，单位为像素px
-                align: 'center', // 左右居中
-                valign: 'middle' // 上下居中
-            }, {
-                field: 'createusername',
-                title: '交易对象',
-                align: 'center',
-                width: 360, // 定义列的宽度，单位为像素px
-                valign: 'middle'
-            }, {
-                field: 'receiverstatus',
-                title: "操作",
-                align: 'center',
-                valign: 'middle',
-                width: 360, // 定义列的宽度，单位为像素px
+                    field: 'Number',
+                    title: '序号',
+                    sortable: false,
+                    align: "center",
+                    width: 70,
+                    formatter: function (value, row, index) {
+                        //获取每页显示的数量
+                        var pageSize=$('#tableShareTo').bootstrapTable('getOptions').pageSize;
+                        //获取当前是第几页
+                        var pageNumber=$('#tableShareTo').bootstrapTable('getOptions').pageNumber;
+                        //返回序号，注意index是从0开始的，所以要加上1
+                        return pageSize * (pageNumber - 1) + index + 1;
+                    }
+                },{
+                    field: 'ndatitle', // 返回json数据中的name
+                    title: 'NDA标题', // 表格表头显示文字
+                    width: 500, // 定义列的宽度，单位为像素px
+                    align: 'center', // 左右居中
+                    valign: 'middle' // 上下居中
+                }, {
+                    field: 'createusername',
+                    title: '交易对象',
+                    align: 'center',
+                    width: 360, // 定义列的宽度，单位为像素px
+                    valign: 'middle'
+                }, {
+                    field: 'receiverstatus',
+                    title: "操作",
+                    align: 'center',
+                    valign: 'middle',
+                    width: 360, // 定义列的宽度，单位为像素px
 
-                formatter: function (value, row, index) {
-                    if(value == "0") { //  0 交易请求 1 同意 2 对方中止 3 我方拒绝 4 对方修改 5等待确认
-                        return '<button class="btn btn-info" name="'+ row.ndaid +'" onclick="showNDA(this);" ><i class="glyphicon glyphicon-send"></i>&nbsp;交易请求</button> ';
-                    }else if(value == "1") {
-                        var num = row.createuseruploadcount
-                        if(num == 0) { //交易创建人没有新发文件
-                            return '<a  class="btn btn-success" name="' + row.ndaid + '" href="/fileTranslation?id=' + row.id + '" ><i class="glyphicon glyphicon-flag"></i>&nbsp;活动交易</a> ';
-                        }else {
-                            return '<a  class="btn btn-success" name="' + row.ndaid + '" href="/fileTranslation?id=' + row.id + '" ><i class="glyphicon glyphicon-flag"></i>&nbsp;活动交易 <span class="label label-danger" style="padding: 1px 3px;line-height: 10px;right: 0px;">'+ num +'</span></a> ';
+                    formatter: function (value, row, index) {
+                        if(value == "0") { //  0 交易请求 1 同意 2 对方中止 3 我方拒绝 4 对方修改 5等待确认
+                            return '<button class="btn btn-info" name="'+ row.ndaid +'" onclick="showNDA(this);" ><i class="glyphicon glyphicon-send"></i>&nbsp;交易请求</button> ';
+                        }else if(value == "1") {
+                            var num = row.createuseruploadcount
+                            if(num == 0) { //交易创建人没有新发文件
+                                return '<a  class="btn btn-success" name="' + row.ndaid + '" href="/fileTranslation?id=' + row.id + '" ><i class="glyphicon glyphicon-flag"></i>&nbsp;活动交易</a> ';
+                            }else {
+                                return '<a  class="btn btn-success" name="' + row.ndaid + '" href="/fileTranslation?id=' + row.id + '" ><i class="glyphicon glyphicon-flag"></i>&nbsp;活动交易 <span class="label label-danger" style="padding: 1px 3px;line-height: 10px;right: 0px;">'+ num +'</span></a> ';
+                            }
+                            return '<a class="btn btn-success" name="'+ row.ndaid +'" href="/fileTranslation?id='+row.id +'" ><i class="glyphicon glyphicon-flag"></i>&nbsp;活动交易</a> ';
+                        }else if(value == "2") {
+                            return '<button class="btn btn-danger" ><i class="glyphicon glyphicon-remove"></i>&nbsp;对方中止</button> ';
+                        }else if(value == "3") {
+                            return '<button class="btn btn-danger" ><i class="glyphicon glyphicon-remove"></i>&nbsp;我方拒绝</button> ';
+                        }else if(value == "4") {
+                            return '<button class="btn btn-primary" name="'+ row.ndaid +'" onclick="showNDA(this);"><i class="glyphicon glyphicon-edit"></i>&nbsp;对方修改</button> ';
+                        }else if(value == "5") {
+                            return '<button class="btn btn-warning" name="'+ row.ndaid +'" onclick="showNDAForLookOrBack(this);"><i class="glyphicon glyphicon-time"></i>&nbsp;等待确认</button> ';
                         }
-                        return '<a class="btn btn-success" name="'+ row.ndaid +'" href="/fileTranslation?id='+row.id +'" ><i class="glyphicon glyphicon-flag"></i>&nbsp;活动交易</a> ';
-                    }else if(value == "2") {
-                        return '<button class="btn btn-danger" ><i class="glyphicon glyphicon-remove"></i>&nbsp;对方中止</button> ';
-                    }else if(value == "3") {
-                        return '<button class="btn btn-danger" ><i class="glyphicon glyphicon-remove"></i>&nbsp;我方拒绝</button> ';
-                    }else if(value == "4") {
-                        return '<button class="btn btn-primary" name="'+ row.ndaid +'" onclick="showNDA(this);"><i class="glyphicon glyphicon-edit"></i>&nbsp;对方修改</button> ';
-                    }else if(value == "5") {
-                        return '<button class="btn btn-warning" name="'+ row.ndaid +'" onclick="showNDAForLookOrBack(this);"><i class="glyphicon glyphicon-time"></i>&nbsp;等待确认</button> ';
+                    }
+                }, {
+                    field: 'createtime',
+                    title: '日期',
+                    align: 'center',
+                    width: 360, // 定义列的宽度，单位为像素px
+                    valign: 'middle',
+                    formatter: function (value, row, index) {
+                        if (row.createtime == null)
+                            return "";
+                        else
+                            return row.createtime.substring(0,10);<!--.toDateString();value == null? "" : value-->
                     }
                 }
-            }, {
-                field: 'createtime',
-                title: '日期',
-                align: 'center',
-                width: 360, // 定义列的宽度，单位为像素px
-                valign: 'middle'
-            }
-        ]
+            ]
         ]
     })
     function searchShare() {
         $("#tableShare").bootstrapTable('refresh');
+       // $("#tableShareTo").bootstrapTable('refresh');
+    }
+    function searchShare2me() {
         $("#tableShareTo").bootstrapTable('refresh');
     }
     function cellStylesales(value, row, index) {
