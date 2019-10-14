@@ -883,11 +883,15 @@ public class ShareController{
         example.orderBy("createtime").desc();//Sunct,2019.10.04
         tblNdashares = tblNdashareMapper.selectByExample(example);
         List<TblNdashare> rows = new ArrayList<>();
-        if (offset < tblNdashares.size()) {
-            int lastIdx = Integer.min(offset + pageSize, tblNdashares.size());
-            rows.addAll(tblNdashares.subList(offset, lastIdx));
+        if (null == tblNdashares || tblNdashares.isEmpty()) {
+            map.put("total", 0);
+        } else {
+            if (offset < tblNdashares.size()) {
+                int lastIdx = Math.min(offset + pageSize, tblNdashares.size());
+                rows.addAll(tblNdashares.subList(offset, lastIdx));
+            }
+            map.put("total", tblNdashares.size());
         }
-        map.put("total", tblNdashares.size());
         map.put("rows", rows);
         return map;
     }
