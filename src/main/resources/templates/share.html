@@ -48,27 +48,28 @@
     <div class="panel panel-default">
         <div class="panel-body form-group" style="margin-bottom:0px;background-color: #b3b3b3">
             <div class="col-sm-12">
-                <a type="button" class="btn btn-primary"  onclick="window.history.go(-1);"><i class="glyphicon glyphicon-chevron-left"></i>&nbsp;返回</a>
+                <a type="button" class="btn btn-primary"  href="/createNDA"><i class="glyphicon glyphicon-plus"></i>&nbsp;新建交易</a>
+                <a type="button" class="btn btn-primary"  onclick="window.history.go(-1);" style="float: right"><i class="glyphicon glyphicon-chevron-left"></i>&nbsp;返回</a>
             </div>
         </div>
     </div>
 
-    <div class="panel panel-default">
+    <!--<div class="panel panel-default">
         <div class="panel-body form-group" style="margin-bottom:0px;">
             <div class="col-sm-2">
-                <a type="button" class="btn btn-primary"  href="/createNDA"><i class="glyphicon glyphicon-plus"></i>&nbsp;新建交易</a>
+                <a style="float: right" type="button" class="btn btn-primary"  href="/createNDA"><i class="glyphicon glyphicon-plus"></i>&nbsp;新建交易</a>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <div class="row">
         <div class="col-md-12">
             <div class="ibox float-e-margins">
-                <ul id="myTab" class="nav nav-tabs">
-                    <li class="active">
+                <ul id="myTab" class="nav nav-tabs" >
+                    <li role="presentation" class="active">
                         <a href="#myShare" data-toggle="tab">我的分享</a>
                     </li>
-                    <li>
+                    <li role="presentation">
                         <a href="#Shared2me" data-toggle="tab">来自分享</a>
                     </li>
                 </ul>
@@ -77,7 +78,7 @@
                         <div class="panel panel-default">
                             <div class="panel-body form-group" style="margin-top:0px;">
                                 <div class="input-group col-sm-2">
-                                    <input type="text" class="form-control" name="search_share" id="search_share" placeholder="我分享的...">
+                                    <input type="text" class="form-control" name="search_share" id="search_share" placeholder="我分享的(标题或交易对象)..." style="width:300px;">
                                     <span class="input-group-btn">
                                         <button class="btn btn-primary" type="button" onclick="searchShare();"><i class="fa fa-search"></i>&nbsp;搜索</button>
                                     </span>
@@ -87,11 +88,11 @@
                         <table id="tableShare" class="table table-hover"></table>
                     </div>
 
-                    <div class="tab-pane fade " id="Shared2me">
+                    <div class="tab-pane fade" id="Shared2me">
                         <div class="panel panel-default">
                             <div class="panel-body form-group" style="margin-top:0px;">
                                 <div class="input-group col-sm-2">
-                                    <input type="text" class="form-control" name="search_share2me" id="search_share2me" placeholder="分享给我的...">
+                                    <input type="text" class="form-control" name="search_share2me" id="search_share2me" placeholder="分享给我的(标题或交易对象)..." style="width:300px;">
                                     <span class="input-group-btn">
                                         <button class="btn btn-primary" type="button" onclick="searchShare2me();"><i class="fa fa-search"></i>&nbsp;搜索</button>
                                     </span>
@@ -143,7 +144,7 @@
 
 <script type="text/javascript">
     $(function () {
-        $('#myTab li:eq(0) a').tab('show');
+        $('#myTab a:first').tab('show');
     });
     $("#tableShare").bootstrapTable({ // 对应table标签的id
         method:'POST',
@@ -161,7 +162,7 @@
         paginationNextText: "下一页",
         paginationFirstText: "首页",
         paginationLastText: "末页",
-        clickToSelect: false,//是否启用点击选中行
+        clickToSelect: true,//是否启用点击选中行
         toolbarAlign:'right',
         buttonsAlign:'right',//按钮对齐方式
         sidePagination: 'server', // 设置为服务器端分页
@@ -177,20 +178,9 @@
                 searchShare: $("#search_share").val() // 额外添加的参数
             }
         },
-        sortName: 'id', // 要排序的字段
+        sortName: 'createtime', // 要排序的字段
         sortOrder: 'desc', // 排序规则
         columns: [
-            [
-                {
-                    "title": "我的分享",
-                    "halign":"center",
-                    "align":"center",
-                    "colspan": 5,
-                    cellStyle:{
-                        css:{"background-color":"red"}
-                    }
-                }
-            ], [
                 {
                     field: 'Number',
                     title: '序号',
@@ -254,7 +244,6 @@
                         return value.substring(0,10);
                     }
                 }
-            ]
         ]
     })
 
@@ -294,7 +283,6 @@
         sortName: 'createtime', // 要排序的字段
         sortOrder: 'desc', // 排序规则
         columns: [
-            [
                 {
                     field: 'Number',
                     title: '序号',
@@ -356,13 +344,12 @@
                     width: 360, // 定义列的宽度，单位为像素px
                     valign: 'middle',
                     formatter: function (value, row, index) {
-                        if (row.createtime == null)
+                        if (row.createtime == null || row.createtime.length <= 0)
                             return "";
                         else
                             return row.createtime.substring(0,10);<!--.toDateString();value == null? "" : value-->
                     }
                 }
-            ]
         ]
     })
     function searchShare() {
