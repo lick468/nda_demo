@@ -72,7 +72,7 @@
                         <div class="panel panel-default">
                             <div class="panel-body form-group" style="margin-top:0px;">
                                 <div class="input-group col-sm-2">
-                                    <input type="text" class="form-control" name="searchTitle" id="searchTitle" placeholder="Search for...">
+                                    <input type="text" class="form-control" name="searchTitle" id="searchTitle" placeholder="搜索..." style="width:300px;">
                                     <span class="input-group-btn">
                                         <button class="btn btn-primary" type="button" onclick="serachTitle();"><i class="fa fa-search"></i>&nbsp;搜索</button>
                                     </span>
@@ -164,7 +164,7 @@
 
 
   $(function () {
-      $('#myTab li:eq(0) a').tab('show');
+      $('#myTab a:first').tab('show');
   });
 
   $("#table").bootstrapTable({ // 对应table标签的id
@@ -201,7 +201,7 @@
                 searchTitle: $("#searchTitle").val() // 额外添加的参数
             }
         },
-        sortName: 'id', // 要排序的字段
+        sortName: 'createtime', // 要排序的字段
         sortOrder: 'desc', // 排序规则
         columns: [
             {
