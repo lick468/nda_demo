@@ -148,15 +148,20 @@ public class NDATemplateController {
         if(searchTitle!=null && searchTitle.length() > 0) {
             criteria.andLike("ndatitle","%" + searchTitle + "%");
         }
-        List<TblNdaitemtpl> tblNdaitemtpls = tblNdaitemtplMapper.selectByExample(example);
-        List<TblNdaitemtpl> rows = new ArrayList<>();
-        for(int i=offset;i<offset+pageSize;i++) {
-            if(tblNdaitemtpls.size() > i) {
-                rows.add(tblNdaitemtpls.get(i));
-            }
+        example.orderBy("createtime").desc();
+        List<TblNdaitemtpl> tblNdaItemTplList = tblNdaitemtplMapper.selectByExample(example);
+        if (null == tblNdaItemTplList || tblNdaItemTplList.isEmpty()) {
+            map.put("total", 0);
+            map.put("rows", null);
+
+        } else {
+            List<TblNdaitemtpl> rows = new ArrayList<>();
+            int nTotalCnt = tblNdaItemTplList.size();
+            int endIdx = Math.min(nTotalCnt, offset + pageSize);
+            rows.addAll(tblNdaItemTplList.subList(offset, endIdx));
+            map.put("total", nTotalCnt);
+            map.put("rows", rows);
         }
-        map.put("total", tblNdaitemtpls.size());
-        map.put("rows", rows);
         return map;
     }
 
