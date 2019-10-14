@@ -15,6 +15,7 @@
     <description>IP NDA Website</description>
     <!-- 部署到tomcat中需要使用
     <packaging>war</packaging>-->
+    <packaging>jar</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
