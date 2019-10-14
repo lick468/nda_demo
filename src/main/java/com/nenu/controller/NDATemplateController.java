@@ -150,18 +150,18 @@ public class NDATemplateController {
         }
         example.orderBy("createtime").desc();
         List<TblNdaitemtpl> tblNdaItemTplList = tblNdaitemtplMapper.selectByExample(example);
+        List<TblNdaitemtpl> rows = new ArrayList<>();
         if (null == tblNdaItemTplList || tblNdaItemTplList.isEmpty()) {
             map.put("total", 0);
-            map.put("rows", null);
-
         } else {
-            List<TblNdaitemtpl> rows = new ArrayList<>();
             int nTotalCnt = tblNdaItemTplList.size();
-            int endIdx = Math.min(nTotalCnt, offset + pageSize);
-            rows.addAll(tblNdaItemTplList.subList(offset, endIdx));
+            if (offset < nTotalCnt) {
+                int endIdx = Math.min(nTotalCnt, offset + pageSize);
+                rows.addAll(tblNdaItemTplList.subList(offset, endIdx));
+            }
             map.put("total", nTotalCnt);
-            map.put("rows", rows);
         }
+        map.put("rows", rows);
         return map;
     }
 
