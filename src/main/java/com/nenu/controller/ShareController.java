@@ -269,6 +269,7 @@ public class ShareController{
                     String sender = "<h4  style=\"text-align: left\"> 发起人："+ tblNdashare.getCreateusername()+"</h4>";
                     String receiver = "<h4  style=\"text-align: left\"> 接收人："+ tblNdashare.getUsername()+"</h4>";
                     String NDAItem = tblNdabasicinfo.getNdaitems();
+                    //noinspection deprecation
                     HTMLWorker htmlWorker = new HTMLWorker(doc);
                     try {
                         htmlWorker.parse(new StringReader(title));
@@ -869,7 +870,7 @@ public class ShareController{
         List<TblNdashare> tblNdashares = new ArrayList<>();
         if (share2me) {
             if(searchString != null && searchString.length() > 0) {
-                searchCriteria.orLike("ndatitle", "%" + searchString + "%").orLike("createusername", "%" + searchString + "%");
+                searchCriteria.orLike("ndatitle", "%" + searchString + "%").orLike("nreateusername", "%" + searchString + "%");
             }
             criteria.andEqualTo("username", UserName);
         }

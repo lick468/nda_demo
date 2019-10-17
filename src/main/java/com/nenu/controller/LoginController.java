@@ -13,25 +13,22 @@ import com.nenu.aspect.lang.enums.BusinessType;
 import com.nenu.domain.TblNdaitemtpl;
 import com.nenu.domain.TblUserinfo;
 import com.nenu.mapper.TblNdaitemtplMapper;
-import com.nenu.mapper.TblNdashareMapper;
 import com.nenu.mapper.TblUserinfoMapper;
 import com.nenu.utils.IpUtil;
-import net.sf.json.JSON;
-import net.sf.json.JSONObject;
+import com.nenu.utils.UserAgentUtil;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import tk.mybatis.mapper.entity.Example;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -271,6 +268,22 @@ public class LoginController {
             if(tblUserinfo.getPassword().equals(tbUser.getPassword())) {
                 session.setAttribute("currentUser",tblUserinfo);
                 session.setMaxInactiveInterval(60 * 60 * 2);//单位 秒
+                /* Sunct, 2019.10.15
+                *  检查客户端是否移动设备，并写入session
+                * */
+                HttpServletRequest servletRequest =
+                        ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+                /*Enumeration<String> HeaderList = servletRequest.getHeaderNames();
+                System.out.println("=======Header content======>>");
+                while (HeaderList.hasMoreElements()) {
+                    String curHeaderName = HeaderList.nextElement();
+                    String curContent = servletRequest.getHeader(curHeaderName).toLowerCase();
+                    System.out.println("Content of " + curHeaderName + ": " + curContent);
+                }
+                System.out.println("<<=====Header content========");
+                */
+                /*UserAgentUtil usUtil = new UserAgentUtil();
+                usUtil.CheckClientandSave2Session(servletRequest);*/
                 return "redirect:/index";
             }else {
                 redirectAttributes.addFlashAttribute("msg","用户名或密码错误");

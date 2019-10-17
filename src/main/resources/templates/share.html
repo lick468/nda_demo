@@ -80,7 +80,7 @@
                                 <div class="input-group col-sm-2">
                                     <input type="text" class="form-control" name="search_share" id="search_share" placeholder="我分享的(标题或交易对象)..." style="width:300px;">
                                     <span class="input-group-btn">
-                                        <button class="btn btn-primary" type="button" onclick="searchShare();"><i class="fa fa-search"></i>&nbsp;搜索</button>
+                                        <button class="btn btn-primary" type="button" onclick="searchmyShare();"><i class="fa fa-search"></i>&nbsp;搜索</button>
                                     </span>
                                 </div><!-- /input-group -->
                             </div>
@@ -352,12 +352,16 @@
                 }
         ]
     })
-    function searchShare() {
+    function searchmyShare() {
         $("#tableShare").bootstrapTable('refresh');
-       // $("#tableShareTo").bootstrapTable('refresh');
+        // $("#tableShareTo").bootstrapTable('refresh');
     }
     function searchShare2me() {
         $("#tableShareTo").bootstrapTable('refresh');
+    }
+    function searchShare() {
+        searchmyShare();
+        searchShare2me();
     }
     function cellStylesales(value, row, index) {
         return {css:{background:'#fff',color:'#fff'}};
