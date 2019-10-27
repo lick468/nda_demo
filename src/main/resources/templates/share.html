@@ -146,6 +146,7 @@
     $(function () {
         $('#myTab a:first').tab('show');
     });
+
     $("#tableShare").bootstrapTable({ // 对应table标签的id
         method:'POST',
         contentType: "application/x-www-form-urlencoded",// 解决POST提交问题
@@ -209,7 +210,7 @@
                     valign: 'middle'
                 }, {
                     field: 'sharestatus',
-                    title: "操作",
+                    title: "当前状态",
                     align: 'center',
                     valign: 'middle',
                     width: 360, // 定义列的宽度，单位为像素px
@@ -311,7 +312,7 @@
                     valign: 'middle'
                 }, {
                     field: 'receiverstatus',
-                    title: "操作",
+                    title: "当前状态",
                     align: 'center',
                     valign: 'middle',
                     width: 360, // 定义列的宽度，单位为像素px
