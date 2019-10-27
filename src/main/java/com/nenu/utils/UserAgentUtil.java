@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.regex.Pattern;
 
 /*JAVA判断移动端还是PC端访问*/
+/**/
 public class UserAgentUtil {
 
     //private HttpServletRequest servletRequest;// = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
@@ -59,11 +60,11 @@ public class UserAgentUtil {
                 //获取ua，用来判断是否为移动端访问
                 String userAgent = servletRequest.getHeader("USER-AGENT").toLowerCase();
                 System.out.println("UserAgent: " + userAgent);
-                if (null == userAgent) {
+                /*if (null == userAgent) {
                     isFromMobile = false;
-                } else {
-                    isFromMobile = isMobileClient(userAgent);
-                }
+                } else {*/
+                isFromMobile = isMobileClient(userAgent);
+                //}
                 //判断是否为移动端访问
                 if (isFromMobile) {
                     //System.out.println("移动端访问");
@@ -73,6 +74,7 @@ public class UserAgentUtil {
                     session.setAttribute(SessionName4ClientType, "pc");
                 }
             } catch (Exception e) {
+                System.out.println(e.getMessage());
             }
         } else {
             isFromMobile = session.getAttribute(SessionName4ClientType).equals("mobile");
