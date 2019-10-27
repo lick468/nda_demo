@@ -27,7 +27,7 @@
 
 'use strict';
 
-var DEFAULT_URL = 'compressed.tracemonkey-pldi-09.pdf';
+var DEFAULT_URL = encodeURI('/download/outPath/tmpfile.pdf');//'compressed.tracemonkey-pldi-09.pdf';//
 var DEFAULT_SCALE_DELTA = 1.1;
 var MIN_SCALE = 0.25;
 var MAX_SCALE = 10.0;
@@ -36,6 +36,8 @@ var SCALE_SELECT_CONTAINER_PADDING = 8;
 var SCALE_SELECT_PADDING = 22;
 var PAGE_NUMBER_LOADING_INDICATOR = 'visiblePageIsLoading';
 var DISABLE_AUTO_FETCH_LOADING_BAR_TIMEOUT = 5000;
+
+var USEFILEASTITLE = false;
 
 PDFJS.imageResourcesPath = './images/';
   PDFJS.workerSrc = '../build/pdf.worker.js';
@@ -6006,12 +6008,16 @@ var PDFViewerApplication = {
 
     var parameters = {password: password};
     if (typeof file === 'string') { // URL
-      this.setTitleUsingUrl(file);
+      if (USEFILEASTITLE) {
+        this.setTitleUsingUrl(file);
+      }
       parameters.url = file;
     } else if (file && 'byteLength' in file) { // ArrayBuffer
       parameters.data = file;
     } else if (file.url && file.originalUrl) {
-      this.setTitleUsingUrl(file.originalUrl);
+      if (USEFILEASTITLE) {
+        this.setTitleUsingUrl(file.originalUrl);
+      }
       parameters.url = file.url;
     }
     if (args) {
