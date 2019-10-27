@@ -13,7 +13,6 @@ import com.nenu.mapper.TblNdashareMapper;
 import com.nenu.utils.*;
 import net.sf.json.JSON;
 import net.sf.json.JSONObject;
-import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -23,8 +22,11 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import tk.mybatis.mapper.entity.Example;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.*;
+import java.net.URLEncoder;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.List;
 
@@ -47,6 +49,15 @@ public class ShareController{
 
     @Autowired
     private TblNdadocinfoMapper tblNdadocinfoMapper;
+
+    @Autowired
+    MyServerPathProperties myServerFilepathProperties;
+
+    private  static final String FILESEPARATOR = File.separator;
+    private static final String DEFAULT_TMPPDFPATH_PASS = "C:\\download\\outpath\\";
+    private static final String DEFAULT_TMPPDFPATH_DECRPT = "C:\\download\\decpath\\";
+    private static final String DEFAULT_TMPPDFFILENAME = "tmpfile.pdf";
+    private static final String DEFAULT_FILEEXTENSION = ".pdf";
 
 
     /**
@@ -552,10 +563,13 @@ public class ShareController{
         tblNdashare.setUsername(username1);
         //插入一条分享记录
         tblNdashareMapper.insert(tblNdashare);
-
+        // TODO 考虑上传到IPFS后删除暂存文件，2.localtime使用
         return "redirect:/share";
     }
 
+    /** 用户通过拖曳或上传方式上传文件时，会触发此事件，
+     * 将上传的文件暂存于服务器对应目录
+     */
     @PostMapping(value = "/upload")
     @ResponseBody
     public List<String> upload(MultipartHttpServletRequest requestFile,HttpSession session) {
@@ -587,6 +601,7 @@ public class ShareController{
 
 
     /**
+     * 在操作一栏“同意”对应的动作
      * 跳转到分享页面
      * @param
      * @return
@@ -630,52 +645,76 @@ public class ShareController{
     @Log(methodFunctionDescribe="分享文件",businessType = BusinessType.CREATE)
     @PostMapping(value = "/fileUpload")
     @ResponseBody
-    public JSON files(MultipartHttpServletRequest requestFile,HttpServletRequest request){
+    public JSON fileUpload(MultipartHttpServletRequest requestFile,HttpServletRequest request){
+        JSON json = new JSONObject();
         String sender = request.getParameter("sender");
         String receiver = request.getParameter("receiver");
         String ndaID = request.getParameter("ndaID");
+        if (null == sender || sender.isEmpty()
+            || null == receiver || receiver.isEmpty()
+            || null == ndaID || ndaID.isEmpty()) {
+            return json;
+        }
         Example example1 = new Example(TblNdabasicinfo.class);
         example1.createCriteria().andEqualTo("id",ndaID);
         TblNdabasicinfo tblNdabasicinfo = tblNdabasicinfoMapper.selectOneByExample(example1);
+        if (null == tblNdabasicinfo) {
+            return json;
+        }
         long time = System.currentTimeMillis();
-        String path = "C:\\upload\\"+sender+"\\"+time+"\\";
-        String passPath = "C:\\outPath\\"+sender+"\\"+time+"\\";
+        String origUpFilePath = "C:/upload/"+sender+"/"+time+"/";
+        /*String passPath = "C:\\outPath\\"+sender+"\\"+time+"\\";
         int i = passPath.lastIndexOf("\\");
-        File pa = new File(passPath.substring(0,i));
+        File pa = new File(passPath.substring(0,i));=>
+        */
+        String passPath = "C:/outPath/"+sender+"/"+time;
+        File pa = new File(passPath);
         if(!pa.exists()) {
             pa.mkdirs();
         }
 
+        /*存放在上传过程中产生的临时文件列表，准备最后删除*/
+        List<String> orgUpFilePathList = new ArrayList<String>();
+        List<String> passFilePathList = new ArrayList<String>();
+        passPath += "/";
         String upload = "";
+        String pubKey4Encrypt = tblNdabasicinfo.getSenderpubkey();
+        if(tblNdabasicinfo.getInitiatorusername().equals(receiver)) {
+            pubKey4Encrypt = tblNdabasicinfo.getReceiverpubkey();
+        }
 
         Iterator<String> itr = requestFile.getFileNames();
         while (itr.hasNext()) {
             String uploadedFile = itr.next();
             MultipartFile file = requestFile.getFile(uploadedFile);
-            String filename = file.getOriginalFilename();
-            String fileName = filename.substring(0, filename.lastIndexOf(".")); //文件名   test.doc  test
-            String fileExtension = filename.substring(filename.lastIndexOf(".")+1,filename.length()); //文件名后缀  E:\test.doc  doc
-            File localFile = new File(path, filename);
-            if(!localFile.exists()){
-                localFile.mkdirs();
+            String fullFileName = file.getOriginalFilename();
+            int idxPoint = fullFileName.lastIndexOf(".");
+            String fileName = fullFileName; //文件名   test.doc  test
+            String fileExtension = ""; //文件名后缀  E:\test.doc  doc
+            if (idxPoint < 0) {
+
+            } else if (idxPoint == 0) {
+                continue;
+            } else {
+                fileName = fullFileName.substring(0, idxPoint); //文件名   test.doc  test
+                fileExtension = fullFileName.substring(idxPoint + 1); //文件名后缀  E:\test.doc  doc
+            }
+            String orgFullFilePath = origUpFilePath + fullFileName;
+            String passFullFilePath = passPath + fullFileName;
+            orgUpFilePathList.add(orgFullFilePath);
+            passFilePathList.add(passFullFilePath);
+            File serverLocalFile = new File(orgFullFilePath);
+            if(!serverLocalFile.exists()){
+                serverLocalFile.mkdirs();
             }
             try {
-                file.transferTo(localFile);
+                file.transferTo(serverLocalFile);
                 //上传之前先加密
-                if(tblNdabasicinfo.getInitiatorusername().equals(sender)) {
-                    encryptFile(path + filename,passPath + filename,tblNdabasicinfo.getSenderpubkey());
-                    upload = IPFSUtils.upload(passPath + filename);
+                encryptFile(orgFullFilePath, passFullFilePath, pubKey4Encrypt);
+                upload = IPFSUtils.upload(passFullFilePath);
 
-                    //对上传文件返回的hash  进行加密
-                    upload = Base64.getEncoder().encodeToString(encrypt(upload.getBytes(),tblNdabasicinfo.getSenderpubkey()));
-
-                }else {
-                    encryptFile(path + filename,passPath + filename,tblNdabasicinfo.getReceiverpubkey());
-                    upload = IPFSUtils.upload(passPath + filename);
-
-                    //对上传文件返回的hash  进行加密
-                    upload = Base64.getEncoder().encodeToString(encrypt(upload.getBytes(),tblNdabasicinfo.getReceiverpubkey()));
-                }
+                //对上传文件返回的hash  进行加密
+                upload = Base64.getEncoder().encodeToString(encrypt(upload.getBytes(),pubKey4Encrypt));
 
                 TblNdadocinfo ndadocinfo = new TblNdadocinfo();
                 ndadocinfo.setNdadocid(ndaID);
@@ -685,7 +724,6 @@ public class ShareController{
                 ndadocinfo.setUploadusername(sender);
                 ndadocinfo.setUploadtime(new Date());
                 ndadocinfo.setUploadip(IpUtil.getIpAddress(request));
-
                 // 构建时间戳  key=文件hash&sign=send&sender=发件人&recevier=收件人&timestamp=当地时间戳  之后MD5加密
                 String timestamp = "key="+upload+"&sign=send&sender"+sender+"&receiver="+receiver+"&timastamp="+System.currentTimeMillis();
                 timestamp = MD5Util.getMD5(timestamp);
@@ -693,10 +731,11 @@ public class ShareController{
 
                 Example example = new Example(TblNdadocinfo.class);
                 example.createCriteria().andEqualTo("ndadocid",ndaID);
+                example.orderBy("uploadtime").desc();
                 List<TblNdadocinfo> tblNdadocinfos = tblNdadocinfoMapper.selectByExample(example);
                 if(tblNdadocinfos.size() > 0) {
-                    ndadocinfo.setPrevid(tblNdadocinfos.get(tblNdadocinfos.size()-1).getId());
-                    ndadocinfo.setPrevtimestamp(tblNdadocinfos.get(tblNdadocinfos.size()-1).getTimestamp());
+                    ndadocinfo.setPrevid(tblNdadocinfos.get(0).getId());
+                    ndadocinfo.setPrevtimestamp(tblNdadocinfos.get(0).getTimestamp());
                 }
                 tblNdadocinfoMapper.insert(ndadocinfo);
                 // 文件上传人添加一个文件未读
@@ -714,17 +753,28 @@ public class ShareController{
                 e.printStackTrace();
             }
         }
-        JSON json = new JSONObject();
+        //删除中间文件
+        myFileUtils.deleteFiles(orgUpFilePathList);
+        myFileUtils.deleteFiles(passFilePathList);
+
         return json;
     }
 
     /**
      * 文件预览 pdf文件
+     * 从网页链接查看pdf文件时，首先响应此函数，所做工作包括：
+     * 1.接收相关参数；
+     * 2.读取文件hash；
+     * 3.根据hash从ipfs读文件；
+     * 4.对文件进行解密，生成暂存文件，删除未解密的暂存文件；
+     * 5.redirect到利用pdsviewer预览文件
+     * 6.预览之前触发/pdfhandler，将文件内容以数据流的形式传递到网页
      * @return
      */
     @Log(methodFunctionDescribe="文件预览",businessType = BusinessType.DETAIL)
     @GetMapping(value = "/previewFile")
     public String previewFile(HttpServletRequest request,ModelMap map) {
+        String curUsername = getUserNamefromRequest(request);
         String id = request.getParameter("id");
         Example example = new Example(TblNdadocinfo.class);
         example.createCriteria().andEqualTo("id",Integer.parseInt(id));
@@ -733,8 +783,8 @@ public class ShareController{
         example1.createCriteria().andEqualTo("id",ndadocinfo.getNdadocid());
         TblNdabasicinfo tblNdabasicinfo = tblNdabasicinfoMapper.selectOneByExample(example1);
         String hash = "";
-        //使用文件上传人的密钥解密
 
+        //使用文件上传人的密钥解密
         if(tblNdabasicinfo.getInitiatorusername().equals(ndadocinfo.getUploadusername())) {
             try {
                 hash = new String(decrypt(Base64.getDecoder().decode(ndadocinfo.getDochash()),tblNdabasicinfo.getSenderprivatekey()));
@@ -751,10 +801,15 @@ public class ShareController{
 
         // 根据文件Hash 从IPFS 上下载文件
         long time = System.currentTimeMillis();
-        String path = "C:\\download\\"+time+"\\"+ndadocinfo.getFilename()+"."+ndadocinfo.getFileextension();
-        String noPassPath = "C:\\download\\outPath\\"+time+"\\"+ndadocinfo.getFilename()+"."+ndadocinfo.getFileextension();
-        int i1 = path.lastIndexOf("\\");
-        int j1 = noPassPath.lastIndexOf("\\");
+        StringBuffer FilePathRighter = new StringBuffer(curUsername).append(FILESEPARATOR).append(time).append(DEFAULT_FILEEXTENSION);
+        String path = new StringBuffer(DEFAULT_TMPPDFPATH_PASS).append(FilePathRighter).toString(); //DEFAULT_TMPPDFFILENAME;// +ndadocinfo.getFilename()+"."+ndadocinfo.getFileextension();
+        String noPassPath = new StringBuffer(DEFAULT_TMPPDFPATH_DECRPT).append(FilePathRighter).toString();//"C:\\download\\outPath\\tmpfile.pdf";//+ndadocinfo.getFilename()+"."+ndadocinfo.getFileextension();
+
+        System.out.println(path);
+        System.out.println(noPassPath);
+        /*如果对应的文件夹不存在，首先创建*/
+        int i1 = path.lastIndexOf(FILESEPARATOR);
+        int j1 = noPassPath.lastIndexOf(FILESEPARATOR);
         File file=new File(path.substring(0,i1));
         if(!file.exists()){
             file.mkdirs();
@@ -763,58 +818,121 @@ public class ShareController{
         if(!file1.exists()){
             file1.mkdirs();
         }
-        File file2 = new File(path);
-        File file3 = new File(noPassPath);
-        if(!file2.exists()) {
+        File orgDownFile = new File(path);
+        File decrpdFile = new File(noPassPath);
+        if(!orgDownFile.exists()) {
             try {
-                file2.createNewFile();
+                orgDownFile.createNewFile();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-        if(!file3.exists()) {
+        if(!decrpdFile.exists()) {
             try {
-                file3.createNewFile();
+                decrpdFile.createNewFile();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
         try {
-            IPFSUtils.download(path,hash);
+            IPFSUtils.download(path, hash);
         } catch (IOException e) {
             e.printStackTrace();
         }
         //将下载的文件进行解密
-        if(tblNdabasicinfo.getInitiatorusername().equals(ndadocinfo.getUploadusername())) {
-            try {
-                decryptFile(path,noPassPath,tblNdabasicinfo.getSenderprivatekey());
-                // 删除下载的文件
-                if(file.exists()) {
-                    file.delete();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
+        String privKey = tblNdabasicinfo.getSenderprivatekey();
+        if(!tblNdabasicinfo.getInitiatorusername().equals(ndadocinfo.getUploadusername())) {
+            privKey = tblNdabasicinfo.getReceiverprivatekey();
+        }
+        try {
+            decryptFile(path, noPassPath, privKey);
+            // 删除下载的文件
+            if(orgDownFile.exists()) {
+                orgDownFile.delete();
             }
-        }else {
-            try {
-                decryptFile(path,noPassPath,tblNdabasicinfo.getReceiverprivatekey());
-                // 删除下载的文件
-                if(file.exists()) {
-                    file.delete();
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        map.put("path",ndadocinfo.getFilename()+"."+ndadocinfo.getFileextension());
+        /*
+        map.put("path", ndadocinfo.getFilename()+"."+ndadocinfo.getFileextension());//"tmpfile.pdf");//
         map.put("time",time);
         map.put("fullPath",noPassPath);
         return "previewPDFJS";
+        * */
+        String url = new StringBuffer("/pdfhandler?filename=")
+                    .append(ndadocinfo.getFilename()).append(".")
+                    .append(ndadocinfo.getFileextension())
+                    .append("&tid=").append(time).toString();
+        String encodedUrl = url;
+        try {
+            encodedUrl = URLEncoder.encode(url, "utf-8");
+        } catch (Exception e)
+        {
+            encodedUrl = url;
+        }
+        //TODO 按用户建暂存文件目录
+        return "redirect:/pdfjs/web/viewer.html?file=" + encodedUrl;
     }
 
+    private String getUserNamefromRequest(HttpServletRequest request) {
+        HttpSession session = request.getSession();
+        String curUsername = "";
+        if (null != session) {
+            TblUserinfo currentUser = (TblUserinfo) session.getAttribute("currentUser");
+            if (null != currentUser)
+                curUsername = currentUser.getUsername();
+        }
+        if (null == curUsername)
+            curUsername = "";
+        return curUsername;
+    }
+
+    /**
+     * 预览pdf文件/downlaod/decpath/username/time.pdf
+     * 读文件内容到response的输出流并删除暂存文件
+     * @param
+     */
+    @RequestMapping(value = "/pdfhandler", method = RequestMethod.GET)
+    public void pdfStreamHandler(HttpServletRequest request, HttpServletResponse response) {
+        String timeStr = (String)request.getParameter("tid");
+        //System.out.println((String)request.getParameter("filename"));
+        String curUsername = getUserNamefromRequest(request);
+        StringBuffer newFilePath = new StringBuffer(DEFAULT_TMPPDFPATH_DECRPT);
+        if (curUsername.isEmpty()) {
+            return;
+        } else {
+            newFilePath.append(curUsername).append(FILESEPARATOR);
+        }
+        newFilePath.append(timeStr).append(DEFAULT_FILEEXTENSION);
+        //System.out.println(newFilePath.toString());
+        File file = new File(newFilePath.toString());//"C:/download/outPath/tmpfile.pdf");//+fileName);
+        if (file.exists() && file.canRead() && file.length() > 0){
+            try {
+                    response.setHeader("Access-Control-Allow-Origin", "*");
+                    response.setContentLength((int) file.length());
+                    response.setContentType("application/octet-stream");// 指明response的返回对象是文件流
+                    FileInputStream fileInputStream = new FileInputStream(file);
+                    BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
+                    OutputStream outputStream = response.getOutputStream();
+                    byte buffer[] = new byte[1024];
+                    int len = 0;
+                    while ((len = bufferedInputStream.read(buffer)) > 0) {
+                        outputStream.write(buffer, 0, len);
+                    }
+                    // 人走带门
+                    bufferedInputStream.close();
+                    outputStream.flush();
+                    outputStream.close();
+                    file.delete();//删除了服务器上暂存的解密文件
+                } catch (Exception e) {
+                    System.out.println("pdf文件处理异常：" + e.getMessage());
+            }
+        } else{
+            return;
+        }
+    }
 
     /**
      * 获取自己分享给别人的信息，用于表格显示
@@ -868,6 +986,7 @@ public class ShareController{
         Example.Criteria criteria = example.createCriteria();
         Example.Criteria searchCriteria = example.createCriteria();
         List<TblNdashare> tblNdashares = new ArrayList<>();
+        //System.out.println("Executed here -904");
         if (share2me) {
             if(searchString != null && searchString.length() > 0) {
                 searchCriteria.orLike("ndatitle", "%" + searchString + "%").orLike("nreateusername", "%" + searchString + "%");
