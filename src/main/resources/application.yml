@@ -48,3 +48,9 @@ jwt:
   key: lick
   ttl: 360000
 
+my:
+  serverfilepath:
+    orguppath: c:/upload
+    passpath: c:/outpath
+    downpath: c:/download
+
