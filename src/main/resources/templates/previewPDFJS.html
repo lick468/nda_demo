@@ -37,10 +37,12 @@
     var pathName = window.document.location.pathname;
     var pos = curWwwPath.indexOf(pathName);
     //获取主机地址，如： http://localhost:8081
-    var localhostPaht = curWwwPath.substring(0, pos);
-    var url = localhostPaht+ "/download/outPath/"+time+"/"+path
+    var localhostPath = curWwwPath.substring(0, pos);
+    //var url = localhostPath + "/download/outPath/"+orgfilename;
+    var url = "/pdfhandler?filename=" + path;
    // console.log(url)
-    window.open("/pdfjs/web/viewer.html?file="+url,"_self");
+    var viewWindow = window.open("/pdfjs/web/viewer.html?file=" + encodeURIComponent(url)/*?file=" + encodeURIComponent(url)?file="+url*/,"_self");
+    //viewWindow.document.title = "文件预览";
 </script>
 
 </body>
