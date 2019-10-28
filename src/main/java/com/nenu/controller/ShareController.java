@@ -54,8 +54,8 @@ public class ShareController{
     MyServerPathProperties myServerFilepathProperties;
 
     private  static final String FILESEPARATOR = File.separator;
-    private static final String DEFAULT_TMPPDFPATH_PASS = "C:\\download\\outpath\\";
-    private static final String DEFAULT_TMPPDFPATH_DECRPT = "C:\\download\\decpath\\";
+    private static final String DEFAULT_TMPPDFPATH_PASS = "C:\\ndadata\\download\\outpath\\";
+    private static final String DEFAULT_TMPPDFPATH_DECRPT = "C:\\ndadata\\download\\decpath\\";
     private static final String DEFAULT_TMPPDFFILENAME = "tmpfile.pdf";
     private static final String DEFAULT_FILEEXTENSION = ".pdf";
 
@@ -785,18 +785,15 @@ public class ShareController{
         String hash = "";
 
         //使用文件上传人的密钥解密
-        if(tblNdabasicinfo.getInitiatorusername().equals(ndadocinfo.getUploadusername())) {
-            try {
-                hash = new String(decrypt(Base64.getDecoder().decode(ndadocinfo.getDochash()),tblNdabasicinfo.getSenderprivatekey()));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }else {
-            try {
-                hash = new String(decrypt(Base64.getDecoder().decode(ndadocinfo.getDochash()),tblNdabasicinfo.getReceiverprivatekey()));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        String privKey = tblNdabasicinfo.getSenderprivatekey();
+        if(!tblNdabasicinfo.getInitiatorusername().equals(ndadocinfo.getUploadusername())) {
+            privKey = tblNdabasicinfo.getReceiverprivatekey();
+        }
+        try {
+            hash = new String(decrypt(Base64.getDecoder().decode(ndadocinfo.getDochash()), privKey));
+            System.out.println("Enc hash len: " + hash.length());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         // 根据文件Hash 从IPFS 上下载文件
@@ -804,9 +801,9 @@ public class ShareController{
         StringBuffer FilePathRighter = new StringBuffer(curUsername).append(FILESEPARATOR).append(time).append(DEFAULT_FILEEXTENSION);
         String path = new StringBuffer(DEFAULT_TMPPDFPATH_PASS).append(FilePathRighter).toString(); //DEFAULT_TMPPDFFILENAME;// +ndadocinfo.getFilename()+"."+ndadocinfo.getFileextension();
         String noPassPath = new StringBuffer(DEFAULT_TMPPDFPATH_DECRPT).append(FilePathRighter).toString();//"C:\\download\\outPath\\tmpfile.pdf";//+ndadocinfo.getFilename()+"."+ndadocinfo.getFileextension();
-
-        System.out.println(path);
-        System.out.println(noPassPath);
+        System.out.println("Executed Here-804");
+        //System.out.println(path);
+        //System.out.println(noPassPath);
         /*如果对应的文件夹不存在，首先创建*/
         int i1 = path.lastIndexOf(FILESEPARATOR);
         int j1 = noPassPath.lastIndexOf(FILESEPARATOR);
@@ -818,6 +815,7 @@ public class ShareController{
         if(!file1.exists()){
             file1.mkdirs();
         }
+        System.out.println("Executed Here-818");
         File orgDownFile = new File(path);
         File decrpdFile = new File(noPassPath);
         if(!orgDownFile.exists()) {
@@ -835,15 +833,22 @@ public class ShareController{
             }
         }
 
+        System.out.println("Executed Here-836");
+        boolean downSucceed = false;
         try {
-            IPFSUtils.download(path, hash);
-        } catch (IOException e) {
-            e.printStackTrace();
+            downSucceed = IPFSUtils.download(path, hash);
+        } catch (Exception e) {
+            //e.printStackTrace();
+            System.out.println("下载文档出错： "+ e.getMessage());
         }
         //将下载的文件进行解密
-        String privKey = tblNdabasicinfo.getSenderprivatekey();
-        if(!tblNdabasicinfo.getInitiatorusername().equals(ndadocinfo.getUploadusername())) {
-            privKey = tblNdabasicinfo.getReceiverprivatekey();
+
+        if (!downSucceed)
+        {
+            System.out.println("down failure");
+            return "redirect:/hitory:goback(-1)";
+        } else {
+            System.out.println("Executed Here-851");
         }
         try {
             decryptFile(path, noPassPath, privKey);
