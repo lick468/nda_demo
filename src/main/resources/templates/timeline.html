@@ -147,7 +147,7 @@
                     '                                    <div class="events-body">\n' +
                     '                                        <div class="events-desc">发 送 人：'+ ndaDocInfos[i].uploadusername +'</div><br>\n' +
                     '                                        <div class="events-desc">发送日期：<small>'+ ndaDocInfos[i].uploadtime +'</small></div><br>\n' +
-                    '                                        <div class="events-desc">文 件 名：<a  href="/previewFile?id='+ ndaDocInfos[i].id +'">'+ ndaDocInfos[i].filename +'.'+ ndaDocInfos[i].fileextension +'</a></div>\n' +
+                    '                                        <div class="events-desc">文 件 名：<a  href="/previewFile?id='+ ndaDocInfos[i].id +'" target="_blank">'+ ndaDocInfos[i].filename +'.'+ ndaDocInfos[i].fileextension +'</a></div>\n' +
                     '                                    </div>\n' +
                     '                                </div>\n' +
                     '                            </dd>';
@@ -161,7 +161,7 @@
                     '                                    <div class="events-body">\n' +
                     '                                        <div class="events-desc">发 送 人：'+ ndaDocInfos[i].uploadusername +'</div><br>\n' +
                     '                                        <div class="events-desc">发送日期：<small>'+ ndaDocInfos[i].uploadtime +'</small></div><br>\n' +
-                    '                                        <div class="events-desc">文 件 名：<a   href="/previewFile?id='+ ndaDocInfos[i].id +'">'+ ndaDocInfos[i].filename +'.'+ ndaDocInfos[i].fileextension +'</a></div>\n' +
+                    '                                        <div class="events-desc">文 件 名：<a   href="/previewFile?id='+ ndaDocInfos[i].id +'" target="_blank">'+ ndaDocInfos[i].filename +'.'+ ndaDocInfos[i].fileextension +'</a></div>\n' +
                     '                                    </div>\n' +
                     '                                </div>\n' +
                     '                            </dd>';
@@ -176,7 +176,7 @@
                 '<td>'+ ndaDocInfos[i-1].filename +'.'+ ndaDocInfos[i-1].fileextension +'</td>' +
                 '<td>'+ ndaDocInfos[i-1].uploadusername +'</td>' +
                 '<td>'+ ndaDocInfos[i-1].uploadtime +'</td>' +
-                '<td><a class="btn btn-primary"   href="/previewFile?id='+ ndaDocInfos[i-1].id +'"><i class="glyphicon glyphicon-flag"></i>&nbsp;查看</a></td>' +
+                '<td><a class="btn btn-primary"   href="/previewFile?id='+ ndaDocInfos[i-1].id +'" target="_blank"><i class="glyphicon glyphicon-flag"></i>&nbsp;查看</a></td>' +
                 '</tr>';
             $(".table").append(content);
         }
