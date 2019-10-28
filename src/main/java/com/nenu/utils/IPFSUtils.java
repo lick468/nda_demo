@@ -7,6 +7,7 @@ import io.ipfs.multihash.Multihash;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.util.List;
 
 public class IPFSUtils {
     private static final IPFS ipfs = new IPFS("/ip4/127.0.0.1/tcp/5001");
@@ -30,9 +31,16 @@ public class IPFSUtils {
         os.close();
         return new String(data);
     }
-    public static void download(String filePathName,String hash) throws IOException {
+    public static boolean download(String filePathName, String hash) throws IOException {
         Multihash filePointer = Multihash.fromBase58(hash);
+        System.out.println("Here: download-35");
+        List<MerkleNode> foundNodes = ipfs.ls(filePointer);
+        if (foundNodes.isEmpty()) {
+            System.out.println("File not found on server");
+            return false;
+        }
         byte[] data = ipfs.cat(filePointer);
+        System.out.println("Data Len: " + data.length);
         if(data != null){
             String path = filePathName.substring(0, filePathName.lastIndexOf("\\"));
             String fileName = filePathName.substring(filePathName.lastIndexOf("\\")+1,filePathName.length()); //文件名后缀  E:\test.doc  doc
@@ -44,6 +52,11 @@ public class IPFSUtils {
             fos.write(data,0,data.length);
             fos.flush();
             fos.close();
+            System.out.println("Down len: " + data.length);
+            return true;
+        }
+        else {
+            return false;
         }
     }
 }
