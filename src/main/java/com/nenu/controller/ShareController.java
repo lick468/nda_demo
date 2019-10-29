@@ -772,7 +772,7 @@ public class ShareController{
      * @return
      */
     @Log(methodFunctionDescribe="文件预览",businessType = BusinessType.DETAIL)
-    @GetMapping(value = "/previewFile")
+    //@GetMapping(value = "/previewFile")
     public String previewFile(HttpServletRequest request,ModelMap map) {
         String curUsername = getUserNamefromRequest(request);
         String id = request.getParameter("id");
@@ -881,6 +881,39 @@ public class ShareController{
         return "redirect:/pdfjs/web/viewer.html?file=" + encodedUrl;
     }
 
+    /**
+     * 文件预览 pdf文件-完全内存方式，不经过文件读写
+     * 从网页链接查看pdf文件时，首先响应此函数，所做工作包括：
+     * 1.接收相关参数，查询文档名称，然后跳转到文档预览页，下面工作由/pdfhandler2做；
+     * 2.读取文件hash；
+     * 3.根据hash从ipfs读文件；
+     * 4.对文件进行解密，生成暂存文件，删除未解密的暂存文件；
+     * 5.redirect到利用pdsviewer预览文件
+     * 6.预览之前触发/pdfhandler，将文件内容以数据流的形式传递到网页
+     * @return
+     */
+    @Log(methodFunctionDescribe="文件预览",businessType = BusinessType.DETAIL)
+    @GetMapping(value = "/previewFile")
+    public String previewFile2(HttpServletRequest request, HttpServletResponse response) {
+        String id = request.getParameter("id");
+        Example example = new Example(TblNdadocinfo.class);
+        example.createCriteria().andEqualTo("id",Integer.parseInt(id));
+        TblNdadocinfo ndadocinfo = tblNdadocinfoMapper.selectOneByExample(example);
+        String url = new StringBuffer("/pdfhandler?filename=")
+                .append(ndadocinfo.getFilename()).append(".")
+                .append(ndadocinfo.getFileextension())
+                .append("&did=").append(id).toString();
+        String encodedUrl = url;
+        try {
+            encodedUrl = URLEncoder.encode(url, "utf-8");
+        } catch (Exception e)
+        {
+            encodedUrl = url;
+        }
+        //TODO 按用户建暂存文件目录
+        return "redirect:/pdfjs/web/viewer.html?file=" + encodedUrl;
+    }
+
     private String getUserNamefromRequest(HttpServletRequest request) {
         HttpSession session = request.getSession();
         String curUsername = "";
@@ -899,7 +932,7 @@ public class ShareController{
      * 读文件内容到response的输出流并删除暂存文件
      * @param
      */
-    @RequestMapping(value = "/pdfhandler", method = RequestMethod.GET)
+    //@RequestMapping(value = "/pdfhandler", method = RequestMethod.GET)
     public void pdfStreamHandler(HttpServletRequest request, HttpServletResponse response) {
         String timeStr = (String)request.getParameter("tid");
         //System.out.println((String)request.getParameter("filename"));
@@ -936,6 +969,75 @@ public class ShareController{
             }
         } else{
             return;
+        }
+    }
+
+    /**
+     * 预览pdf文件/downlaod/decpath/username/time.pdf
+     * 读文件内容到response的输出流并删除暂存文件
+     * @param
+     */
+    @RequestMapping(value = "/pdfhandler", method = RequestMethod.GET)
+    public void pdfStreamHandler2(HttpServletRequest request, HttpServletResponse response) {
+        String docID = request.getParameter("did");
+        Example example = new Example(TblNdadocinfo.class);
+        example.createCriteria().andEqualTo("id", Integer.parseInt(docID));
+        TblNdadocinfo ndadocinfo = tblNdadocinfoMapper.selectOneByExample(example);
+        Example example1 = new Example(TblNdabasicinfo.class);
+        example1.createCriteria().andEqualTo("id",ndadocinfo.getNdadocid());
+        TblNdabasicinfo tblNdabasicinfo = tblNdabasicinfoMapper.selectOneByExample(example1);
+        String hash = "";
+        byte[] fileData = new byte[1];
+        //String fileData = "";
+        byte[] decData = new byte[1];
+
+        //使用文件上传人的密钥解密
+        String privKey = tblNdabasicinfo.getSenderprivatekey();
+        if(!tblNdabasicinfo.getInitiatorusername().equals(ndadocinfo.getUploadusername())) {
+            privKey = tblNdabasicinfo.getReceiverprivatekey();
+        }
+        try {
+            hash = new String(decrypt(Base64.getDecoder().decode(ndadocinfo.getDochash()), privKey));
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                response.sendRedirect("window.history.go(-1)");
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+        }
+
+        // 根据文件Hash 从IPFS 上下载文件
+        /*如果对应的文件夹不存在，首先创建*/
+
+        System.out.println("Executed Here-1013");
+        try {
+            fileData = IPFSUtils.download2Bytes(hash);
+        } catch (Exception e) {
+            //e.printStackTrace();
+            System.out.println("下载文档出错： "+ e.getMessage());
+        }
+        //将下载的文件进行解密
+        /*try {
+            decData = decrypt(Base64.getDecoder().decode(fileData), privKey);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        fileData = null;
+        int dataLen = decData.length;
+        */
+        try {
+            response.setHeader("Access-Control-Allow-Origin", "*");
+            response.setContentType("application/octet-stream");// 指明response的返回对象是文件流
+            OutputStream outputStream = response.getOutputStream();
+            //outputStream.write(decData, 0, dataLen);
+            decryptFile1(fileData, outputStream, privKey);
+            //response.setContentLength((int) outputStream.);
+            // 人走带门
+            outputStream.flush();
+            outputStream.close();
+        } catch (Exception e) {
+            System.out.println("pdf文件处理异常：" + e.getMessage());
         }
     }
 

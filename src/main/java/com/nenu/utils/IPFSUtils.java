@@ -18,19 +18,16 @@ public class IPFSUtils {
         return merkleNode.hash.toString();
     }
 
-    public static String download(String hash, HttpServletResponse response) throws Exception {
-        byte[] data = ipfs.cat(Multihash.fromBase58(hash));
-        InputStream inputStream=new ByteArrayInputStream(data);
-        OutputStream os = response.getOutputStream();
-        byte[] buffer = new byte[400];
-        int length = 0;
-        while ((length = inputStream.read(buffer)) > 0) {
-            os.write(buffer, 0, length);
-        }
-        os.flush();
-        os.close();
+    public static String download(String hash) throws Exception {
+        byte[] data = download2Bytes(hash);
         return new String(data);
     }
+
+    public static byte[] download2Bytes(String hash) throws Exception {
+        byte[] data = ipfs.cat(Multihash.fromBase58(hash));
+        return data;
+    }
+
     public static boolean download(String filePathName, String hash) throws IOException {
         Multihash filePointer = Multihash.fromBase58(hash);
         System.out.println("Here: download-35");

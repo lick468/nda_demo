@@ -215,6 +215,31 @@ public class RSAUtils {
             e.printStackTrace();
         }
     }
+
+    //************************解密文件**************************
+    public static void decryptFile1(byte[] inData, OutputStream out, String privateKeyStr) throws Exception {
+        try {
+            DataInputStream in = new DataInputStream(new ByteArrayInputStream(inData));
+            int length = in.readInt();
+            byte[] wrappedKey = new byte[length];
+            in.read(wrappedKey, 0, length);
+            PrivateKey privateKey = getPrivateKey(privateKeyStr);
+            Cipher cipher = Cipher.getInstance("RSA");
+            cipher.init(Cipher.UNWRAP_MODE, privateKey);
+            Key key = cipher.unwrap(wrappedKey, "AES", Cipher.SECRET_KEY);
+
+            cipher = Cipher.getInstance("AES");
+            cipher.init(Cipher.DECRYPT_MODE, key);
+
+            crypt(in, out, cipher);
+            //in.close();
+            //out.close();
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     //对数据分段加密解密
     public static void crypt(InputStream in, OutputStream out, Cipher cipher) throws IOException, GeneralSecurityException {
         int blockSize = cipher.getBlockSize();
