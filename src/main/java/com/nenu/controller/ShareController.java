@@ -846,7 +846,7 @@ public class ShareController{
         if (!downSucceed)
         {
             System.out.println("down failure");
-            return "redirect:/hitory:goback(-1)";
+            return "redirect:hitory:goback(-1)";
         } else {
             System.out.println("Executed Here-851");
         }
