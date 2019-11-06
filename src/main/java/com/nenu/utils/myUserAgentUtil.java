@@ -1,21 +1,16 @@
 package com.nenu.utils;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Controller;
-import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
+import eu.bitwalker.useragentutils.DeviceType;
+import eu.bitwalker.useragentutils.OperatingSystem;
+import eu.bitwalker.useragentutils.UserAgent;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
 import java.util.regex.Pattern;
 
 /*JAVA判断移动端还是PC端访问*/
 /**/
-public class UserAgentUtil {
+public class myUserAgentUtil {
 
     //private HttpServletRequest servletRequest;// = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
     private static final String SessionName4ClientType = "clienttype";
@@ -47,6 +42,18 @@ public class UserAgentUtil {
             return false;
         }
         return phonePat.matcher(userAgent).find() || tabletPat.matcher(userAgent).find();
+    }
+
+    public boolean isMobileClient2(String userAgentStr){
+        if(null == userAgentStr){
+            return false;
+        }
+        UserAgent userAgent = UserAgent.parseUserAgentString(userAgentStr);
+        if (DeviceType.COMPUTER.getName().compareToIgnoreCase(
+                userAgent.getOperatingSystem().getDeviceType().getName()) == 0)
+            return false;
+        else
+            return true;
     }
 
 

@@ -400,7 +400,7 @@ public class CompanyLoginController {
 
         try {
             IPFSUtils.download(path,hash);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         //将下载的文件进行解密

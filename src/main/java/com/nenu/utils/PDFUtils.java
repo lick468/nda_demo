@@ -1,15 +1,17 @@
 package com.nenu.utils;
 
+import com.itextpdf.text.*;
+import com.itextpdf.text.html.simpleparser.HTMLWorker;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.nenu.domain.TblNdashare;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 
 import javax.imageio.ImageIO;
+import javax.validation.constraints.NotNull;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -82,6 +84,45 @@ public class PDFUtils {
         }catch(Exception e){
             System.out.println("===>Reader parse pdf to jpg error : " + e.getMessage());
             e.printStackTrace();
+        }
+    }
+
+    public static boolean createNdaFile(@NotNull String pathNDA, @NotNull TblNdashare tblNdashare,
+                                     @NotNull String ndaItems){
+        //生成NDA条款.pdf文件  上传到IPFS
+        //页面大小
+        try {
+            Rectangle rect = new Rectangle(PageSize.A4.rotate());
+            //页面背景色
+            rect.setBackgroundColor(BaseColor.WHITE);
+            Document doc = new Document(rect);
+            PdfWriter writer = null;
+            myFileUtils.CreateFilewithDir(pathNDA);
+                writer = PdfWriter.getInstance(doc, new FileOutputStream(pathNDA));
+            //页边空白
+            doc.setMargins(10, 20, 30, 40);
+            doc.open();
+            //Step 4—Add content.
+
+            String title = "<h1  style=\"text-align: center\">"+ tblNdashare.getNdatitle() +"</h1>";
+            String sender = "<h4  style=\"text-align: left\"> 发起人："+ tblNdashare.getCreateusername()+"</h4>";
+            String receiver = "<h4  style=\"text-align: left\"> 接收人："+ tblNdashare.getUsername()+"</h4>";
+            HTMLWorker htmlWorker = new HTMLWorker(doc);
+            htmlWorker.parse(new StringReader(title));
+            htmlWorker.parse(new StringReader(sender));
+            htmlWorker.parse(new StringReader(receiver));
+            htmlWorker.parse(new StringReader(ndaItems));
+            doc.close();
+            return true;
+        } catch (DocumentException e) {
+            e.printStackTrace();
+            return false;
+        }catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return false;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
     }
 }

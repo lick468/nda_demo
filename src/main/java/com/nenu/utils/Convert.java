@@ -994,4 +994,54 @@ public class Convert
         }
         return head + s.replaceAll("(零.)*零元", "元").replaceFirst("(零.)+", "").replaceAll("(零.)+", "零").replaceAll("^整$", "零元整");
     }
+
+    /*
+    * Sunct, 2019.10.30
+    * 将整数转换为对应的byte数组，最高位在数组前面
+    * */
+    public static byte[] int2ByteArray(int data) {
+        byte[] bytes = new byte[4] ;
+        /*bytes[0] = (byte)(data >> 24) ;
+        bytes[1] = (byte)(data >> 16) ;
+        bytes[2] = (byte)(data >> 8) ;
+        bytes[3] = (byte)(data >> 0) ;*/
+        int tmpData = data;
+        for (int nidx = 0; nidx < 4; nidx++) {
+            bytes[3 - nidx] = (byte)(tmpData & 0XFF);
+            tmpData = tmpData >> 8;
+        }
+        return bytes ;
+    }
+
+    /*
+    * Sunct, 2019.10.30
+    * byte数组转换为整数，最高位在前面
+    * */
+    public static int byteArray2Int(byte[] bytes) {
+        int data = 0;
+        int byteLen = 0;
+        if (null == bytes || (byteLen = bytes.length) == 0)
+            return data;
+        for (int nidx = 0; nidx < byteLen; nidx++) {
+            data = (data << 8) | (bytes[nidx] & 0XFF);
+            //System.out.println("Length index(" + nidx + ") = "+ data);
+        }
+        //System.out.println("Length bytes read:" + byteArrayToHexStr(bytes));
+        //System.out.println("Length: " + data);
+        return data;
+    }
+
+    public static String byteArrayToHexStr(byte[] byteArray) {
+        if (byteArray == null){
+            return null;
+        }
+        char[] hexArray = "0123456789ABCDEF".toCharArray();
+        char[] hexChars = new char[byteArray.length * 2];
+        for (int j = 0; j < byteArray.length; j++) {
+            int v = byteArray[j] & 0xFF;
+            hexChars[j * 2] = hexArray[v >>> 4];
+            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+        }
+        return new String(hexChars);
+    }
 }

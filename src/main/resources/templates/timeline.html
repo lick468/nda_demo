@@ -41,9 +41,9 @@
         <div class="col-md-12">
             <div class="panel panel-primary " >
                 <div class="panel-heading">
-                    <h3 class="panel-title">接收人--[[${recevier}]]</h3>
+                    <h3 class="panel-title">接收人--[[${receiver}]]</h3>
                     <input type="hidden"  id="sender" th:value="${sender}">
-                    <input type="hidden"  id="recevier" th:value="${recevier}">
+                    <input type="hidden"  id="receiver" th:value="${receiver}">
                     <input type="hidden"  id="ndaID" th:value="${ndaID}">
                 </div>
                 <div class="panel-body">
@@ -104,7 +104,7 @@
 
 <script type="text/javascript" th:inline="javascript">
     var ndaDocInfos = [[${ndaDocInfos}]];
-    var recevier = [[${recevier}]];
+    var receiver = [[${receiver}]];
     var sender = [[${sender}]];
     toastr.options.positionClass = 'toast-top-center';
     $('#file-zh').fileinput({
@@ -112,7 +112,7 @@
         uploadUrl: '/fileUpload',
         allowedFileExtensions : ['pdf'],
         uploadExtraData:{
-            recevier:$("#recevier").val(),
+            receiver:$("#receiver").val(),
             sender:$("#sender").val(),
             ndaID:$("#ndaID").val()
         }
@@ -152,7 +152,7 @@
                     '                                </div>\n' +
                     '                            </dd>';
                 $(".timeLine").append(content);
-            }else if(ndaDocInfos[i].uploadusername === recevier){
+            }else if(ndaDocInfos[i].uploadusername === receiver){
                 var content = '<dd class="pos-right clearfix">\n' +
                     '                                <div class="circ"></div>\n' +
                     '                                <div class="time">'+ ndaDocInfos[i].uploadtime.substring(5,10) +'</div>\n' +

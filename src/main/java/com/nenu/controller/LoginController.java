@@ -15,7 +15,6 @@ import com.nenu.domain.TblUserinfo;
 import com.nenu.mapper.TblNdaitemtplMapper;
 import com.nenu.mapper.TblUserinfoMapper;
 import com.nenu.utils.IpUtil;
-import com.nenu.utils.UserAgentUtil;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

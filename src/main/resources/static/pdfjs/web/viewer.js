@@ -6020,6 +6020,13 @@ var PDFViewerApplication = {
       }
       parameters.url = file.url;
     }
+    /*Sunct, 2019.11.03
+    * rangeChunkSize added
+    //var initialData = new Uint8Array[524288];
+    //var pdfDataRangeTransport1 = pdfDataRangeTransport;//new PDFDataRangeTransport(524288, initialData);
+    //pdfDataRangeTransport1.length = 524288;
+    parameters[range] = pdfDataRangeTransport;
+    parameters[rangeChunkSize] = 524288;*/
     if (args) {
       for (var prop in args) {
         parameters[prop] = args[prop];
