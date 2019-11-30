@@ -174,7 +174,7 @@
             data:{
                 id : node.id,
             },
-            datatype:"html",
+            dataType:"html",
             success:function(result) {
                 $("#modal-detail-user").modal("hide");
                 $("#modal-update-user-body").html(result);
@@ -203,7 +203,7 @@
                 orgname: orgname,
                 email: email
             },
-            datatype: "json",
+            dataType: "json",
             success: function (result) {
                 $("#modal-update-user").modal("hide");
             }
@@ -216,7 +216,7 @@
             data:{
                 id : node.id,
             },
-            datatype:"html",
+            dataType:"html",
             success:function(result) {
                 $("#modal-detail-user-body").html(result);
                 $("#modal-detail-user").modal("show");
@@ -239,7 +239,7 @@
                 id : id,
                 password : password
             },
-            datatype:"json",
+            dataType:"json",
             success:function(result) {
                 alert("修改成功,将跳转到登录页");
                 window.top.location.href="/login";
