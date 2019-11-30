@@ -270,7 +270,7 @@
                     ndaitem:content,
                     ndatitle: ndaTitle,
                 },
-                dateType:"json",
+                dataType:"json",
                 success:function(result) {
                     //alert(data);
                     toastr.success('新建NDA成功');
@@ -293,7 +293,7 @@
                 data:{
                     id : node.name,
                 },
-                dateType:"html",
+                dataType:"html",
                 success:function(result) {
                     $("#modal-update-NDATemplate-body").html(result);
                     $("#modal-update-NDATemplate").modal("show");
@@ -309,7 +309,7 @@
           data:{
               id : node.name,
           },
-          dateType:"html",
+          dataType:"html",
           success:function(result) {
               $("#modal-detail-NDATemplate-body").html(result);
               $("#modal-detail-NDATemplate").modal("show");
@@ -329,7 +329,7 @@
               data:{
                   id : node.name,
               },
-              dateType:"json",
+              dataType:"json",
               success:function(result) {
                   toastr.success('删除NDA成功');
                   // window.location.reload();
@@ -351,7 +351,7 @@
               ndatitle:title,
               id:node,
           },
-          dateType:"json",
+          dataType:"json",
           success:function(result) {
               serachTitle();
               $("#modal-update-NDATemplate").modal("hide");

@@ -211,7 +211,7 @@
             data:{
                 ndaid : node.name,
             },
-            dateType:"html",
+            dataType:"html",
             success:function(result) {
                 $("#modal-show-NDA-body").html(result);
                 $("#modal-show-NDA").modal("show");
@@ -227,7 +227,7 @@
             data:{
                 ndaid : node.name,
             },
-            dateType:"json",
+            dataType:"json",
             success:function(result) {
                 searchShare();
                 $("#modal-show-NDA").modal("hide");
@@ -238,11 +238,11 @@
     function agreeNDA(node) {
         $.ajax({
             url:"/agreeNDA",
-            type:"GET",
+            type:"POST",//"GET",
             data:{
                 ndaid : node.name,
             },
-            dateType:"json",
+            dataType:"json",
             success:function(result) {
                 searchShare();
                 $("#modal-show-NDA").modal("hide");
@@ -257,7 +257,7 @@
             data:{
                 ndaid : node.name,
             },
-            dateType:"html",
+            dataType:"html",
             success:function(result) {
                 $("#modal-show-NDA").modal("hide");
                 $("#modal-update-NDA-body").html(result);
@@ -277,7 +277,7 @@
                 ndaitems:value,
                 id:node.name,
             },
-            dateType:"json",
+            dataType:"json",
             success:function(result) {
                 searchShare();
                 $("#modal-update-NDA").modal("hide");
