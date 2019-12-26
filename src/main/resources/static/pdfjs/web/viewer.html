@@ -17,7 +17,8 @@ limitations under the License.
 Adobe CMap resources are covered by their own copyright and license:
 http://sourceforge.net/adobe/cmap/wiki/License/
 -->
-<html dir="ltr" mozdisallowselectionprint moznomarginboxes>
+<html dir="ltr" mozdisallowselectionprint moznomarginboxes
+      xmlns:th="http://www.thymeleaf.org">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -39,9 +40,26 @@ http://sourceforge.net/adobe/cmap/wiki/License/
 <script src="l10n.js"></script>
 <script src="../build/pdf.js"></script>
 
-
-
     <script src="debugger.js"></script>
+    <!-- <script th:inline="javascript">
+      (function () {
+        //alert("Here");
+        var DEFAULT_URL = "";
+        var _readStatus = [[${docfound}]];
+        //var _docdata = [[${docdata}]];
+        //alert(_readStatus);
+        if (null != readStatus && readStatus == "success"
+            && null != _docdata && _docdata.length > 0) {
+          var rawLength = _docdata.length;
+          //转换成pdf.js能直接解析的Uint8Array类型,见pdf.js-4068
+          var array = new Uint8Array(new ArrayBuffer(rawLength));
+          for(i = 0; i < rawLength; i++) {
+            array[i] = _docdata.charCodeAt(i) & 0xff;
+          }
+          DEFAULT_URL = array;
+        }
+      })();
+    </script> -->
     <script src="viewer.js"></script>
 
   </head>
@@ -54,6 +72,9 @@ http://sourceforge.net/adobe/cmap/wiki/License/
       </div>
     </div>
   </div> -->
+    <!-- <div>
+      [[${docfound}]]
+    </div> -->
     <div id="outerContainer">
 
       <div id="sidebarContainer">

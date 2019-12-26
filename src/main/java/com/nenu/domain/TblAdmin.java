@@ -1,9 +1,12 @@
 package com.nenu.domain;
 
+import lombok.Builder;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
 @Table(name = "tbl_admin")
+@Builder
 public class TblAdmin implements Serializable {
 
     private static final long serialVersionUID = -7262411092424793233L;

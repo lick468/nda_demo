@@ -38,9 +38,9 @@
                 <span> <a href="/login" style="color: white">登录</a> | <a href="/register" style="color: white">注册</a></span>
             </th:block>
             <th:block th:if="${session.currentUser != null}">
-                <span>欢迎你：<a th:id="${session.currentUser.id}" onclick="showUserDetail(this);" style="color: white" >
-                                <span th:text="${session.currentUser.username}" />
-                            </a> | <a th:href="@{/logout(id=${session.currentUser.id})}" style="color: white"> 注销</a>
+                <span><a th:id="${session.currentUser.id}" onclick="showUserDetail(this);" style="color: white" >
+                        <span th:text="${(null == session.currentUser)?'' : '欢迎你：' + session.currentUser.username}" />
+                    </a> | <a th:href="@{/logout(id=${session.currentUser.id})}" style="color: white"> 注销</a>
                 </span>
             </th:block>
 
@@ -87,7 +87,7 @@
                                 <img alt="300x200" src="/img/33333.png" style="margin-top:20px;height: 60px;width: 60px;" />
                             </div>
                             <div class="col-md-8" style="margin-top: 20px;">
-                                <a type="button" class="btn btn-primary btn-lg btn-block" href="/NDAList">NDA模板</a>
+                                <a type="button" class="btn btn-primary btn-lg btn-block" href="/ndatemplates">NDA模板</a>
                                 <p style="font-size: smaller;margin-left:5px;margin-top: 5px;">
                                     在这里可以创建专属NDA模板
                                 </p>

@@ -26,6 +26,9 @@ public class TblUserinfo implements Serializable {
      */
     @Column(name = "Password")
     private String password;
+    
+    @Column(name = "orgid")
+    private Integer belongedOrgId = 0;
 
     /**
      * 所属组织
@@ -199,7 +202,7 @@ public class TblUserinfo implements Serializable {
      * 有效标志 用户信息并不真正删除，只是加删除标志
      */
     @Column(name = "Valid")
-    private String valid;
+    private String valid = "1";
 
     /**
      * 找回密码提示问题
@@ -279,6 +282,8 @@ public class TblUserinfo implements Serializable {
         this.password = password;
     }
 
+    public Integer getBelongedOrgId() { return belongedOrgId; }
+    public void setBelongedOrgId(Integer orgId) { this.belongedOrgId = orgId; }
     /**
      * 获取所属组织
      *

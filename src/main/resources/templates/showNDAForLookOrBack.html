@@ -34,9 +34,24 @@
             </div>
         </div>
     </div>
+    <!--
+      操作：
+          撤回交易：将新状态设置为2我方终止；
+          修改协议：保存NdaItem
+              分享者：生成新的SenderSign，修改新状态为
+                   如果当前状态为0交易请求，仍然为0交易请求；
+                   否则4等待确认.
+              接受者：生成新的ReceiverSign，修改新状态为5对方修改
+    -->
     <div class="modal-footer">
-        <button type="button" class="btn btn-danger" th:name="${tblNdabasicinfo.id}"  onclick="deleteNDA(this);">
-            撤回交易
+        <button type="button" class="btn btn-danger" th:name="${tblNdabasicinfo.id}"
+                th:onclick="deleteNDA(this, [[${curstatus}]]);"
+                th:if="${shareor2} == '1'">
+            [[${curstatus=='0'?'撤回':'中止'}]]
+        </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <button type="button" class="btn btn-primary" th:name="${tblNdabasicinfo.id}"
+                onclick="showEditNDAItem(this, 'fromlookorback');">
+            修改协议
         </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <button type="button" class="btn btn-default" data-dismiss="modal">
             关闭

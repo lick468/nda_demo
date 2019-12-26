@@ -41,7 +41,7 @@
         <div class="col-md-12">
             <div class="panel panel-primary " >
                 <div class="panel-heading">
-                    <h3 class="panel-title">接收人--[[${receiver}]]</h3>
+                    <h3 class="panel-title">上传文档--接收人: [[${receiver}]]</h3>
                     <input type="hidden"  id="sender" th:value="${sender}">
                     <input type="hidden"  id="receiver" th:value="${receiver}">
                     <input type="hidden"  id="ndaID" th:value="${ndaID}">
@@ -63,7 +63,7 @@
             <div class="col-md-12">
                 <div class="panel panel-primary">
                     <div class="panel-heading" >
-                        <h3 class="panel-title">文件记录--时间轴</h3>
+                        <h3 class="panel-title">文件上传记录--时间轴</h3>
                     </div>
                     <div class="panel-body" >
                         <div class="VivaTimeline">
@@ -133,10 +133,10 @@
             carouselTime: 3000
         });
     });
-    initTime();
+    initTimeLine();
     initTable();
 
-    function initTime() {
+    function initTimeLine() {
         for(var i = 0;i < ndaDocInfos.length;i++) {
             if(ndaDocInfos[i].uploadusername === sender ) {
                 var content = '<dd class="pos-left clearfix">\n' +
@@ -170,13 +170,13 @@
         }
     }
     function initTable() {
-        for(var i = 1;i <= ndaDocInfos.length;i++) {
+        for(var i = 0; i < ndaDocInfos.length; i++) {
             var content ='<tr>' +
-                '<td>'+ i +'</td>' +
-                '<td>'+ ndaDocInfos[i-1].filename +'.'+ ndaDocInfos[i-1].fileextension +'</td>' +
-                '<td>'+ ndaDocInfos[i-1].uploadusername +'</td>' +
-                '<td>'+ ndaDocInfos[i-1].uploadtime +'</td>' +
-                '<td><a class="btn btn-primary"   href="/previewFile?id='+ ndaDocInfos[i-1].id +'" target="_blank"><i class="glyphicon glyphicon-flag"></i>&nbsp;查看</a></td>' +
+                '<td>'+ (i+1) +'</td>' +
+                '<td>'+ ndaDocInfos[i].filename +'.'+ ndaDocInfos[i].fileextension +'</td>' +
+                '<td>'+ ndaDocInfos[i].uploadusername +'</td>' +
+                '<td>'+ ndaDocInfos[i].uploadtime +'</td>' +
+                '<td><a class="btn btn-primary"   href="/previewFile?id='+ ndaDocInfos[i].id +'" target="_blank"><i class="glyphicon glyphicon-flag"></i>&nbsp;查看</a></td>' +
                 '</tr>';
             $(".table").append(content);
         }

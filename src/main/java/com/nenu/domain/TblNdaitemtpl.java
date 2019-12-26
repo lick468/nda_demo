@@ -1,6 +1,7 @@
 package com.nenu.domain;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Date;
 import javax.persistence.*;
 
@@ -25,7 +26,7 @@ public class TblNdaitemtpl implements Serializable {
      * 创建时间
      */
     @Column(name = "CreateTime")
-    private Date createtime;
+    private LocalDateTime createtime;
 
     /**
      * 创建时IP
@@ -62,6 +63,15 @@ public class TblNdaitemtpl implements Serializable {
      */
     @Column(name = "NDAItem")
     private String ndaitem;
+    
+    @Column(name = "orgida")
+    private Integer orgida = -1;
+    
+    @Column(name = "orgidb")
+    private Integer orgidb = -1;
+    
+    @Column(name = "tpltype")
+    private String templateType;
 
     /**
      * 获取ID
@@ -104,7 +114,7 @@ public class TblNdaitemtpl implements Serializable {
      *
      * @return CreateTime - 创建时间
      */
-    public Date getCreatetime() {
+    public LocalDateTime getCreatetime() {
         return createtime;
     }
 
@@ -113,7 +123,7 @@ public class TblNdaitemtpl implements Serializable {
      *
      * @param createtime 创建时间
      */
-    public void setCreatetime(Date createtime) {
+    public void setCreatetime(LocalDateTime createtime) {
         this.createtime = createtime;
     }
 
@@ -224,4 +234,13 @@ public class TblNdaitemtpl implements Serializable {
     public void setNdaitem(String ndaitem) {
         this.ndaitem = ndaitem;
     }
+    
+    public void setOrgIda(int orgIda) { this.orgida = orgIda; }
+    public int getOrgIda() {return this.orgida; }
+    
+    public void setOrgIdb(Integer orgIdb) { this.orgidb = orgIdb; }
+    public Integer getOrgIdb() {return this.orgidb; }
+    
+    public void setTemplateType(String templateType) { this.templateType = templateType; }
+    public String getTemplateType() { return this.templateType; }
 }

@@ -5,14 +5,12 @@ import io.ipfs.api.MerkleNode;
 import io.ipfs.api.NamedStreamable;
 import io.ipfs.multihash.Multihash;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 import java.io.*;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.Socket;
 import java.net.URL;
-import java.util.List;
 
 public class IPFSUtils {
     private static final IPFS ipfs = new IPFS("/ip4/127.0.0.1/tcp/5001");
@@ -50,7 +48,7 @@ public class IPFSUtils {
             data = myGetIpfsFile(ipfs, Multihash.fromBase58(hash));
         }catch (Exception e) {
             //System.out.println("Bad hash to retrieve from server");
-            e.printStackTrace();
+            //e.printStackTrace();
             throw new IOException("Bad hash to retrieve from server");
             //return data;
         }
@@ -151,24 +149,25 @@ public class IPFSUtils {
      * 检查本机的5001 端口是否开启
      * @return
      */
-    public static boolean cheakIpfsRunning(@NotNull String serverIP, int port) {
+    public static boolean checkIpfsRunning(@NotNull String serverIP, int port) {
         Socket socket = null;
 
         try {
             socket = new Socket("127.0.0.1", 5001);
+            socket = null;
             return true;
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
-        return false;
     }
 
-    public static boolean cheakIpfsRunning(@NotNull String serverIP) {
-        return cheakIpfsRunning(serverIP, 5001);
+    public static boolean checkIpfsRunning(@NotNull String serverIP) {
+        return checkIpfsRunning(serverIP, 5001);
     }
 
-    public static boolean cheakIpfsRunning() {
-        return cheakIpfsRunning("127.0.0.1", 5001);
+    public static boolean checkIpfsRunning() {
+        return checkIpfsRunning("127.0.0.1", 5001);
     }
 
 }

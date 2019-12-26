@@ -58,16 +58,9 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label class="col-sm-3 control-label">简介：</label>
-
-                            <div class="col-sm-8">
-                                <textarea class="form-control valid"  name="abstractcontext" id="abstractcontext" placeholder="请输入简介"  style="min-height: 100px;max-height: 300px;"></textarea>
-                            </div>
-                        </div>
-                        <div class="form-group">
                             <label class="col-sm-3 control-label">NDA条款：</label>
                             <div class="col-sm-8">
-                                <select class="form-control" name="ndaid" id="ndaid">
+                                <select class="form-control" name="ndaid" id="ndaid" style="height: 40px">
                                     <option  value="">--选择NDA模板--</option>
                                     <option th:each="nda:${NDAs}" th:text="${nda.ndatitle}" th:value="${nda.id}"></option>
                                 </select>
@@ -76,17 +69,38 @@
                         <div class="form-group">
                             <label class="col-sm-3 control-label">分享给：</label>
                             <div class="col-sm-8">
-                                <select class="form-control" name="username" id="username">
-                                    <option  value="">--请选择--</option>
-                                    <option th:each="user:${users}" th:text="${user.username + '  ' + user.mobilephone}" th:value="${user.username}"></option>
+                                <select class="form-control" name="partnerorg" id="partnerorg" style="height: 40px"
+                                        onchange="retrieveOrgUsers(this);">
+                                    <option  value="">--请选择公司--</option>
+                                    <option  value="-1">--无公司--</option>
+                                    <option th:each="curorg:${otherorgs}"
+                                            th:text="${curorg.orgname}"
+                                            th:value="${curorg.id}"></option>
                                 </select>
+                                <select class="form-control" name="username" id="username" style="height: 40px">
+                                    <option  value="">--请选择用户--</option>
+                                    <!--<option th:each="user:${users}"
+                                            th:text="${user.name}"
+                                            th:value="${user.username}" ></option> -->
+                                    <option th:each="user:${users}"
+                                            th:text="${user.value[0]}"
+                                            th:value="${user.key}" ></option>
+                                </select>
+                                <!-- <input type="hidden" name="userlist" id="userlist" th:value="${users}" /> -->
+
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-sm-3 control-label">附件：</label>
                             <div class="col-sm-8">
-                                <input type="hidden" id="haveFile" name="haveFile" value="no">
+                                <input type="hidden" id="haveFile" name="haveFile" value="">
                                 <div id="dropzone" class="dropzone well" ></div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">摘要：</label>
+                            <div class="col-sm-8">
+                                <textarea class="form-control valid"  name="abstractcontext" id="abstractcontext" placeholder="请输入简介"  style="min-height: 100px;max-height: 300px;"></textarea>
                             </div>
                         </div>
                         <div class="form-group">
@@ -167,11 +181,11 @@
             toastr.warning('请输入标题');
             flag = false;
         }
-        var ndaid = $("#ndaid").val();
+        /*var ndaid = $("#ndaid").val();
         if(ndaid == null || ndaid.length <= 0) {
             toastr.warning('请选择NDA模板');
             flag = false;
-        }
+        }*/
         var username = $("#username").val();
         if(username == null || username.length <= 0) {
             toastr.warning('请选择要分享的交易对象');
@@ -180,8 +194,62 @@
         return flag;
     }
 
+    /*选中另外一个公司时的操作：
+    * 在下面的模板列表中增加个人模板，
+    * 如果个人属于某公司，则增加公司模板；
+    * 如果存在本公司与该公司之间的协议模板，则将这些模板放到列表前*/
+    function retrieveOrgUsers(node) {
+        var index = node.selectedIndex;
+        var belongedorgid = -2;
+        if (index > 0)
+            belongedorgid = node.options[index].value;
+        //向后台发送处理数据
+        $.ajax({
+            url: "/orgusers",
+            type: "GET",
+            data: {
+                belongedorg: belongedorgid,
+                mustbelong2org : false,
+            },
+            dataType: "json",
+            success: function (data) {
+                $("#username").empty();
+                if (null != data && data.length > 0) {
+                    var option = $("<option>").val("").text("选择分享者");
+                    $("#username").append(option);
+                    $.each(data, function (i, user) {
+                        option = $("<option>").val(user.username).text(user.name);
+                        //option = $("<option>").val(key).text(data[key][0]);
+                        $("#username").append(option);
+                    });
+                }
+            }
+        });
+    }
+
+
 </script>
 
+<script th:inline="javascript" >
+    function retrieveOrgUsers1(node) {
+    var index = node.selectedIndex;
+    var belongedorgid = -2;
+    if (index > 0)
+        belongedorgid = node.options[index].value;
+    //var allUsers = $("#userlist").val();
+    var allUsers = [[${users}]];
+    $("#username").empty();
+
+    var option = $("<option>").val("").text("选择分享者");
+        $("#username").append(option);
+        for (var key of Object.keys(allUsers)) {
+            if (allUsers[key][1] == belongedorgid) {
+                option = $("<option>").val(key).text(allUsers[key][0]);
+                $("#username").append(option);
+            }
+        }
+    }
+</script>
 </body>
 
 </html>

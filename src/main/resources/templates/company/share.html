@@ -250,9 +250,9 @@
             }
         });
     }
-    function showUpdateNDA(node) {
+    function showEditNDAItem(node) {
         $.ajax({
-            url:"/showUpdateNDA",
+            url:"/showEditNDAItem",
             type:"GET",
             data:{
                 ndaid : node.name,
@@ -266,12 +266,12 @@
             }
         });
     }
-    function updateAndAgreeNDA(node) {
+    function updateNdaItem(node) {
         var value =  ndaitems.txt.html(); //获取值
         //alert(node.name);
         //向后台发送处理数据
         $.ajax({
-            url:"/updateNDA",
+            url:"/updatendaitem",
             type:"POST",
             data:{
                 ndaitems:value,

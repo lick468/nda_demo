@@ -7,6 +7,12 @@ import javax.persistence.*;
 @Table(name = "tbl_log")
 public class TblLog implements Serializable {
     private static final long serialVersionUID = 2595062120491210373L;
+    @Transient
+    public static final int MAX_PARAM_LEN = 3000;
+    @Transient
+    public static final int MAX_ERRORMSG_LEN = 3000;
+    @Transient
+    public static final int MAX_FIELD_LEN4LOG = 500;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

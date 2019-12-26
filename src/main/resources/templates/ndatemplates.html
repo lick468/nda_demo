@@ -61,7 +61,7 @@
             <div class="ibox float-e-margins">
                 <ul id="myTab" class="nav nav-tabs">
                     <li class="active">
-                        <a href="#myList" data-toggle="tab">我的NDA模板</a>
+                        <a href="#myList" data-toggle="tab">已有NDA模板</a>
                     </li>
                     <li>
                         <a href="#newList" data-toggle="tab">新加NDA模板</a>
@@ -96,11 +96,32 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
+                                    <label class="col-sm-3 control-label">所属公司：</label>
+                                    <div class="col-sm-8">
+                                        <input id="belongedOrgName" name="belongedOrgName" class="form-control "
+                                               type="text" th:value="${belongedOrg.orgname}" disabled >
+                                        <input id="belongedOrgId" name="belongedOrgId" class="form-control "
+                                               type="hidden" th:value="${belongedOrg.id}" >
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-sm-3 control-label">对方公司：</label>
+                                    <div class="col-sm-8">
+                                        <select class="form-control" style="height: 40px;" name="partnerorg"
+                                                id="partnerorg" onchange="PartnerOrgChanged(this);">
+                                            <option  value="-1" style="text-align: center;">不限</option>
+                                            <option th:each="curorg:${otherorgs}" th:text="${curorg.orgname}"
+                                                    th:value="${curorg.id}"></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
                                     <label class="col-sm-3 control-label">NDA条款：</label>
                                     <div class="col-sm-8">
                                         <select class="form-control" style="height: 40px;" name="ndaid" onchange="chooseNDATemplate(this);">
                                             <option  value="" style="text-align: center;">导入已有模板</option>
-                                            <option th:each="nda:${NDAs}" th:text="${nda.ndatitle}" th:value="${nda.ndaitem}"></option>
+                                            <option th:each="ndatpl:${ndatemplates}" th:text="${ndatpl.ndatitle}"
+                                                    th:value="${ndatpl.ndaitem}"></option>
                                         </select>
                                         <span  id="ndaitem" name="ndaitem" ></span>
                                     </div>
@@ -136,7 +157,6 @@
     toastr.options.positionClass = 'toast-top-center';
   var E = window.wangEditor;
   var editor = new E('#ndaitem');
-  editor.create();
   // E.fullscreen.init('#ndaitem');
   // 自定义菜单配置
   editor.customConfig.menus = [
@@ -146,21 +166,22 @@
       'fontName',  // 字体
       'italic',  // 斜体
       'underline',  // 下划线
-      'strikeThrough',  // 删除线
+      //'strikeThrough',  // 删除线
       'foreColor',  // 文字颜色
       'backColor',  // 背景颜色
       'link',  // 插入链接
       'list',  // 列表
       'justify',  // 对齐方式
       'quote',  // 引用
-      'emoticon',  // 表情
+      //'emoticon',  // 表情
       'image',  // 插入图片
       'table',  // 表格
-      'video',  // 插入视频
-      'code',  // 插入代码
+      //'video',  // 插入视频
+      //'code',  // 插入代码
       'undo',  // 撤销
       'redo'  // 重复
   ];
+    editor.create();
 
 
   $(function () {
@@ -244,7 +265,12 @@
                 width: 360, // 定义列的宽度，单位为像素px
                 formatter: function (value, row, index) {
                    // console.log(value+"===="+row.toString()+"=="+index)
-                    return '<button class="btn btn-primary" type="button" name="'+ value +'" onclick="updateNDATemplate(this);" ><i class="glyphicon glyphicon-edit"></i>&nbsp;修改  </button> <button class="btn btn-success" type="button" name="'+ value +'" onclick="NDATemplateDetail(this);"><i class="glyphicon glyphicon-list-alt"></i>&nbsp;详情 </button> <button class="btn btn-danger" type="button" name="'+ value +'" onclick="NDATemplateDelete(this);"><i class="glyphicon glyphicon-trash"></i>&nbsp;删除 </button> ';
+                    return '<button class="btn btn-primary" type="button" name="'+ value +'" onclick="updateNDATemplate(this);" >' +
+                                '<i class="glyphicon glyphicon-edit"></i>&nbsp;修改  </button> ' +
+                            '<button class="btn btn-success" type="button" name="'+ value +'" onclick="NDATemplateDetail(this);">' +
+                                '<i class="glyphicon glyphicon-list-alt"></i>&nbsp;详情 </button> ' +
+                            '<button class="btn btn-danger" type="button" name="'+ value +'" onclick="NDATemplateDelete(this);">' +
+                                '<i class="glyphicon glyphicon-trash"></i>&nbsp;删除 </button> ';
                 }
             }
         ],
@@ -260,7 +286,7 @@
             toastr.warning('请输入标题');
         }
         if(content == null || content.length <=15 ) {
-            toastr.warning('请选择NDA条款模板');
+            toastr.warning('请输入NDA模板的条款');
         }else {
             //向后台发送处理数据
             $.ajax({
@@ -273,7 +299,7 @@
                 dataType:"json",
                 success:function(result) {
                     //alert(data);
-                    toastr.success('新建NDA成功');
+                    toastr.success('新建NDA模板成功');
                     // window.location.reload();
                     window.setTimeout("window.location.reload()",2000);
                     // location.reload();
@@ -362,7 +388,45 @@
   function chooseNDATemplate(node) {
       var index = node.selectedIndex;
       // 设置内容
-      editor.txt.html(node.options[index].value);
+      if (index <= 0)
+          editor.txt.clear();
+      else
+          editor.txt.html(node.options[index].value);
+  }
+
+  /*选中另外一个公司时的操作：
+  * 在下面的模板列表中增加个人模板，
+  * 如果个人属于某公司，则增加公司模板；
+  * 如果存在本公司与该公司之间的协议模板，则将这些模板放到列表前*/
+  function PartnerOrgChanged(node) {
+      var belongedorgid =  $("#belongedOrgId").val();
+      var otherorgid;
+      var index = node.selectedIndex;
+      if (index <= 0)
+          otherorgid = -1;
+      else
+          otherorgid = node.options[index].value;
+      //向后台发送处理数据
+      $.ajax({
+          url:"/orgndatemplates",
+          type:"GET",
+          data:{
+              belongedorgid: belongedorgid,
+              otherorgid: otherorgid,
+          },
+          dataType:"json",
+          success:function(data) {
+              $("#ndaid").empty();
+              if (data.templatecnt > 0) {
+                  var option = $("<option>").val("").text("导入已有模板");
+                  $("#ndaid").append(option);
+                  $.each(data.ndatemplates, function (i, item) {
+                      option = $("<option>").val(item.ndatitle).text(item.ndaitem);
+                      $("#ndaid").append(option);
+                  });
+              }
+          }
+      });
   }
 
 </script>

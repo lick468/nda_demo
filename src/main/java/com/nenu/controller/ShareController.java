@@ -2,13 +2,16 @@ package com.nenu.controller;
 
 import com.nenu.aspect.lang.annotation.Log;
 import com.nenu.aspect.lang.enums.BusinessType;
+import com.nenu.constant.NdaConst;
 import com.nenu.domain.*;
 import com.nenu.mapper.TblNdabasicinfoMapper;
 import com.nenu.mapper.TblNdadocinfoMapper;
 import com.nenu.mapper.TblNdaitemtplMapper;
 import com.nenu.mapper.TblNdashareMapper;
+import com.nenu.service.*;
 import com.nenu.utils.*;
 import net.sf.json.JSON;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -17,8 +20,12 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 import tk.mybatis.mapper.entity.Example;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -26,14 +33,20 @@ import java.io.*;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 
+import static com.nenu.constant.FileDirConst.*;
 import static com.nenu.utils.RSAUtils.*;
 
 /**
- * NDA共享业务层
+ * NDA共享业务控制层
+ * Author: Sunct, 2019.11.30开始，增加了一个Service层，
+ * 即比较复杂一点的数据库处理逻辑和文件上传下载处理业务都放到了Service层
  */
 @Controller
-@Log(classFunctionDescribe = "用户--交易业务")
+//@SessionScope
+@Log(classFunctionDescribe = "用户交易业务_Controller")
 public class ShareController{
     @Autowired
     private TblNdashareMapper tblNdashareMapper;
@@ -51,7 +64,7 @@ public class ShareController{
     MyServerPathProperties myServerFilepathProperties;
 
     private  static final String FILESEPARATOR = File.separator;
-    private  static final String NDA_ROOTDIR = "C:\\ndadata\\";
+    /*private  static final String NDA_ROOTDIR = "C:\\ndadata\\";
     private static final String DEFAULT_PREFIX_PDFDOWNPATH_PASS = NDA_ROOTDIR + "download\\outpath\\";
     private static final String DEFAULT_PREFIX_PDFDOWNPATH_DECRPT = NDA_ROOTDIR + "download\\decpath\\";
     private static final String DEFAULT_TMPPDFFILENAME = "tmpfile.pdf";
@@ -61,6 +74,19 @@ public class ShareController{
     private static final String DEFAULT_PREFIX_UPPATH_NDADOC = NDA_ROOTDIR + "upload\\ndadoc\\";
     private static final String DEFAULT_SUFFIX_NDADOC_ORG = "_org";
     private static final String DEFAULT_SUFFIX_NDADOC_PASS = "_pass";
+    */
+
+    
+    @Resource(name="ndashareservice")
+    private INdaShareService ndaShareService;
+    @Resource(name="filetransferservice")
+    private IFileIOService fileTransferService;
+    @Resource(name="userservice")
+    private IUserService userService;
+    @Resource(name = "ndatemplateservice")
+    private INdaTemplateService ndaTemplateService;
+    @Resource(name="ndadocservice")
+    private INdaDocService ndaDocService;
 
     /**
      * 跳转到share页面
@@ -93,15 +119,19 @@ public class ShareController{
      * @return
      */
     @GetMapping(value = "/showNDAForLookOrBack")
-    public String showNDAForLookOrBack(HttpServletRequest request, ModelMap map) {
+    public String showNDAForLookOrBack(HttpServletRequest request, HttpSession session, ModelMap map) {
+        TblUserinfo currentUser = (TblUserinfo) session.getAttribute("currentUser");
+        if (null == currentUser)
+            return "login";
         String ndaid = request.getParameter("ndaid");
-        Example example = new Example(TblNdabasicinfo.class);
-        example.createCriteria().andEqualTo("id",ndaid);
-        TblNdabasicinfo tblNdabasicinfo = tblNdabasicinfoMapper.selectOneByExample(example);
-        map.put("tblNdabasicinfo",tblNdabasicinfo);
+        RetrieveNdaBasicInfoandTemplates(currentUser, ndaid, map, false);
+        map.put("curstatus", request.getParameter("curstatus"));
+        map.put("shareor2", request.getParameter("shareor2"));
+        //System.out.println(request.getParameter("curstatus") + "   " + request.getParameter("shareor2"));
         return "showNDAForLookOrBack";
     }
-    /**
+
+    /**现在还存在一个问题：如果该NDA有文件上传到了服务器，需要删除相应文件
      * 删除NDA交易请求
      * @param request
      * @return
@@ -111,11 +141,22 @@ public class ShareController{
     @ResponseBody
     public String deleteNDA(HttpServletRequest request) {
         String ndaid = request.getParameter("ndaid");
-        Example example =  new Example(TblNdashare.class);
+        String curStatus = request.getParameter("curstatus");
+        /*Example example =  new Example(TblNdashare.class);
         example.createCriteria().andEqualTo("ndaid",ndaid);
         tblNdashareMapper.deleteByExample(example);
-        tblNdabasicinfoMapper.deleteByPrimaryKey(ndaid);
-        return "success";
+        tblNdabasicinfoMapper.deleteByPrimaryKey(ndaid);*/
+        try {
+            if (StringUtils.isBlank(curStatus)
+                    || NdaConst.NDA_SHARESTATUSMAP4INITIATOR.get("交易请求").equals(curStatus))
+                ndaShareService.UpdateNdaStatus(ndaid, NdaConst.NDA_SHARESTATUSMAP4INITIATOR.get("甲方撤回"));
+            else
+                ndaShareService.UpdateNdaStatus(ndaid, NdaConst.NDA_SHARESTATUSMAP4INITIATOR.get("我方中止"));
+            return "success";
+        } catch (Exception e) {
+            //throw new RuntimeException(e);
+            return "error";
+        }
     }
 
     /**
@@ -135,14 +176,15 @@ public class ShareController{
         TblNdashare tblNdashare = tblNdashareMapper.selectOneByExample(example);
         if(tblNdashare!= null){
             TblUserinfo currentUser = (TblUserinfo) session.getAttribute("currentUser");
+            String curUserName = currentUser.getUsername();
             // 发起人拒绝 2 我方中止 2 对方中止
-            if(currentUser.getUsername().equals(tblNdashare.getCreateusername())) {
-                tblNdashare.setSharestatus("2");
-                tblNdashare.setReceiverstatus("2");
+            if(curUserName.equals(tblNdashare.getCreateusername())) {
+                tblNdashare.setSharestatus(NdaConst.NDA_SHARESTATUSMAP4INITIATOR.get("我方中止"));//2
+                //tblNdashare.setReceiverstatus("2");
                 // 接收人拒绝 3 我方拒绝 3 对方拒绝
-            }else  if(currentUser.getUsername().equals(tblNdashare.getUsername())){
-                tblNdashare.setSharestatus("3");
-                tblNdashare.setReceiverstatus("3");
+            }else  if(curUserName.equals(tblNdashare.getUsername())){
+                tblNdashare.setSharestatus(NdaConst.NDA_SHARESTATUSMAP4INITIATOR.get("对方拒绝"));//3
+                //tblNdashare.setReceiverstatus("3");
             }
             tblNdashareMapper.updateByPrimaryKeySelective(tblNdashare);
         }
@@ -156,9 +198,9 @@ public class ShareController{
      * @return
      */
     @Log(methodFunctionDescribe="同意NDA交易请求",businessType = BusinessType.UPDATE)
-    @GetMapping(value = "/agreeNDA")
+    //@GetMapping(value = "/agreeNDA")
     @ResponseBody
-    @Transactional
+    @Transactional      //@Transactional在接收到RuntimeException时才会回滚事务
     public String agreeNDA(HttpServletRequest request, ModelMap map) throws Exception{
         String ndaid = request.getParameter("ndaid");
         Example example = new Example(TblNdashare.class);
@@ -167,7 +209,8 @@ public class ShareController{
         if(null == tblNdashare) {
             return "success";
         }
-
+    
+        //ndaShareService.AgreeNda(ndaid);
         String createUsername = tblNdashare.getCreateusername();
         String ndaDocTitle = tblNdashare.getNdatitle();
 
@@ -242,14 +285,17 @@ public class ShareController{
                 ndadocinfo.setUploadip(IpUtil.getIpAddress(request));
 
                 // 构建时间戳  key=文件hash&sign=send&sender=发件人&recevier=收件人&timestamp=当地时间戳  之后MD5加密
-                String timestamp = "key="+ uploadFileHash +"&sign=send&sender"+tblNdashare.getCreateusername()
-                                    +"&receiver="+tblNdashare.getUsername()+"&timastamp="+System.currentTimeMillis();
+                String timestamp = new StringBuilder("key=").append(uploadFileHash).append("&sign=send&sender")
+                                    .append(tblNdashare.getCreateusername())
+                                    .append("&receiver=").append(tblNdashare.getUsername())
+                                    .append("&timastamp=").append(System.currentTimeMillis()).toString();
                 timestamp = MD5Util.getMD5(timestamp);
                 ndadocinfo.setTimestamp(timestamp);
 
                 tblNdadocinfoMapper.insert(ndadocinfo);
             } catch (Exception e) {
                 e.printStackTrace();
+                throw new RuntimeException("保存文档信息时出错!", e);
             }
         }
         long time = System.currentTimeMillis();
@@ -267,7 +313,7 @@ public class ShareController{
         String ndaItems = tblNdabasicinfo.getNdaitems();
         myFileUtils.CreateFilewithDir(ndaFilename);
         //myFileUtils.CreateFilewithDir(passPathNDA.toString());
-        PDFUtils.createNdaFile(ndaFilename, tblNdashare, ndaItems);
+        PDFUtils.createNdaItemFile(ndaFilename, tblNdashare, ndaItems);
 
         String ndaDocHash = null;
         try {
@@ -277,7 +323,7 @@ public class ShareController{
             //byte[] passData;
             ByteArrayOutputStream bos = new ByteArrayOutputStream(1024);
             //encryptFile(pathNDA,passPathNDA,tblNdabasicinfo.getSenderpubkey());
-            encryptData(fis, bos, senderPubKey);
+            encryptStream(fis, bos, senderPubKey);
             //passData = bos.toByteArray();
             //upload1 = IPFSUtils.upload(passPathNDA);
             ndaDocHash = IPFSUtils.upload(bos.toByteArray());
@@ -288,43 +334,123 @@ public class ShareController{
 
         } catch (Exception e) {
             e.printStackTrace();
+            throw new RuntimeException("保存文档时出错!", e);
         }
 
-        //更新tblNdabasicinfo表 添加接收人签名 NDA条款信息
-        tblNdabasicinfo.setFilename(ndaDocTitle);
-        tblNdabasicinfo.setFileextension("pdf");
-        tblNdabasicinfo.setFilehash(ndaDocHash);
-        byte[] sign = new byte[0];
         try {
-            sign = sign(ndaItems.getBytes(), receiverPrivKey);
+            //更新tblNdabasicinfo表 添加接收人签名 NDA条款信息
+            tblNdabasicinfo.setFilename(ndaDocTitle);
+            tblNdabasicinfo.setFileextension("pdf");
+            tblNdabasicinfo.setFilehash(ndaDocHash);
+            byte[] sign = new byte[0];
+            try {
+                sign = sign(ndaItems.getBytes(), receiverPrivKey);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            tblNdabasicinfo.setReceiversign(new String(sign));
+    
+            tblNdabasicinfoMapper.updateByPrimaryKeySelective(tblNdabasicinfo);
+            tblNdashare.setSharestatus(NdaConst.NDA_SHARESTATUSMAP4INITIATOR.get("活动交易"));//"1");
+            //tblNdashare.setReceiverstatus("1");
+            tblNdashareMapper.updateByPrimaryKeySelective(tblNdashare);
+            return "success";
         } catch (Exception e) {
             e.printStackTrace();
+            throw new RuntimeException("更新NDA信息时出错!", e);
         }
-        tblNdabasicinfo.setReceiversign(new String(sign));
-
-        tblNdabasicinfoMapper.updateByPrimaryKeySelective(tblNdabasicinfo);
-        tblNdashare.setSharestatus("1");
-        tblNdashare.setReceiverstatus("1");
-        tblNdashareMapper.updateByPrimaryKeySelective(tblNdashare);
-        return "success";
     }
-
+    
+    /**
+     * 同意请求 开始活动交易
+     * @param request
+     * @param map
+     * @return
+     */
+    //@Transactional      //@Transactional在接收到RuntimeException时才会回滚事务
+    //@PostMapping(value = "/agreeNDA")
+    //@Log(methodFunctionDescribe="同意NDA交易请求", businessType = BusinessType.UPDATE)
+    @GetMapping(value = "/agreeNDA")
+    @ResponseBody
+    public String agreeNDA2(HttpServletRequest request, ModelMap map){
+        TblUserinfo currentUser = null;
+        try {
+            currentUser = (TblUserinfo) request.getSession().getAttribute("currentUser");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "login";
+        }
+        String ndaid = request.getParameter("ndaid");
+        String ipAddr = IpUtil.getIpAddress(request);
+        boolean bSucceed = false;
+        try {
+            bSucceed = ndaShareService.AgreeNda(currentUser, ndaid, ipAddr);
+        } catch (Exception e) {
+            e.printStackTrace();
+            //System.out.println(e.getMessage());
+            //throw new RuntimeException("Agree NDA", e);
+        } finally {
+            if (bSucceed) {
+                System.out.println("success");
+                return "success";
+            } else {
+                System.out.println("failed");
+                return "failed";
+            }
+        }
+    }
+    
     /**
      * 显示修改NDA条款弹窗
      * @param request
      * @param map
      * @return
      */
-    @GetMapping(value = "/showUpdateNDA")
-    public String showUpdateNDA(HttpServletRequest request, ModelMap map) {
+    @GetMapping(value = "/showEditNDAItem")
+    public String showEditNDAItem(HttpServletRequest request, HttpSession session, ModelMap map) {
+        TblUserinfo currentUser = (TblUserinfo) session.getAttribute("currentUser");
+        String prevPage = request.getParameter("prevpage");
+        if (null == currentUser)
+            return "login";
         String ndaid = request.getParameter("ndaid");
+        RetrieveNdaBasicInfoandTemplates(currentUser, ndaid, map, true);
+        map.put("prevpage", prevPage);
+        return "editndaitem";
+    }
+    
+    private void RetrieveNdaBasicInfoandTemplates(TblUserinfo currentUser, String ndaid, ModelMap map,
+                                                  boolean includeTemplates) {
+        String username = currentUser.getUsername();
         Example example = new Example(TblNdabasicinfo.class);
         example.createCriteria().andEqualTo("id",ndaid);
         TblNdabasicinfo tblNdabasicinfo = tblNdabasicinfoMapper.selectOneByExample(example);
         map.put("tblNdabasicinfo",tblNdabasicinfo);
-        return "editorNDA";
+        if (includeTemplates) {
+            example = new Example(TblNdashare.class);
+            example.createCriteria().andEqualTo("ndaid", ndaid);
+            TblNdashare tblNdashare = tblNdashareMapper.selectOneByExample(example);
+            String partnerUserName;
+            int belongedOrgId = -1;
+            int partnerOrgId = -1;
+            if (null != tblNdashare) {
+                if (username.equals(tblNdashare.getCreateusername())) {
+                    partnerUserName = tblNdashare.getUsername();
+                } else {
+                    partnerUserName = tblNdashare.getCreateusername();
+                }
+                TblOrgnization partnerOrg = userService.getBelongedOrg(partnerUserName);
+                if (null != partnerOrg)
+                    partnerOrgId = partnerOrg.getId();
+            }
+            TblOrgnization thisOrg = userService.getBelongedOrg(currentUser);
+            if (null != thisOrg)
+                belongedOrgId = thisOrg.getId();
+            List<TblNdaitemtpl> ndaItemTpls = ndaTemplateService.RetrieveOrgNdaTemplates(currentUser, belongedOrgId,
+                    partnerOrgId);
+            map.put("ndaitemtemplates", ndaItemTpls);
+        }
     }
-
+    
     /**
      * 修改NDA条款
      * @param session
@@ -332,48 +458,19 @@ public class ShareController{
      * @return
      */
     @Log(methodFunctionDescribe="修改NDA条款",businessType = BusinessType.UPDATE)
-    @PostMapping(value = "/updateNDA")
+    @PostMapping(value = "/updatendaitem")
     @ResponseBody
-    public String updateNDA(HttpSession session, HttpServletRequest request) {
+    public String updateNDAItems(HttpSession session, HttpServletRequest request) {
         TblUserinfo currentUser = (TblUserinfo) session.getAttribute("currentUser");
-        String id = request.getParameter("id");
+        String ndaId = request.getParameter("id");
         String ndaItem = request.getParameter("ndaitems");
-        Example example = new Example(TblNdabasicinfo.class);
-        TblNdabasicinfo tblNdabasicinfo = new TblNdabasicinfo();
-        tblNdabasicinfo.setId(id);
-        tblNdabasicinfo.setNdaitems(ndaItem);
-        tblNdabasicinfo.setUpdatetime(new Date());
-        tblNdabasicinfo.setUpdateusername(currentUser.getUsername());
-
-        Example exampleShare  = new Example(TblNdashare.class);
-        exampleShare.createCriteria().andEqualTo("ndaid",id);
-        TblNdashare tblNdashare = tblNdashareMapper.selectOneByExample(exampleShare);
-        if(tblNdashare!= null){
-            // 发起人修改 0 等待确认 4 对方修改
-            if(currentUser.getUsername().equals(tblNdashare.getCreateusername())) {
-                tblNdashare.setSharestatus("0");
-                tblNdashare.setReceiverstatus("4");
-                try {
-                    byte[] sign = sign(tblNdabasicinfo.getNdaitems().getBytes(), tblNdabasicinfo.getSenderprivatekey());
-                    tblNdabasicinfo.setSendersign(new String(sign));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                // 接收人修改 4 对方修改 5等待确认
-            }else if(currentUser.getUsername().equals(tblNdashare.getUsername())) {
-                tblNdashare.setSharestatus("4");
-                tblNdashare.setReceiverstatus("5");
-                try {
-                    byte[] sign = sign(tblNdabasicinfo.getNdaitems().getBytes(), tblNdabasicinfo.getReceiverprivatekey());
-                    tblNdabasicinfo.setReceiversign(new String(sign));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            tblNdashareMapper.updateByPrimaryKeySelective(tblNdashare);
+        try {
+            ndaShareService.UpdateNdaItems(ndaId, currentUser.getUsername(), ndaItem);
+            return "success";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "failed";
         }
-        tblNdabasicinfoMapper.updateByPrimaryKeySelective(tblNdabasicinfo);
-        return "share";
     }
 
     /**
@@ -384,9 +481,9 @@ public class ShareController{
      * @return
      */
     @Log(methodFunctionDescribe="发起NDA分享",businessType = BusinessType.CREATE)
-    @PostMapping(value = "/share")
+    //@PostMapping(value = "/share")
     @Transactional
-    public String share(HttpServletRequest request, HttpSession session) {
+    public String share0(HttpServletRequest request, HttpSession session) {
         String uuid = UUID.randomUUID().toString().replace("-", "").toLowerCase();
         TblUserinfo currentUser = (TblUserinfo) session.getAttribute("currentUser");
         String username = currentUser.getUsername();
@@ -436,6 +533,7 @@ public class ShareController{
             tblNdabasicinfoMapper.insert(tblNdabasicinfo);
 
             tblNdashare.setCreateusername(username);
+            tblNdashare.setOrdernumber(1);
             tblNdashare.setOrgname(currentUser.getOrgname());
             tblNdashare.setCreatetime(new Date());
             tblNdashare.setOperateip(IpUtil.getIpAddress(request));
@@ -443,10 +541,10 @@ public class ShareController{
             tblNdashare.setNdatitle(title);
             // 发送方  0 等待确认    接收人  0 交易请求
             tblNdashare.setSharestatus("0");
-            tblNdashare.setReceiverstatus("0");
+            //tblNdashare.setReceiverstatus("0");
 
-            tblNdashare.setShareuseruploadcount(0);//初始化未读数量
-            tblNdashare.setCreateuseruploadcount(0);//初始化未读数量
+            tblNdashare.setShareUserUploadCount(0);//初始化未读数量
+            tblNdashare.setCreateUserUploadCount(0);//初始化未读数量
 
             if(uploadFilePath != null && uploadFilePath.length() > 0) {
                 tblNdashare.setHavefile("1");
@@ -467,49 +565,54 @@ public class ShareController{
             tblNdashareMapper.insert(tblNdashare);
 
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            throw new RuntimeException("发起NDA共享时出错!");
         }
         return "redirect:/share";
+    }
+    
+    @Log(methodFunctionDescribe="发起NDA分享",businessType = BusinessType.CREATE)
+    @PostMapping(value = "/share")
+    @Transactional
+    public String share(HttpServletRequest request, HttpSession session) {
+        //String uuid = UUID.randomUUID().toString().replace("-", "").toLowerCase();
+        TblUserinfo currentUser = (TblUserinfo) session.getAttribute("currentUser");
+        String uploadFilePath = request.getParameter("haveFile");
+        String orgUpFilename = "";
+        if(uploadFilePath != null && uploadFilePath.length() > 0) {
+            String[] strArray = uploadFilePath.split("\\\\|/");
+            orgUpFilename = strArray[strArray.length - 1];
+        }
+        //return orgUpFilename;
+        try {
+            Map<String, Object> senderMap;
+            senderMap = initKey();
+            String senderPubKey = getPublicKeyStr(senderMap);
+            String senderPrivKey = getPrivateKeyStr(senderMap);
+            if(uploadFilePath != null && uploadFilePath.length() > 0) {
+                fileTransferService.EncryptUploadedFile(uploadFilePath, senderPubKey);
+            }
+            ndaShareService.ShareNda(request, currentUser, senderPubKey, senderPrivKey, orgUpFilename);
+        } catch (Exception e) {
+        
+        } finally {
+            return "redirect:/share";
+        }
     }
 
     /** 用户通过拖曳或上传方式上传文件时，会触发此事件，
      * 将上传的文件暂存于服务器对应目录
+     * CreateNDA.html
      */
     @PostMapping(value = "/upload")
     @ResponseBody
     public List<String> upload(MultipartHttpServletRequest requestFile, HttpSession session) {
         TblUserinfo currentUser = (TblUserinfo) session.getAttribute("currentUser");
-        long time = System.currentTimeMillis();
-        StringBuffer pathBuffer = new StringBuffer(DEFAULT_PREFIX_UPPATH_ORG).append(currentUser.getUsername()).append("\\");
-        List<String> list = new ArrayList<>();
-        Iterator<String> itr = requestFile.getFileNames();
-        while (itr.hasNext()) {
-            String uploadedFile = itr.next();
-            MultipartFile file = requestFile.getFile(uploadedFile);
-            String filename = file.getOriginalFilename();
-            int pointPos = filename.lastIndexOf(".");
-            if (pointPos > 0) {/*有扩展名*/
-                pathBuffer.append(filename.substring(0, pointPos))
-                        .append("_").append(time).append(filename.substring(pointPos));
-            } else {/*无扩展名*/
-                pathBuffer.append(filename).append("_").append(time);
-            }
-            list.add(pathBuffer.toString());
-            File localFile = new File(pathBuffer.toString());
-            if (!localFile.exists()) {
-                localFile.mkdirs();
-            }
-            try {
-                file.transferTo(localFile);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+        StringBuilder basePathBuffer =
+                new StringBuilder(DEFAULT_PREFIX_UPPATH_ORG).append(currentUser.getUsername()).append("\\");
+        List<String> list = fileTransferService.UploadFileFromClient2Server(requestFile, basePathBuffer.toString());
         return list;
     }
-
-
 
     /**
      * 在操作一栏“同意”对应的动作
@@ -518,7 +621,7 @@ public class ShareController{
      * @return
      */
     @GetMapping(value = "/fileTranslation")
-    public String shareFile(HttpServletRequest request,HttpSession session,ModelMap map) {
+    public String showNdaTimeline(HttpServletRequest request, HttpSession session, ModelMap map) {
         TblUserinfo currentUser = (TblUserinfo) session.getAttribute("currentUser");
         String id = request.getParameter("id");
         Example example = new Example(TblNdashare.class);
@@ -529,14 +632,14 @@ public class ShareController{
             map.put("receiver",tblNdashare.getCreateusername());
             map.put("sender",tblNdashare.getUsername());
             // 更改未读信息数量
-            tblNdashare.setCreateuseruploadcount(0);
+            tblNdashare.setCreateUserUploadCount(0);
             tblNdashareMapper.updateByPrimaryKeySelective(tblNdashare);
             // 该用户是交易发起人
         }else {
             map.put("receiver",tblNdashare.getUsername());
             map.put("sender",tblNdashare.getCreateusername());
             // 更改未读信息数量
-            tblNdashare.setShareuseruploadcount(0);
+            tblNdashare.setShareUserUploadCount(0);
             tblNdashareMapper.updateByPrimaryKeySelective(tblNdashare);
         }
         map.put("ndaID",tblNdashare.getNdaid());
@@ -654,10 +757,10 @@ public class ShareController{
                 example2.createCriteria().andEqualTo("ndaid",tblNdabasicinfo.getId());
                 TblNdashare tblNdashare = tblNdashareMapper.selectOneByExample(example2);
                 if(tblNdabasicinfo.getInitiatorusername().equals(sender)) {
-                    tblNdashare.setCreateuseruploadcount(tblNdashare.getCreateuseruploadcount()+1);
+                    tblNdashare.setCreateUserUploadCount(tblNdashare.getCreateUserUploadCount()+1);
                     tblNdashareMapper.updateByPrimaryKeySelective(tblNdashare);
                 }else {
-                    tblNdashare.setShareuseruploadcount(tblNdashare.getShareuseruploadcount()+1);
+                    tblNdashare.setShareUserUploadCount(tblNdashare.getShareUserUploadCount()+1);
                     tblNdashareMapper.updateByPrimaryKeySelective(tblNdashare);
                 }
             } catch (Exception e) {
@@ -680,8 +783,8 @@ public class ShareController{
     @Log(methodFunctionDescribe="分享文件",businessType = BusinessType.CREATE)
     @PostMapping(value = "/fileUpload")
     @ResponseBody
+    //@Transactional /*每个文件只要上传到服务器和对应的信息记录正确即可，不需要本次上传的所有信息正确才认为正确*/
     public JSON fileUploadInTimeLine(MultipartHttpServletRequest requestFile,HttpServletRequest request){
-        //System.out.println("Here 671");
         JSON json = new JSONObject();
         String sender = request.getParameter("sender");
         String receiver = request.getParameter("receiver");
@@ -699,20 +802,18 @@ public class ShareController{
             return json;
         }
 
-        String uploadFileHash = "";
+        String ndaInitiatorUser = tblNdabasicinfo.getInitiatorusername();
         String pubKey4Encrypt = tblNdabasicinfo.getSenderpubkey();
-        if(tblNdabasicinfo.getInitiatorusername().equals(receiver)) {
+        boolean senderIsInitiator = true;
+        if(ndaInitiatorUser.equals(receiver)) {
             pubKey4Encrypt = tblNdabasicinfo.getReceiverpubkey();
+            senderIsInitiator = false;
         }
+        
+        String IpAddr = IpUtil.getIpAddress(request);
         //System.out.println("pubKey for upload file: " + pubKey4Encrypt);
 
         Iterator<String> itr = requestFile.getFileNames();
-        BufferedInputStream curInputStream = null; //当前文件对应的InputStream
-        ByteArrayOutputStream curOutputStream = null;//用来存放加密结果的OutputStream
-        //byte[] passDataArray = new byte[10];
-        //System.out.println("有文件上传：" + itr.hasNext());
-        byte[] inData = new byte[1024];
-        int bytesRead = 1024;
         while (itr.hasNext()) {
             String uploadedFile = itr.next();
             MultipartFile file = requestFile.getFile(uploadedFile);
@@ -729,69 +830,9 @@ public class ShareController{
                 fileExtension = fullFileName.substring(idxPoint + 1); //文件名后缀  E:\test.doc  doc
             }
             try {
-                /*curInputStream = new BufferedInputStream(file.getInputStream());
-                System.out.println("Origin FILE CONTENT in /fileUpload >>>");
-                while (bytesRead == 1024) {
-                    bytesRead = curInputStream.read(inData);
-                    fileLen += bytesRead;
-                    System.out.print(new String(inData));
-                }
-                System.out.println("\n <<<Origin FILE in /fileUpload  END! File Length: " + fileLen);
-
-                System.out.println("encryped file data in /fileUpload>>>");
-                curInputStream.close();*/
-                curInputStream = new BufferedInputStream(file.getInputStream());
-                curOutputStream = new ByteArrayOutputStream();
-                //上传之前先加密
-                encryptData(curInputStream, curOutputStream, pubKey4Encrypt);
-                //System.out.println("<<<encryped file data in /fileUpload END");
-                //passDataArray = curOutputStream.toByteArray();
-                //System.out.println("Uploaded file data:\n" + Convert.byteArrayToHexStr(curOutputStream.toByteArray()));
-                uploadFileHash = IPFSUtils.upload(curOutputStream.toByteArray());//passDataArray);
-                //System.out.println("Successive file hash: " + uploadFileHash);
-                curInputStream.close();
-                curOutputStream.close();
-                //System.out.println("Uploaded Hash: " + uploadFileHash);
-
-                //对上传文件返回的hash  进行加密
-                uploadFileHash = Base64.getEncoder().encodeToString(encrypt(uploadFileHash.getBytes(),pubKey4Encrypt));
-                //System.out.println("Encryt Hash: " + uploadFileHash);
-                TblNdadocinfo ndadocinfo = new TblNdadocinfo();
-                ndadocinfo.setNdadocid(ndaID);
-                ndadocinfo.setDochash(uploadFileHash);
-                ndadocinfo.setFilename(fileName);
-                ndadocinfo.setFileextension(fileExtension);
-                ndadocinfo.setUploadusername(sender);
-                ndadocinfo.setUploadtime(new Date());
-                ndadocinfo.setUploadip(IpUtil.getIpAddress(request));
-                // 构建时间戳  key=文件hash&sign=send&sender=发件人&receiver=收件人&timestamp=当地时间戳  之后MD5加密
-                String timestamp = "key="+ uploadFileHash + "&sign=send&sender" + sender
-                                    +"&receiver=" + receiver + "&timastamp=" + System.currentTimeMillis();
-                timestamp = MD5Util.getMD5(timestamp);
-                ndadocinfo.setTimestamp(timestamp);
-
-                Example example = new Example(TblNdadocinfo.class);
-                example.createCriteria().andEqualTo("ndadocid",ndaID);
-                example.orderBy("uploadtime").desc();
-                List<TblNdadocinfo> tblNdadocinfos = tblNdadocinfoMapper.selectByExample(example);
-                if(tblNdadocinfos.size() > 0) {
-                    ndadocinfo.setPrevid(tblNdadocinfos.get(0).getId());
-                    ndadocinfo.setPrevtimestamp(tblNdadocinfos.get(0).getTimestamp());
-                }
-                tblNdadocinfoMapper.insert(ndadocinfo);
-                //System.out.println("inserted tblndadocinfo");
-                // 文件上传人添加一个文件未读
-                Example example2 = new Example(TblNdashare.class);
-                example2.createCriteria().andEqualTo("ndaid",tblNdabasicinfo.getId());
-                TblNdashare tblNdashare = tblNdashareMapper.selectOneByExample(example2);
-                if(tblNdabasicinfo.getInitiatorusername().equals(sender)) {
-                    tblNdashare.setCreateuseruploadcount(tblNdashare.getCreateuseruploadcount()+1);
-                    tblNdashareMapper.updateByPrimaryKeySelective(tblNdashare);
-                }else {
-                    tblNdashare.setShareuseruploadcount(tblNdashare.getShareuseruploadcount()+1);
-                    tblNdashareMapper.updateByPrimaryKeySelective(tblNdashare);
-                }
-                //System.out.println("inserted tblndashare");
+                String uploadFileHash = fileTransferService.UploadFileFromClient2Ipfs(file, pubKey4Encrypt);
+                ndaShareService.ShareOneNdaDoc(ndaID, fileName, fileExtension, sender, receiver, uploadFileHash,
+                        IpAddr, senderIsInitiator);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -812,6 +853,7 @@ public class ShareController{
      */
     @Log(methodFunctionDescribe="文件预览",businessType = BusinessType.DETAIL)
     //@GetMapping(value = "/previewFile")
+    @Deprecated
     public String previewFile(HttpServletRequest request,ModelMap map) {
         String curUsername = getUserNamefromRequest(request);
         String id = request.getParameter("id");
@@ -951,6 +993,53 @@ public class ShareController{
         }
         //TODO 按用户建暂存文件目录
         return "redirect:/pdfjs/web/viewer.html?file=" + encodedUrl;
+        //return "redirect:/pdfjs/web/viewer.html";
+    }
+    
+    @Deprecated
+    @Log(methodFunctionDescribe="文件预览",businessType = BusinessType.DETAIL)
+    //@GetMapping(value = "/previewFile")
+    public RedirectView previewFile3(HttpServletRequest request, RedirectAttributes redirectAttributes) {
+        String id = request.getParameter("id");
+        ByteArrayOutputStream baoStream = new ByteArrayOutputStream(8192);
+        BufferedOutputStream boStream = new BufferedOutputStream(baoStream);
+        RedirectView rdView = new RedirectView();
+        rdView.setContextRelative(true);
+        rdView.setUrl("/pdfjs/web/viewer.html");
+        try {
+            //ndaDocService.DownloadDocfromIpfs2Stream(id, boStream);
+            //System.out.println("长度：" + baoStream.toByteArray().length);
+            redirectAttributes.addFlashAttribute("docfound", "success");
+            redirectAttributes.addFlashAttribute("docdata", baoStream.toByteArray());
+            //return "redirect:/pdfjs/web/viewer.html";
+            //boStream.close();
+            //baoStream.close();
+            boStream = null;
+            baoStream = null;
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("docfound", "fail");
+            e.printStackTrace();
+        } finally {
+            return rdView;//"redirect:/pdfjs/web/viewer.html";
+        }
+        /*
+        Example example = new Example(TblNdadocinfo.class);
+        example.createCriteria().andEqualTo("id",Integer.parseInt(id));
+        TblNdadocinfo ndadocinfo = tblNdadocinfoMapper.selectOneByExample(example);
+        String url = new StringBuffer("/pdfhandler?filename=")
+                .append(ndadocinfo.getFilename()).append(".")
+                .append(ndadocinfo.getFileextension())
+                .append("&did=").append(id).toString();
+        String encodedUrl = url;
+        try {
+            encodedUrl = URLEncoder.encode(url, "utf-8");
+        } catch (Exception e)
+        {
+            encodedUrl = url;
+        }
+        //TODO 按用户建暂存文件目录
+        return "redirect:/pdfjs/web/viewer.html?file=" + encodedUrl;*/
+        //return "redirect:/pdfjs/web/viewer.html";
     }
 
     private String getUserNamefromRequest(HttpServletRequest request) {
@@ -1018,9 +1107,6 @@ public class ShareController{
      */
     @RequestMapping(value = "/pdfhandler", method = RequestMethod.GET)
     public void pdfStreamHandler2(HttpServletRequest request, HttpServletResponse response) throws IOException{
-        long curTimeinMs = System.currentTimeMillis();
-        long curTimeinMs2 = 0;
-        System.out.println("Start time1(ms): " + curTimeinMs);
         String docID = request.getParameter("did");
         Example example = new Example(TblNdadocinfo.class);
         example.createCriteria().andEqualTo("id", Integer.parseInt(docID));
@@ -1028,80 +1114,129 @@ public class ShareController{
         Example example1 = new Example(TblNdabasicinfo.class);
         example1.createCriteria().andEqualTo("id",ndadocinfo.getNdadocid());
         TblNdabasicinfo tblNdabasicinfo = tblNdabasicinfoMapper.selectOneByExample(example1);
-        String hash = "";
-        byte[] fileData = new byte[1];
-        //String fileData = "";
-        byte[] decData = new byte[1];
 
         //使用文件上传人的密钥解密
         String privKey = tblNdabasicinfo.getSenderprivatekey();
         if(!tblNdabasicinfo.getInitiatorusername().equals(ndadocinfo.getUploadusername())) {
             privKey = tblNdabasicinfo.getReceiverprivatekey();
         }
-        //System.out.println("privKey for preview: " + privKey);
-        try {
-            curTimeinMs2 = System.currentTimeMillis();
-            System.out.println("Time before decrpt db(ms): " + (curTimeinMs2 - curTimeinMs));
-            hash = new String(decrypt(Base64.getDecoder().decode(ndadocinfo.getDochash()), privKey));
-            curTimeinMs = System.currentTimeMillis();
-            System.out.println("Time used for decrpt db(ms): " + (curTimeinMs - curTimeinMs2));
-        } catch (Exception e) {
-            e.printStackTrace();
-            try {
-                response.sendRedirect("window.history.go(-1)");
-            } catch (Exception e1) {
-                e1.printStackTrace();
-            }
-        }
 
         // 根据文件Hash 从IPFS 上下载文件
-        /*如果对应的文件夹不存在，首先创建*/
-
-        //System.out.println("Executed Here-1013");
-        try {
-            fileData = IPFSUtils.download2Bytes(hash);
-            //System.out.println("Downloaded file data:\n" + Convert.byteArrayToHexStr(fileData));
-        } catch (Exception e) {
-            //e.printStackTrace();
-            System.out.println("下载文档出错： "+ e.getMessage());
-        }
-        //将下载的文件进行解密
-        /*try {
-            decData = decrypt(Base64.getDecoder().decode(fileData), privKey);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        fileData = null;
-        int dataLen = decData.length;
-        */
         BufferedOutputStream outputStream = new BufferedOutputStream(response.getOutputStream());
         try {
             response.setHeader("Access-Control-Allow-Origin", "*");
             response.setHeader("Accept-Ranges", "bytes");
             //response.setHeader("Content-Length", "2097152");//2M
             response.setContentType("application/octet-stream");// 指明response的返回对象是文件流
-            //outputStream.write(decData, 0, dataLen);
-            //System.out.println("decryped file data download from server>>>");
-            //decryptFile1(fileData, outputStream, privKey);
-            curTimeinMs2 = System.currentTimeMillis();
-            System.out.println("Time used for download from server(ms): " + (curTimeinMs2 - curTimeinMs));
-            decryptData1(fileData, outputStream, privKey);
-            curTimeinMs = System.currentTimeMillis();
-            System.out.println("Time used for decrpt file from server and send to response(ms): " + (curTimeinMs - curTimeinMs2));
-            //response.setContentLength((int) outputStream.);
-            // 人走带门
-            //outputStream.flush();
-            //System.out.println(outputStream.toString() + "\ndecryped file data download from server>>>");
-            fileData = null;
-            //outputStream.close();
+            response.setHeader("title", "aaaaaaa");
+            
+            fileTransferService.DownloadFileFromIpfs2Stream(ndadocinfo.getDochash(), outputStream, privKey, privKey);
         } catch (Exception e) {
-            System.out.println("pdf文件处理异常：" + e.getMessage());
+            //throw new IOException("pdf文件处理异常!", e);
+            //System.out.println("pdf文件处理异常：" + e.getMessage());
+            /*try {
+                response.sendRedirect("window.history.go(-1)");
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }*/
         } finally {
-            outputStream.flush();
+            //outputStream.flush();
             outputStream.close();
-         }
+        }
     }
-
+    
+    //@GetMapping(value="/getndaitemstatus")
+    @ResponseBody
+    public List<Boolean> getNdaItemStatus1(@RequestParam("ndasharedata")String ndaShareData) {
+        System.out.println("Here getNdaItemStatus");
+        List<Boolean> ndaItemsStatus = new ArrayList<Boolean>(1);
+        System.out.println(ndaShareData);
+        if(StringUtils.isNotBlank(ndaShareData)){
+            JSONArray jsonArray = JSONArray.fromObject(ndaShareData);
+            //批量新增文件信息
+            if (jsonArray != null) {
+                ndaItemsStatus = new ArrayList<Boolean>(jsonArray.size());
+                JSONObject jsonObject = new JSONObject();
+                for (int i = 0; i < jsonArray.size(); i++) {
+                    jsonObject = jsonArray.getJSONObject(i);
+                    String ndaid = jsonObject.getString("ndaid");
+                    Example example = new Example(TblNdabasicinfo.class);
+                    example.selectProperties("id", "ndaitems");
+                    Example.Criteria creteria = example.createCriteria();
+                    creteria.andEqualTo("id", ndaid);
+                    TblNdabasicinfo tblNdabasicinfo = tblNdabasicinfoMapper.selectOneByExample(example);
+                    if (null == tblNdabasicinfo) {
+                        ndaItemsStatus.add(false);
+                    } else {
+                        if (StringUtils.isEmpty(tblNdabasicinfo.getNdaitems()))
+                            ndaItemsStatus.add(false);
+                        else
+                            ndaItemsStatus.add(true);
+                    }
+                }
+            }
+        }
+        return ndaItemsStatus;
+    }
+    
+    //@PostMapping(value="/getndaitemstatus")
+    @ResponseBody
+    public List<Boolean> getNdaItemStatus2(@RequestParam("ndaids")String[] ndaIdArray) {
+        //System.out.println("Here getNdaItemStatus");
+        List<Boolean> ndaItemsStatus = new ArrayList<Boolean>(1);
+        if (null == ndaIdArray || ndaIdArray.length <= 0)
+            return ndaItemsStatus;
+        int ndaIdListCnt = ndaIdArray.length;
+        ndaItemsStatus = new ArrayList<Boolean>(ndaIdListCnt);
+        for (int idx = 0; idx < ndaIdListCnt; idx++) {
+            Example example = new Example(TblNdabasicinfo.class);
+            example.selectProperties("id", "ndaitems");
+            Example.Criteria creteria = example.createCriteria();
+            creteria.andEqualTo("id", ndaIdArray[idx]);
+            TblNdabasicinfo tblNdabasicinfo = tblNdabasicinfoMapper.selectOneByExample(example);
+            if (null == tblNdabasicinfo) {
+                ndaItemsStatus.add(false);
+            } else {
+                if (StringUtils.isEmpty(tblNdabasicinfo.getNdaitems()))
+                    ndaItemsStatus.add(false);
+                else
+                    ndaItemsStatus.add(true);
+            }
+        }
+        //System.out.println(ndaItemsStatus.size());
+        return ndaItemsStatus;
+    }
+    
+    @PostMapping(value="/getndaitemstatus")
+    @ResponseBody
+    public List<Boolean> getNdaItemStatus(@RequestParam("ndaids")String[] ndaIdArray) {
+        //System.out.println("Here getNdaItemStatus");
+        List<Boolean> ndaItemsStatus = new ArrayList<Boolean>(1);
+        if (null == ndaIdArray || ndaIdArray.length <= 0)
+            return ndaItemsStatus;
+        int ndaIdListCnt = ndaIdArray.length;
+        List<String> ndaIdList = Arrays.asList(ndaIdArray);
+        ndaItemsStatus = new ArrayList<Boolean>(ndaIdListCnt);
+        Example example = new Example(TblNdabasicinfo.class);
+        example.selectProperties("id", "ndaitems");
+        Example.Criteria creteria = example.createCriteria();
+        creteria.andIn("id", ndaIdList);
+        List<TblNdabasicinfo> tblNdabasicinfos = tblNdabasicinfoMapper.selectByExample(example);
+        if (null == tblNdabasicinfos || tblNdabasicinfos.isEmpty())
+            return ndaItemsStatus;
+        for (int idx = 0; idx < ndaIdListCnt; idx++) {
+            final int nidx = idx;
+            if (tblNdabasicinfos.stream().filter(ndaBasic->StringUtils.isNotEmpty(ndaBasic.getNdaitems())
+                                                && ndaBasic.getId().equalsIgnoreCase(ndaIdArray[nidx]))
+                                         .count() > 0)
+                 ndaItemsStatus.add(true);
+            else
+                ndaItemsStatus.add(false);
+        }
+        //System.out.println(ndaItemsStatus.size());
+        return ndaItemsStatus;
+    }
+    
     /**
      * 获取自己分享给别人的信息，用于表格显示
      * @param session
@@ -1116,10 +1251,10 @@ public class ShareController{
         TblUserinfo currentUser = (TblUserinfo) session.getAttribute("currentUser");
         if (null == currentUser)
             return null;
-
+        
         return getShareInfo(currentUser.getUsername(), pageSize, offset, searchShare, false);
     }
-
+    
     /**
      * 获取别人分享给自己信息用于表格显示
      * @param session
@@ -1138,7 +1273,7 @@ public class ShareController{
         return getShareInfo(currentUser.getUsername(), pageSize, offset, searchShareTo, true);
     }
 
-    /**Sunct, 2010.10.13
+    /**Sunct, 2019.10.13
      * 获取别人分享信息,用于getShare和getShareTo调用，最后表格显示
      * @param UserName:当前用户名
      * @param pageSize
@@ -1157,13 +1292,17 @@ public class ShareController{
         //System.out.println("Executed here -904");
         if (share2me) {
             if(searchString != null && searchString.length() > 0) {
-                searchCriteria.orLike("ndatitle", "%" + searchString + "%").orLike("nreateusername", "%" + searchString + "%");
+                searchCriteria.orLike("ndatitle", "%" + searchString + "%")
+                              .orLike("createusername", "%" + searchString + "%");
             }
-            criteria.andEqualTo("username", UserName);
+            criteria.andEqualTo("username", UserName)/*
+                    .andNotEqualTo("sharestatus", NdaConst.NDA_SHARESTATUSMAP4PARTNER.get("对方中止"))
+                    .andNotEqualTo("sharestatus", NdaConst.NDA_SHARESTATUSMAP4PARTNER.get("我方拒绝"))*/;
         }
         else {
             if(searchString != null && searchString.length() > 0) {
-                searchCriteria.orLike("ndatitle", "%" + searchString + "%").orLike("username", "%" + searchString + "%");
+                searchCriteria.orLike("ndatitle", "%" + searchString + "%")
+                              .orLike("username", "%" + searchString + "%");
             }
             criteria.andEqualTo("createusername", UserName);
         }
@@ -1176,7 +1315,12 @@ public class ShareController{
         } else {
             if (offset < tblNdashares.size()) {
                 int lastIdx = Math.min(offset + pageSize, tblNdashares.size());
-                rows.addAll(tblNdashares.subList(offset, lastIdx));
+                List<TblNdashare> tblNdashares1 = tblNdashares.subList(offset, lastIdx);
+                tblNdashares1.parallelStream().forEach(curNdaShare -> {
+                    ndaShareService.SetNdaInitiatorUser(curNdaShare);
+                    ndaShareService.SetNdaPartnerUser(curNdaShare);
+                });
+                rows.addAll(tblNdashares1);
             }
             map.put("total", tblNdashares.size());
         }

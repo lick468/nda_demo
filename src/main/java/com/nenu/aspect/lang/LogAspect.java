@@ -5,9 +5,9 @@ import com.nenu.aspect.lang.annotation.Log;
 import com.nenu.aspect.lang.enums.BusinessStatus;
 import com.nenu.domain.*;
 import com.nenu.mapper.TblLogMapper;
-import com.nenu.mapper.TblUserloginMapper;
 import com.nenu.utils.IpUtils;
 import com.nenu.utils.ServletUtils;
+import com.nenu.utils.myParamParseUtils4Log;
 import eu.bitwalker.useragentutils.UserAgent;
 import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.JoinPoint;
@@ -27,7 +27,6 @@ import javax.servlet.http.HttpSession;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -112,8 +111,10 @@ public class LogAspect {
             operateLog.setOs(os);
 
             // 请求参数
-            String params = Arrays.toString(joinPoint.getArgs());
-            operateLog.setParams(params);
+            //String params = Arrays.toString(joinPoint.getArgs());
+            String params = myParamParseUtils4Log.getParamValue(joinPoint);
+            if (!StringUtils.isBlank(params))
+                operateLog.setParams(params.substring(0, Math.min(TblLog.MAX_PARAM_LEN, params.length())));
 
             endTime = System.currentTimeMillis();
             Long total = endTime - startTime;
@@ -143,7 +144,7 @@ public class LogAspect {
                 // 操作状态
                 operateLog.setStatus(BusinessStatus.FAIL.name());
                 // 错误消息
-                operateLog.setErrorMsg(StringUtils.substring(e.getMessage(), 0, 2000));
+                operateLog.setErrorMsg(StringUtils.substring(e.getMessage(), 0, TblLog.MAX_ERRORMSG_LEN));
             }
            //设置方法名称
             String className = joinPoint.getTarget().getClass().getName();
@@ -233,11 +234,14 @@ public class LogAspect {
         //操作系统类型
         operateLog.setOs(os);
 
-        String params = Arrays.toString(joinPoint.getArgs());
+        //String params = Arrays.toString(joinPoint.getArgs());
 
 
         // 请求参数
-        operateLog.setParams(params);
+        String params = myParamParseUtils4Log.getParamValue(joinPoint);
+        if (!StringUtils.isBlank(params))
+            operateLog.setParams(params.substring(0, Math.min(TblLog.MAX_PARAM_LEN, params.length())));
+        //operateLog.setParams(params);
 
         //设置方法名称
         String className = joinPoint.getTarget().getClass().getName();

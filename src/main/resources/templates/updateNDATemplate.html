@@ -39,7 +39,6 @@
     <script type="text/javascript">
         var EE = window.wangEditor;
         var updateNDAItem = new EE('#updateNDAItem');
-        updateNDAItem.create();
         // 自定义菜单配置
         updateNDAItem.customConfig.menus = [
             'head',  // 标题
@@ -48,19 +47,20 @@
             'fontName',  // 字体
             'italic',  // 斜体
             'underline',  // 下划线
-            'strikeThrough',  // 删除线
+            //'strikeThrough',  // 删除线
             'foreColor',  // 文字颜色
             'backColor',  // 背景颜色
             'link',  // 插入链接
             'list',  // 列表
             'justify',  // 对齐方式
             'quote',  // 引用
-            'emoticon',  // 表情
-            'image',  // 插入图片
+            //'emoticon',  // 表情
+            //'image',  // 插入图片
             'table',  // 表格
             'undo',  // 撤销
             'redo'  // 重复
         ];
+        updateNDAItem.create();
 
         $("#btnUpdate").click(function(event){
             var value = updateNDAItem.txt.html();

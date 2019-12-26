@@ -50,6 +50,8 @@
             <div class="col-sm-12">
                 <a type="button" class="btn btn-primary"  href="/createNDA"><i class="glyphicon glyphicon-plus"></i>&nbsp;新建交易</a>
                 <a type="button" class="btn btn-primary"  onclick="window.history.go(-1);" style="float: right"><i class="glyphicon glyphicon-chevron-left"></i>&nbsp;返回</a>
+                <input type="hidden" id="curUsername" name="curUsername"
+                       th:value='${(null == session.currentUser)?"":session.currentUser.username}'>
             </div>
         </div>
     </div>
@@ -142,7 +144,7 @@
 </div>
 
 
-<script type="text/javascript">
+<script type="text/javascript" th:inline="javascript">
     /*$(function () {
         $('#myTab a:first').tab('show');
     });*/
@@ -167,6 +169,7 @@
         toolbarAlign:'right',
         buttonsAlign:'right',//按钮对齐方式
         sidePagination: 'server', // 设置为服务器端分页
+        //rowStyle: rowStyle,
         //queryParamsType:'', //默认值为 'limit' ,在默认情况下 传给服务端的参数为：offset,limit,sort
         // 设置为 ''  在这种情况下传给服务器的参数为：pageSize,pageNumber
         //queryParams: queryParams,//前端调用服务时，会默认传递上边提到的参数，如果需要添加自定义参数，可以自定义一个函数返回请求参数
@@ -203,11 +206,14 @@
                     width: 500,
                     valign: 'middle' // 上下居中
                 }, {
-                    field: 'username',
+                    field: 'partnerUser',//'username',
                     title: '交易对象',
                     align: 'center',
                     width: 360, // 定义列的宽度，单位为像素px
-                    valign: 'middle'
+                    valign: 'middle',
+                    formatter: formatUserCellContent/*function(value, row, index) {
+                        return formatUserCellContent(value, row);
+                    }*/
                 }, {
                     field: 'sharestatus',
                     title: "当前状态",
@@ -216,11 +222,17 @@
                     width: 360, // 定义列的宽度，单位为像素px
 
                     formatter: function (value, row, index) {
+                        return formatStatusCellContent(value, row, 1);
+                        /*
                         //console.log(value+"===="+row.username+"=="+index)
                         if (value == "0") { //  0 等待确认 1 同意 2 我方中止 3 对方拒绝 4 对方修改
-                            return '<button class="btn btn-warning" name="'+ row.ndaid +'" onclick="showNDAForLookOrBack(this);"><i class="glyphicon glyphicon-time"></i>&nbsp;等待确认</button> ';
+                            //$("#tableShare").rows[index].setAttribute("style", "background: #bfbfff");
+                            return '<button class="btn btn-warning" name="'+ row.ndaid
+                                +'" onclick="showNDAForLookOrBack(this, ' + value + ', 1);">'
+                                + '<i class="glyphicon glyphicon-time"></i>&nbsp;交易请求</button> ';
                         } else if (value == "1") {
-                            var num = row.shareuseruploadcount
+                            //$("#tableShare").rows[index].setAttribute("style", "background: #ffffff");
+                            var num = row.shareUserUploadCount
                             if( num == 0) { //交易对象没有新发文件
                                 return '<a  class="btn btn-success" name="' + row.ndaid + '" href="/fileTranslation?id=' + row.id + '" ><i class="glyphicon glyphicon-flag"></i>&nbsp;活动交易</a> ';
                             }else {
@@ -228,12 +240,27 @@
                             }
                             //  return '<a  class="btn btn-success" name="' + row.ndaid + '" href="/fileTranslation?id=' + row.id + '" ><i class="glyphicon glyphicon-flag"></i>&nbsp;活动交易 <span class="label label-danger" style="padding: 1px 3px;line-height: 10px;right: 0px;">16</span></a> ';
                         } else if (value == "2") {
+                            //$("#tableShare").rows[index].setAttribute("style", "background: #0");
                             return '<button class="btn btn-danger"><i class="glyphicon glyphicon-remove"></i>&nbsp;我方中止</button> ';
                         } else if (value == "3") {
                             return '<button class="btn btn-danger" ><i class="glyphicon glyphicon-remove"></i>&nbsp;对方拒绝</button> ';
                         } else if (value == "4") {
-                            return '<button class="btn btn-primary" name="' + row.ndaid + '" onclick="showNDA(this);"><i class="glyphicon glyphicon-edit"></i>&nbsp;对方修改</button> ';
+                            return '<button class="btn btn-primary" name="' + row.ndaid
+                                +'" onclick="showNDAForLookOrBack(this, ' +  value + ', 1);">'
+                                + '<i class="glyphicon glyphicon-edit"></i>&nbsp;等待确认</button> ';
+                        }else if (value == "5") {
+                            return '<button class="btn btn-primary" name="' + row.ndaid +
+                                '" onclick="showNDA(this, value);"><i class="glyphicon glyphicon-edit"></i>&nbsp;对方修改</button> ';
+                        }else if (value == "6") {//无协议活动交易
+                            return '<button class="btn btn-primary" name="' + row.ndaid
+                                + '" onclick="showNDAForLookOrBack(this, ' +  value + ', 1);">'
+                                + '<i class="glyphicon glyphicon-edit"></i>&nbsp;活动交易</button> ';
+                        } else if (value == "7") {
+                            //$("#tableShare").rows[index].setAttribute("style", "background: #0");
+                            return '<button class="btn btn-danger">'
+                                   + '<i class="glyphicon glyphicon-remove"></i>&nbsp;我方撤回</button> ';
                         }
+                        */
                     }
                 }, {
                     field: 'createtime',
@@ -245,7 +272,11 @@
                         return value.substring(0,10);
                     }
                 }
-        ]
+        ],
+        onLoadSuccess: function() {
+            getNdaItemsInfo2SetBackColor(true);
+        }
+
     })
 
     $("#tableShareTo").bootstrapTable({ // 对应table标签的id
@@ -269,6 +300,7 @@
         buttonsAlign:'right',//按钮对齐方式
         toolbar:'#toolbar',//指定工作栏
         sidePagination: 'server', // 设置为服务器端分页
+        //rowStyle: rowStyle,
         //queryParamsType:'', //默认值为 'limit' ,在默认情况下 传给服务端的参数为：offset,limit,sort
         // 设置为 ''  在这种情况下传给服务器的参数为：pageSize,pageNumber
         //queryParams: queryParams,//前端调用服务时，会默认传递上边提到的参数，如果需要添加自定义参数，可以自定义一个函数返回请求参数
@@ -305,23 +337,27 @@
                     align: 'center', // 左右居中
                     valign: 'middle' // 上下居中
                 }, {
-                    field: 'createusername',
+                    field: 'initiatorUser',//'createusername',//
                     title: '交易对象',
                     align: 'center',
                     width: 360, // 定义列的宽度，单位为像素px
-                    valign: 'middle'
+                    valign: 'middle',
+                    formatter: formatUserCellContent
                 }, {
-                    field: 'receiverstatus',
+                    field: 'sharestatus',//'receiverstatus',
                     title: "当前状态",
                     align: 'center',
                     valign: 'middle',
                     width: 360, // 定义列的宽度，单位为像素px
 
                     formatter: function (value, row, index) {
+                        return formatStatusCellContent(value, row, 2);
+                        /*
                         if(value == "0") { //  0 交易请求 1 同意 2 对方中止 3 我方拒绝 4 对方修改 5等待确认
-                            return '<button class="btn btn-info" name="'+ row.ndaid +'" onclick="showNDA(this);" ><i class="glyphicon glyphicon-send"></i>&nbsp;交易请求</button> ';
+                            return '<button class="btn btn-info" name="'+ row.ndaid
+                                +'" onclick="showNDA(this, value);" ><i class="glyphicon glyphicon-send"></i>&nbsp;交易请求</button> ';
                         }else if(value == "1") {
-                            var num = row.createuseruploadcount
+                            var num = row.createUserUploadCount
                             if(num == 0) { //交易创建人没有新发文件
                                 return '<a  class="btn btn-success" name="' + row.ndaid + '" href="/fileTranslation?id=' + row.id + '" ><i class="glyphicon glyphicon-flag"></i>&nbsp;活动交易</a> ';
                             }else {
@@ -333,10 +369,21 @@
                         }else if(value == "3") {
                             return '<button class="btn btn-danger" ><i class="glyphicon glyphicon-remove"></i>&nbsp;我方拒绝</button> ';
                         }else if(value == "4") {
-                            return '<button class="btn btn-primary" name="'+ row.ndaid +'" onclick="showNDA(this);"><i class="glyphicon glyphicon-edit"></i>&nbsp;对方修改</button> ';
+                            return '<button class="btn btn-primary" name="'+ row.ndaid
+                                +'" onclick="showNDA(this, value);"><i class="glyphicon glyphicon-edit"></i>&nbsp;对方修改</button> ';
                         }else if(value == "5") {
-                            return '<button class="btn btn-warning" name="'+ row.ndaid +'" onclick="showNDAForLookOrBack(this);"><i class="glyphicon glyphicon-time"></i>&nbsp;等待确认</button> ';
+                            return '<button class="btn btn-warning" name="'+ row.ndaid
+                                +'" onclick="showNDAForLookOrBack(this, ' +  value + ', 0);">'
+                                + '<i class="glyphicon glyphicon-time"></i>&nbsp;等待确认</button> ';
+                        }else if(value == "6") {
+                            return '<button class="btn btn-warning" name="'+ row.ndaid
+                                + '" onclick="showNDAForLookOrBack(this, ' +  value + ', 0);">'
+                                + '<i class="glyphicon glyphicon-time"></i>&nbsp;无协议活动交易</button> ';
+                        } else if (value == "7") {
+                            return '<button class="btn btn-danger">' +
+                                '<i class="glyphicon glyphicon-remove"></i>&nbsp;对方撤回</button> ';
                         }
+                        */
                     }
                 }, {
                     field: 'createtime',
@@ -351,28 +398,188 @@
                             return row.createtime.substring(0,10);<!--.toDateString();value == null? "" : value-->
                     }
                 }
-        ]
+        ],
+        onLoadSuccess: function() {
+            getNdaItemsInfo2SetBackColor(false);
+            //var $table = $("#tableShareTo");
+            /*var curPageData = $("#tableShareTo").bootstrapTable('getData');
+            var dataArrayText = JSON.stringify(curPageData);//"Share2:" +
+            alert(dataArrayText);
+            var obj = JSON.parse(dataArrayText);
+            alert(obj[1].ndaid);*/
+
+        }
     })
+
     function searchmyShare() {
         $("#tableShare").bootstrapTable('refresh');
+        getNdaItemsInfo2SetBackColor(true);
         // $("#tableShareTo").bootstrapTable('refresh');
     }
     function searchShare2me() {
         $("#tableShareTo").bootstrapTable('refresh');
+        getNdaItemsInfo2SetBackColor(false);
     }
     function searchShare() {
         searchmyShare();
         searchShare2me();
     }
+
     function cellStylesales(value, row, index) {
         return {css:{background:'#fff',color:'#fff'}};
     }
-    function showNDAForLookOrBack(node) {
+
+    function formatUserCellContent(value, row, index) {
+        //let initUser = row.initiatorUser;
+        if (null == value || null == value.username || value.username.length <= 0) {
+            return row.username || "-";
+        }
+        let retStr = value.name || value.username;
+        let orgName = value.orgname;
+        if (null != orgName && orgName.length > 0)
+            retStr = retStr + "--" + orgName;
+        return retStr;
+    }
+
+    //let userName = [[${session.currentUser.username}]];
+    let userName = $("#curUsername").val();
+    //alert("UserName: " + userName);
+
+    function formatStatusCellContent(value, row, userRole) {
+        /*let curUser1 = $("#curUser").val();
+        if (null == curUser1)
+            return "nulluser";
+        let userName = curUser.username;
+        //let userName = [[${session.currentUser.username}]];
+        //alert("userName: " + userName);*/
+        if (null == userName || userName.length <= 0)
+            return "未知";
+        if (userRole == 1 || (1 == (userRole & 1) && userName == row.createusername)) {
+            if (value == "0") { //  0 等待确认 1 同意 2 我方中止 3 对方拒绝 4 对方修改
+                return '<button class="btn btn-warning" name="' + row.ndaid
+                    + '" onclick="showNDAForLookOrBack(this, ' + value + ', 1);">'
+                    + '<i class="glyphicon glyphicon-time"></i>&nbsp;交易请求</button> ';
+            } else if (value == "1") {
+                //$("#tableShare").rows[index].setAttribute("style", "background: #ffffff");
+                var num = row.shareUserUploadCount
+                if (num == 0) { //交易对象没有新发文件
+                    return '<a  class="btn btn-success" name="' + row.ndaid + '" href="/fileTranslation?id=' + row.id + '" ><i class="glyphicon glyphicon-flag"></i>&nbsp;活动交易</a> ';
+                } else {
+                    return '<a  class="btn btn-success" name="' + row.ndaid + '" href="/fileTranslation?id=' + row.id + '" ><i class="glyphicon glyphicon-flag"></i>&nbsp;活动交易 <span class="label label-danger" style="padding: 1px 3px;line-height: 10px;right: 0px;">' + num + '</span></a> ';
+                }
+                //  return '<a  class="btn btn-success" name="' + row.ndaid + '" href="/fileTranslation?id=' + row.id + '" ><i class="glyphicon glyphicon-flag"></i>&nbsp;活动交易 <span class="label label-danger" style="padding: 1px 3px;line-height: 10px;right: 0px;">16</span></a> ';
+            } else if (value == "2") {
+                //$("#tableShare").rows[index].setAttribute("style", "background: #0");
+                return '<button class="btn btn-danger"><i class="glyphicon glyphicon-remove"></i>&nbsp;我方中止</button> ';
+            } else if (value == "3") {
+                return '<button class="btn btn-danger" ><i class="glyphicon glyphicon-remove"></i>&nbsp;对方拒绝</button> ';
+            } else if (value == "4") {
+                return '<button class="btn btn-primary" name="' + row.ndaid
+                    + '" onclick="showNDAForLookOrBack(this, ' + value + ', 1);">'
+                    + '<i class="glyphicon glyphicon-edit"></i>&nbsp;等待确认</button> ';
+            } else if (value == "5") {
+                return '<button class="btn btn-primary" name="' + row.ndaid +
+                    '" onclick="showNDA(this, value);"><i class="glyphicon glyphicon-edit"></i>&nbsp;对方修改</button> ';
+            } else if (value == "6") {//无协议活动交易
+                return '<button class="btn btn-primary" name="' + row.ndaid
+                    + '" onclick="showNDAForLookOrBack(this, ' + value + ', 1);">'
+                    + '<i class="glyphicon glyphicon-edit"></i>&nbsp;无协议活动交易</button> ';
+            } else if (value == "7") {
+                //$("#tableShare").rows[index].setAttribute("style", "background: #0");
+                return '<button class="btn btn-danger">'
+                    + '<i class="glyphicon glyphicon-remove"></i>&nbsp;我方撤回</button> ';
+            }
+        } else if (userRole == 2 || (2 == (userRole & 2) && userName == row.username)) {
+            if(value == "0") { //  0 交易请求 1 同意 2 对方中止 3 我方拒绝 4 对方修改 5等待确认
+                return '<button class="btn btn-info" name="'+ row.ndaid
+                    +'" onclick="showNDA(this, value);" ><i class="glyphicon glyphicon-send"></i>&nbsp;交易请求</button> ';
+            }else if(value == "1") {
+                var num = row.createUserUploadCount
+                if(num == 0) { //交易创建人没有新发文件
+                    return '<a  class="btn btn-success" name="' + row.ndaid + '" href="/fileTranslation?id=' + row.id + '" ><i class="glyphicon glyphicon-flag"></i>&nbsp;活动交易</a> ';
+                }else {
+                    return '<a  class="btn btn-success" name="' + row.ndaid + '" href="/fileTranslation?id=' + row.id + '" ><i class="glyphicon glyphicon-flag"></i>&nbsp;活动交易 <span class="label label-danger" style="padding: 1px 3px;line-height: 10px;right: 0px;">'+ num +'</span></a> ';
+                }
+                return '<a class="btn btn-success" name="'+ row.ndaid +'" href="/fileTranslation?id='+row.id +'" ><i class="glyphicon glyphicon-flag"></i>&nbsp;活动交易</a> ';
+            }else if(value == "2") {
+                return '<button class="btn btn-danger" ><i class="glyphicon glyphicon-remove"></i>&nbsp;对方中止</button> ';
+            }else if(value == "3") {
+                return '<button class="btn btn-danger" ><i class="glyphicon glyphicon-remove"></i>&nbsp;我方拒绝</button> ';
+            }else if(value == "4") {
+                return '<button class="btn btn-primary" name="'+ row.ndaid
+                    +'" onclick="showNDA(this, value);"><i class="glyphicon glyphicon-edit"></i>&nbsp;对方修改</button> ';
+            }else if(value == "5") {
+                return '<button class="btn btn-warning" name="'+ row.ndaid
+                    +'" onclick="showNDAForLookOrBack(this, ' +  value + ', 0);">'
+                    + '<i class="glyphicon glyphicon-time"></i>&nbsp;等待确认</button> ';
+            }else if(value == "6") {
+                return '<button class="btn btn-warning" name="'+ row.ndaid
+                    + '" onclick="showNDAForLookOrBack(this, ' +  value + ', 0);">'
+                    + '<i class="glyphicon glyphicon-time"></i>&nbsp;无协议活动交易</button> ';
+            } else if (value == "7") {
+                return '<button class="btn btn-danger">' +
+                    '<i class="glyphicon glyphicon-remove"></i>&nbsp;对方撤回</button> ';
+            }
+        }
+    }
+
+    /*NDA协议暂时没有协议条款的，用特殊背景色标示*/
+    function getNdaItemsInfo2SetBackColor(shareor2) {
+        var table1;
+        var tableId = document.getElementById("tableShare");
+        if (shareor2) {
+            table1 = $("#tableShare");
+        } else {
+            table1 = $("#tableShareTo");
+            tableId = document.getElementById("tableShareTo");
+            //curPageData = table.bootstrapTable('getData');
+        }
+        var curPageData = table1.bootstrapTable('getData');
+        //var jsonArrayText = "NdaIdArray:" + JSON.stringify(curPageData);
+        //console.log("Here " + JSON.stringfy(curPageData1));
+        //alert("Share2:" + JSON.stringify(curPageData1));
+        var obj = JSON.parse(JSON.stringify(curPageData));
+        //alert("Here-427:" + obj.length);
+        if (obj.length > 0) {
+            var ndaIdArray = new Array();
+            for (var idx = 0; idx < obj.length; idx++) {
+                ndaIdArray[idx] = obj[idx].ndaid;
+            }
+            //alert("Here-433:" + ndaIdArray.length);
+            $.ajax ({
+                url:"/getndaitemstatus",
+                type:"POST",
+                data:{
+                    ndaids : ndaIdArray,
+                },
+                dataType:"json",
+                traditional: true,
+                success:function(result) {
+                    //alert("Here-442:");
+                    if (null == result)
+                        return;
+                    //alert("Here-445:" + result.length);
+                    for (var idx = 0; idx < tableId.rows.length && idx < result.length; idx++) {
+                        if (result[idx] == false && obj[idx].sharestatus != "7") {
+                            tableId.rows[idx + 1].cells[3].style.background = "#ffdab5";/*setAttribute("style",
+                                "background: #ffdab5");*/
+                        }
+                    }
+                }
+
+            });
+        }
+    }
+
+    /*param: shareor2表示当前用户身份是分享者(true)还是接受者(false)*/
+    function showNDAForLookOrBack(node, curStatus, shareor2) {
         $.ajax({
             url:"/showNDAForLookOrBack",
             type:"GET",
             data:{
+                curstatus: curStatus,
                 ndaid : node.name,
+                shareor2: shareor2,
             },
             dataType:"html",
             success:function(result) {
@@ -406,7 +613,7 @@
             data:{
                 ndaid : node.name,
             },
-            dataType:"json",
+            dataType:"text",
             success:function(result) {
                 searchShare();
                 $("#modal-show-NDA").modal("hide");
@@ -414,42 +621,49 @@
             }
         });
     }
-    function deleteNDA(node) {
+    function deleteNDA(node, curStatus) {
         $.ajax({
             url:"/deleteNDA",
             type:"GET",
             data:{
                 ndaid : node.name,
+                curstatus: curStatus,
             },
-            dataType:"json",
-            success:function(result) {
+            dataType:"text",
+            success:function(result, textStatus) {
                 searchShare();
                 $("#modal-show-NDA").modal("hide");
 
+            },
+            error:function (XMLHttpRequest, textStatus, errorThrown) {
+                alert("Error:" + errorThrown);
+            },
+            complete: function (XMLHttpRequest, textStatus) {
+                //alert("complete:" + textStatus);
             }
         });
     }
     function agreeNDA(node) {
         $.ajax({
             url:"/agreeNDA",
-            type:"POST",//"GET",
+            type:"GET",//,"POST"
             data:{
                 ndaid : node.name,
             },
-            dataType:"json",
+            dataType:"text",
             success:function(result) {
                 searchShare();
                 $("#modal-show-NDA").modal("hide");
-
             }
         });
     }
-    function showUpdateNDA(node) {
+    function showEditNDAItem(node, prevpage) {
         $.ajax({
-            url:"/showUpdateNDA",
+            url:"/showEditNDAItem",
             type:"GET",
             data:{
                 ndaid : node.name,
+                prevpage: prevpage,
             },
             dataType:"html",
             success:function(result) {
@@ -460,23 +674,45 @@
             }
         });
     }
-    function updateAndAgreeNDA(node) {
-        var value =  ndaitems.txt.html(); //获取值
+
+    function updateNdaItem(node, prevPage) {
+        const itemsContent =  ndaitems.txt.html(); //获取值
+        if (null == itemsContent || itemsContent.length <= 0)
+            return;
         //alert(node.name);
         //向后台发送处理数据
         $.ajax({
-            url:"/updateNDA",
+            url:"/updatendaitem",
             type:"POST",
             data:{
-                ndaitems:value,
+                ndaitems:itemsContent,
                 id:node.name,
             },
-            dataType:"json",
+            dataType:"text",
             success:function(result) {
                 searchShare();
                 $("#modal-update-NDA").modal("hide");
+                /*
+                if ("fromshow" == prevPage)
+                    showNDA(node);
+                else if ("fromlookorback" == prevPage)
+                    showNDAForLookOrBack(node);
+                 */
             }
         });
+    }
+
+    function closeNdaItemEditor(node, prevPage) {
+        $("#modal-update-NDA").modal("hide");
+        //alert("node name:" + node.name + "prevPage:" + prevPage);
+        if ("fromshow" == prevPage) {
+            //alert("Here Show");
+            showNDA(node);
+        }
+        else if ("fromlookorback" == prevPage) {
+            //alert("Here look");
+            showNDAForLookOrBack(node);
+        }
     }
 
 </script>

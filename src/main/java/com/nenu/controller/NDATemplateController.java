@@ -4,8 +4,12 @@ package com.nenu.controller;
 import com.nenu.aspect.lang.annotation.Log;
 import com.nenu.aspect.lang.enums.BusinessType;
 import com.nenu.domain.TblNdaitemtpl;
+import com.nenu.domain.TblOrgnization;
 import com.nenu.domain.TblUserinfo;
 import com.nenu.mapper.TblNdaitemtplMapper;
+import com.nenu.mapper.TblOrgnizationMapper;
+import com.nenu.service.INdaTemplateService;
+import com.nenu.service.IOrgService;
 import com.nenu.utils.IpUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -13,8 +17,10 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import tk.mybatis.mapper.entity.Example;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import java.time.LocalDateTime;
 import java.util.*;
 
 /**
@@ -25,6 +31,14 @@ import java.util.*;
 public class NDATemplateController {
     @Autowired
     private TblNdaitemtplMapper tblNdaitemtplMapper;
+    @Autowired
+    private TblOrgnizationMapper orgnizationMapper;
+    
+    @Resource(name = "ndatemplateservice")
+    private INdaTemplateService ndaTemplateService;
+    
+    @Resource(name = "orgservice")
+    IOrgService orgService;
 
     /**
      * 创建NDA模板
@@ -38,14 +52,27 @@ public class NDATemplateController {
     public String createNDATemplate(HttpSession session, HttpServletRequest request) {
         TblUserinfo currentUser = (TblUserinfo) session.getAttribute("currentUser");
         String username = currentUser.getUsername();
+        TblNdaitemtpl tblNdaitemtpl = new TblNdaitemtpl();
         String ndaItem = request.getParameter("ndaitem");
         String ndaTitle = request.getParameter("ndatitle");
-        TblNdaitemtpl tblNdaitemtpl = new TblNdaitemtpl();
+        try {
+            int orgId = Integer.parseInt(request.getParameter("orgida"));
+            tblNdaitemtpl.setOrgIda(orgId);
+        } catch (NumberFormatException e) {
+            tblNdaitemtpl.setOrgIda(-1);
+        }
+        try {
+            int orgId = Integer.parseInt(request.getParameter("orgidb"));
+            tblNdaitemtpl.setOrgIdb(orgId);
+        } catch (NumberFormatException e) {
+            tblNdaitemtpl.setOrgIdb(-1);
+        }
         tblNdaitemtpl.setCreateusername(username);
         tblNdaitemtpl.setNdatitle(ndaTitle);
-        tblNdaitemtpl.setCreatetime(new Date());
+        tblNdaitemtpl.setCreatetime(LocalDateTime.now());
         tblNdaitemtpl.setNdaitem(ndaItem);
         tblNdaitemtpl.setCreateip(IpUtil.getIpAddress(request));
+        //tblNdaitemtpl.setTemplateType("");
         tblNdaitemtplMapper.insert(tblNdaitemtpl);
         return "main";
     }
@@ -162,6 +189,47 @@ public class NDATemplateController {
             map.put("total", nTotalCnt);
         }
         map.put("rows", rows);
+        return map;
+    }
+    
+    /**
+     * 跳转NDAList页面
+     * @return
+     */
+    @GetMapping(value = "/ndatemplates")
+    public String NDATemplateList(ModelMap map, HttpSession session, HttpServletRequest request) {
+        TblUserinfo currentUser = (TblUserinfo) session.getAttribute("currentUser");
+        List<TblNdaitemtpl>  ndaItemTemplates = ndaTemplateService.RetrieveUserNdaTemplates(currentUser);
+        map.put("modelID",
+                (null == ndaItemTemplates || ndaItemTemplates.size() < 1)? -1 : ndaItemTemplates.get(0).getId());
+        map.put("ndatemplates", ndaItemTemplates);
+        
+        Map<String, Object> orgMap = orgService.RetrieveOrgs4User(currentUser);
+        map.putAll(orgMap);
+        
+        return "ndatemplates";
+    }
+    
+    @GetMapping(value = "/orgndatemplates")
+    @ResponseBody
+    public Map<String, Object> orgNDATemplateList(HttpSession session, HttpServletRequest request) {
+        Map<String, Object> map = new HashMap<String, Object>();
+        TblUserinfo currentUser = (TblUserinfo) session.getAttribute("currentUser");
+        String belongedOrgIdStr = request.getParameter("belongedorgid");
+        String OtherOrgIdStr = request.getParameter("otherorgid");
+        int belongedOrgId = -1;
+        int otherOrgId = -1;
+        try {
+            belongedOrgId = Integer.parseInt(belongedOrgIdStr);
+            otherOrgId = Integer.parseInt(OtherOrgIdStr);
+        } catch (NumberFormatException e) {
+        
+        }
+        List<TblNdaitemtpl> ndaItemTpls= ndaTemplateService.RetrieveOrgNdaTemplates(currentUser, belongedOrgId,
+                                            otherOrgId);
+        map.put("ndatemplates", ndaItemTpls);
+        map.put("templatecnt", (null == ndaItemTpls)? 0 : ndaItemTpls.size());
+    
         return map;
     }
 

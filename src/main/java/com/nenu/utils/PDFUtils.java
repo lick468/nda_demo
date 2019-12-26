@@ -5,15 +5,13 @@ import com.itextpdf.text.html.simpleparser.HTMLWorker;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.nenu.domain.TblNdashare;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 
 import javax.imageio.ImageIO;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
 
 public class PDFUtils {
 
@@ -87,32 +85,46 @@ public class PDFUtils {
         }
     }
 
-    public static boolean createNdaFile(@NotNull String pathNDA, @NotNull TblNdashare tblNdashare,
-                                     @NotNull String ndaItems){
+    public static boolean createNdaItemFile(@NotNull String pathNDA, @NotNull TblNdashare tblNdashare,
+                                            @NotNull String ndaItems){
+        String ndaTitle = tblNdashare.getNdatitle();
+        String creatorName = tblNdashare.getCreateusername();
+        String receiverName = tblNdashare.getUsername();
+        return createNdaItemFile(pathNDA, ndaTitle, creatorName, receiverName, ndaItems);
+    }
+    
+    public static boolean createNdaItemFile(@NotEmpty String pathNDA, @NotNull String ndaTitle,
+                                            @NotNull String creatorName, @NotNull String ReceiverName,
+                                            @NotNull String ndaItems){
         //生成NDA条款.pdf文件  上传到IPFS
         //页面大小
+        StringReader title = null;
+        StringReader sender = null;
+        StringReader receiver = null;
+        HTMLWorker htmlWorker = null;
+        Document pdfDoc = null;
+        PdfWriter pdfWriter = null;
         try {
             Rectangle rect = new Rectangle(PageSize.A4.rotate());
             //页面背景色
             rect.setBackgroundColor(BaseColor.WHITE);
-            Document doc = new Document(rect);
-            PdfWriter writer = null;
+            pdfDoc = new Document(rect);
             myFileUtils.CreateFilewithDir(pathNDA);
-                writer = PdfWriter.getInstance(doc, new FileOutputStream(pathNDA));
+            pdfWriter = PdfWriter.getInstance(pdfDoc, new FileOutputStream(pathNDA));
             //页边空白
-            doc.setMargins(10, 20, 30, 40);
-            doc.open();
+            pdfDoc.setMargins(10, 20, 30, 40);
+            pdfDoc.open();
             //Step 4—Add content.
-
-            String title = "<h1  style=\"text-align: center\">"+ tblNdashare.getNdatitle() +"</h1>";
-            String sender = "<h4  style=\"text-align: left\"> 发起人："+ tblNdashare.getCreateusername()+"</h4>";
-            String receiver = "<h4  style=\"text-align: left\"> 接收人："+ tblNdashare.getUsername()+"</h4>";
-            HTMLWorker htmlWorker = new HTMLWorker(doc);
-            htmlWorker.parse(new StringReader(title));
-            htmlWorker.parse(new StringReader(sender));
-            htmlWorker.parse(new StringReader(receiver));
+    
+            title = new StringReader("<h1  style=\"text-align: center\">"+ ndaTitle +"</h1>");
+            sender = new StringReader("<h4  style=\"text-align: left\"> 发起人："+ creatorName + "</h4>");
+            receiver = new StringReader("<h4  style=\"text-align: left\"> 接收人："+ ReceiverName +"</h4>");
+            htmlWorker = new HTMLWorker(pdfDoc);
+            htmlWorker.parse(title);
+            htmlWorker.parse(sender);
+            htmlWorker.parse(receiver);
             htmlWorker.parse(new StringReader(ndaItems));
-            doc.close();
+            pdfDoc.close();
             return true;
         } catch (DocumentException e) {
             e.printStackTrace();
@@ -123,6 +135,13 @@ public class PDFUtils {
         } catch (Exception e) {
             e.printStackTrace();
             return false;
+        } finally {
+            title = null;
+            sender = null;
+            receiver = null;
+            htmlWorker = null;
+            pdfWriter = null;
+            pdfDoc = null;
         }
     }
 }

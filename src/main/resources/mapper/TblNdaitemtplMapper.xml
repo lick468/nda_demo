@@ -14,5 +14,7 @@
     <result column="UpdateIP" jdbcType="VARCHAR" property="updateip" />
     <result column="NDATitle" jdbcType="VARCHAR" property="ndatitle" />
     <result column="NDAItem" jdbcType="LONGVARCHAR" property="ndaitem" />
+    <result column="orgida" jdbcType="INTEGER" property="orgida" />
+    <result column="orgidb" jdbcType="INTEGER" property="orgidb" />
   </resultMap>
 </mapper>

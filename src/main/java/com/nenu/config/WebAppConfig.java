@@ -14,14 +14,16 @@ public class WebAppConfig implements WebMvcConfigurer {
 
     public void addInterceptors(InterceptorRegistry registry) {
        registry.addInterceptor(new LoginInterceptor()).addPathPatterns("/**")
-               .excludePathPatterns("/login", "/company/login","/admin/login","/register","/company/register","/getCode","/register","/main","/findPsd","/updatePsd","/company/findPsd","/company/updatePsd","/webjars/**");
+               .excludePathPatterns("/login", "/company/login","/admin/login","/register","/company/register",
+                       "/getCode","/register","/main","/findPsd","/updatePsd","/company/findPsd",
+                       "/company/updatePsd","/webjars/**");
     }
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
 
         registry.addResourceHandler("/file/**").addResourceLocations("file:C:/tempFiles/");
         registry.addResourceHandler("/image/**").addResourceLocations("file:C:/download/");
-        registry.addResourceHandler("/download/**").addResourceLocations("file:C:/download/");
-        registry.addResourceHandler("/company/download/**").addResourceLocations("file:C:/download/");
+        registry.addResourceHandler("/download/**").addResourceLocations("file:C:/ndadata/download");
+        registry.addResourceHandler("/company/download/**").addResourceLocations("file:C:/ndadata/download");
     }
 
 }

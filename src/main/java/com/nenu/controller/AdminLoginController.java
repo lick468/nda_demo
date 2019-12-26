@@ -40,11 +40,8 @@ public class AdminLoginController {
    @Autowired
    private TblAdminMapper adminMapper;
 
-
    @Autowired
    private TblLogMapper logMapper;
-
-
 
     /**
      *  登录成功后，进入log页面
@@ -108,9 +105,6 @@ public class AdminLoginController {
         }
         return "redirect:/admin/login";
     }
-
-
-
 
     /**
      * 获取操作日志用于表格显示

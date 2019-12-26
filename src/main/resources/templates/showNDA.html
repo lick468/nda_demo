@@ -37,15 +37,33 @@
             </div>
         </div>
     </div>
+    <!--可能到达此页的情况：
+         分享者：5对方修改
+         接收者：0,交易请求；4,对方修改
+     操作：
+         同意：
+             分享者：将NdaItem生成pdf文件，上传，然后生成sendersign，将新状态设置为1活动交易，不允许再修改协议；
+             接受者：如果当前状态为交易请求：(1) 无协议，将新状态设置为6无协议活动交易；
+                                         (2) 有协议，将NdaItem生成pdf文件，上传，然后生成receiversign，将新状态设置为1活动交易，不允许再修改协议
+                    如果当前状态为对方修改，则同当前状态为交易请求，且有协议时的处理过程
+         拒绝：
+             分享者：当前状态设置为2我方终止；
+             接受者：当前状态设置为3对方终止；
+         修改：修改协议，保存协议内容到数据库，然后设置新状态
+             分享者：新状态为4等待确认；
+             接受者：新状态为5对方修改
+    -->
     <div class="modal-footer">
+        <button type="button" class="btn btn-success" th:name="${tblNdabasicinfo.id}"
+                onclick="agreeNDA(this);">
+            同意
+        </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <button type="button" class="btn btn-danger" th:name="${tblNdabasicinfo.id}"  onclick="refuseNDA(this);">
             拒绝
         </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        <!--<button type="button" class="btn btn-primary" th:name="${tblNdabasicinfo.id}"  onclick="showUpdateNDA(this);">-->
-            <!--修改-->
-        <!--</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->
-        <button type="button" class="btn btn-success" th:name="${tblNdabasicinfo.id}"  onclick="agreeNDA(this);">
-            同意
+        <button type="button" class="btn btn-primary" th:name="${tblNdabasicinfo.id}"  onclick="showEditNDAItem(this,
+        'fromshow');">
+            修改协议
         </button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <button type="button" class="btn btn-default" data-dismiss="modal">
             关闭

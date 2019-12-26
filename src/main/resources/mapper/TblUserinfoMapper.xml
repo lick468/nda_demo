@@ -8,6 +8,7 @@
     <id column="ID" jdbcType="INTEGER" property="id" />
     <result column="UserName" jdbcType="VARCHAR" property="username" />
     <result column="Password" jdbcType="VARCHAR" property="password" />
+    <result column="orgid" jdbcType="INTEGER" property="belongedOrgId" />
     <result column="OrgName" jdbcType="VARCHAR" property="orgname" />
     <result column="Name" jdbcType="VARCHAR" property="name" />
     <result column="Gender" jdbcType="VARCHAR" property="gender" />

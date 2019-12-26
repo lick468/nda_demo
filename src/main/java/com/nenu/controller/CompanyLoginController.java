@@ -96,7 +96,7 @@ public class CompanyLoginController {
         }
         return "company/newPassword";
     }
-    @Log(methodFunctionDescribe="找回秘密",businessType = BusinessType.UPDATE)
+    @Log(methodFunctionDescribe="找回密码",businessType = BusinessType.UPDATE)
     @RequestMapping(value = "/updatePsd", method = RequestMethod.POST)
     public String updatePsd(HttpServletRequest request) {
         String id = request.getParameter("id");

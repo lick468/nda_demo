@@ -8,11 +8,11 @@
     <id column="ID" jdbcType="INTEGER" property="id" />
     <result column="NDAID" jdbcType="VARCHAR" property="ndaid" />
     <result column="NDATitle" jdbcType="VARCHAR" property="ndatitle" />
-    <result column="OrderNumber" jdbcType="INTEGER" property="ordernumber" />
+    <result column="OrderNumber" jdbcType="TINYINT" property="ordernumber" javaType="Integer"/>
     <result column="OrgName" jdbcType="VARCHAR" property="orgname" />
     <result column="UserName" jdbcType="VARCHAR" property="username" />
-    <result column="PubKey" jdbcType="VARCHAR" property="pubkey" />
-    <result column="PrivateKey" jdbcType="VARCHAR" property="privatekey" />
+    <!-- <result column="PubKey" jdbcType="VARCHAR" property="pubkey" />
+    <result column="PrivateKey" jdbcType="VARCHAR" property="privatekey" /> -->
     <result column="CreateUserName" jdbcType="VARCHAR" property="createusername" />
     <result column="CreateTime" jdbcType="TIMESTAMP" property="createtime" />
     <result column="OperateIP" jdbcType="VARCHAR" property="operateip" />
@@ -21,5 +21,7 @@
     <result column="ReceiverStatus" jdbcType="VARCHAR" property="receiverstatus" />
     <result column="HaveFile" jdbcType="VARCHAR" property="havefile" />
     <result column="FilePath" jdbcType="VARCHAR" property="filepath" />
+    <result column="CreateUserUploadCount" jdbcType="SMALLINT" property="createUserUploadCount" javaType="Integer"/>
+    <result column="ShareUserUploadCount" jdbcType="SMALLINT" property="shareUserUploadCount" javaType="Integer"/>
   </resultMap>
 </mapper>

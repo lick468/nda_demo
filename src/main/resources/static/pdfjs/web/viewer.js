@@ -27,7 +27,7 @@
 
 'use strict';
 
-var DEFAULT_URL = encodeURI('/download/outPath/tmpfile.pdf');//'compressed.tracemonkey-pldi-09.pdf';//
+var DEFAULT_URL = '';//encodeURI('/download/outPath/tmpfile.pdf');//'compressed.tracemonkey-pldi-09.pdf';//
 var DEFAULT_SCALE_DELTA = 1.1;
 var MIN_SCALE = 0.25;
 var MAX_SCALE = 10.0;
@@ -6502,6 +6502,8 @@ var PDFViewerApplication = {
                   ' (PDF.js: ' + (PDFJS.version || '-') +
                   (!PDFJS.disableWebGL ? ' [WebGL]' : '') + ')');
 
+      /* Sunct, 2019.12.25
+
       var pdfTitle;
       if (metadata && metadata.has('dc:title')) {
         var title = metadata.get('dc:title');
@@ -6514,10 +6516,10 @@ var PDFViewerApplication = {
       if (!pdfTitle && info && info['Title']) {
         pdfTitle = info['Title'];
       }
-
-      if (pdfTitle) {
+       if (pdfTitle) {
         self.setTitle(pdfTitle + ' - ' + document.title);
-      }
+      }*/
+      self.setTitle(document.title);
 
       if (info.IsAcroFormPresent) {
         console.warn('Warning: AcroForm/XFA is not supported');
@@ -6876,6 +6878,17 @@ function webViewerInitialized() {
   var params = PDFViewerApplication.parseQueryString(queryString);
   var file = 'file' in params ? params.file : DEFAULT_URL;
 
+  //Sunct, 2019.12.25
+  if (file.length > 0) {
+    var startStr = 'filename=';
+    var startStrLen = startStr.length;
+    var idxStart = file.toLowerCase().indexOf(startStr);
+    if (idxStart >= 0) {
+      var idxEnd = file.toLowerCase().indexOf('.pdf', idxStart + startStrLen);
+
+      document.title = file.substring(idxStart + startStrLen, idxEnd);
+    }
+  }
   var fileInput = document.createElement('input');
   fileInput.id = 'fileInput';
   fileInput.className = 'fileInput';

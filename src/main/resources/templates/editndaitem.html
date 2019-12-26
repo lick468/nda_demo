@@ -1,0 +1,100 @@
+<div class="modal-content"  xmlns:th="http://www.w3.org/1999/xhtml">
+    <script type="text/javascript" src="/wangEditor/release/wangEditor.min.js"></script>
+    <script type="text/javascript" src="/js/self/selffunctions.js"></script>
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+            &times;
+        </button>
+        <h4 class="modal-title" id="myModalLabel">
+            更新NDA协议
+        </h4>
+    </div>
+    <div class="modal-body">
+        <label class="col-sm-3 control-label" style="min-width: 150px">选择NDA协议模板：</label>
+        <div class="row" >
+            <div class="col-xs-12" >
+                <select class="form-control" style="height: 40px; margin: 3px" name="ndaid"
+                        onchange="chooseNDATemplate1(this);">
+                    <option  value="" style="text-align: center;">导入已有模板</option>
+                    <option th:each="ndatpl:${ndaitemtemplates}" th:text="${ndatpl.ndatitle}"
+                            th:value="${ndatpl.ndaitem}"></option>
+                </select>
+                <span  id="ndaitems" name="ndaitems" th:utext="${tblNdabasicinfo.ndaitems}" ></span><!-- -->
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-success" th:name="${tblNdabasicinfo.id}"
+                th:onclick="updateNdaItem(this, [[${prevpage}]]);" id="btnsubmit" disabled="disabled">
+            提交
+        </button>
+        <button type="button" class="btn btn-primary" th:name="${tblNdabasicinfo.id}"
+                th:onclick="closeNdaItemEditor(this, [[${prevpage}]]);"><!--data-dismiss="modal" -->
+            关闭
+        </button>
+    </div>
+    <script type="text/javascript" th:inline="javascript">
+        var btnSubmit = document.getElementById("btnsubmit");
+        var EE = window.wangEditor;
+        var ndaitems = new EE('#ndaitems');
+
+        ndaitems.customConfig.onchange = (itemsContent)=> {
+            //ndaitems.selection.selectAll()
+            /*var itemText = ndaitems.txt.text();*/
+            var pureText = removeStyleMarks(itemsContent);
+            //alert(pureText.length);
+            if (null == pureText || pureText.length <= 10)
+                btnSubmit.disabled = true;
+            else
+                btnSubmit.disabled = false;
+        };
+        // 自定义菜单配置，必须放在Create前才能生效
+        ndaitems.customConfig.menus = [
+            'head',  // 标题
+            'bold',  // 粗体
+            'fontSize',  // 字号
+            'fontName',  // 字体
+            'italic',  // 斜体
+            'underline',  // 下划线
+            //'strikeThrough',  // 删除线
+            //'foreColor',  // 文字颜色
+            //'backColor',  // 背景颜色
+            'link',  // 插入链接
+            'list',  // 列表
+            'justify',  // 对齐方式
+            'quote',  // 引用
+            //'emoticon',  // 表情
+            //'image',  // 插入图片
+            'table',  // 表格
+            'undo',  // 撤销
+            'redo'  // 重复
+        ];
+        ndaitems.create();
+        var itemsContent = [[${tblNdabasicinfo.ndaitems}]];
+        if (null != itemsContent && itemsContent.length > 0) {
+            ndaitems.txt.html(itemsContent);
+            ndaitems.change();
+        }
+
+        function chooseNDATemplate1(node) {
+            var index = node.selectedIndex;
+            // 设置内容
+            if (index <= 0) {
+                ndaitems.txt.clear();
+                //btnSubmit.disabled = true;
+            }
+            else {
+                var itemsContent = node.options[index].value;
+                ndaitems.txt.html(itemsContent);
+                /*let pureText = removeStyleMarks(itemsContent);
+                if (null == pureText || pureText.length <= 10)
+                    btnSubmit.disabled = true;
+                else
+                    btnSubmit.disabled = false;*/
+            }
+            ndaitems.change();
+        }
+    </script>
+
+</div><!-- /.modal-content -->
+
